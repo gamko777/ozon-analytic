@@ -7,35 +7,61 @@
 <title>OZON-Снайпер</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101820;color:#fff;font-family:Arial}
-header{background:#172633;padding:17px;text-align:center}
-h2{color:#42d392;margin:0 0 7px}
-section{padding:14px}
-h3{color:#42d392;margin:5px 0 14px}
+body{
+ margin:0;background:#101820;color:#fff;
+ font-family:Arial,sans-serif
+}
+header{
+ background:#172b39;padding:20px 12px;
+ text-align:center;border-bottom:2px solid #42d392
+}
+h1{font-size:25px;color:#42d392;margin:0 0 7px}
+header p{margin:0;color:#b8c9d3}
+main{padding:12px;max-width:850px;margin:auto}
+.panel{
+ background:#1b2b38;border:1px solid #344957;
+ border-radius:12px;padding:16px;margin-bottom:14px
+}
+h2{font-size:19px;color:#42d392;margin:0 0 15px}
+h3{font-size:15px;color:#d8e6ed}
 .chart{height:480px;width:100%}
-.panel{background:#1b2b38;border-radius:12px;padding:15px;margin:12px 0}
-.status{color:#ffc857;font-weight:bold}
-label{display:block;margin-top:12px;color:#bdcbd5}
-input{width:100%;padding:12px;margin-top:6px;
-border:1px solid #526574;border-radius:7px;
-background:#101820;color:white;font-size:17px}
-button{width:100%;padding:14px;margin-top:15px;
-background:#42d392;color:#10221b;border:0;
-border-radius:8px;font-size:16px;font-weight:bold}
-.result{font-size:20px;color:#42d392;font-weight:bold}
-.small{color:#aab8c2;font-size:13px;line-height:1.5}
+.status{
+ padding:12px;background:#332d20;color:#ffd16a;
+ border-radius:8px;font-weight:bold;text-align:center
+}
+label{display:block;color:#bdcbd5;margin-top:13px}
+input{
+ width:100%;padding:13px;margin-top:6px;
+ background:#101820;color:white;border:1px solid #526574;
+ border-radius:7px;font-size:17px
+}
+button{
+ width:100%;padding:14px;margin-top:16px;
+ background:#42d392;color:#10221b;border:0;
+ border-radius:8px;font-size:16px;font-weight:bold
+}
+.result{font-size:24px;color:#42d392;font-weight:bold}
+.muted{font-size:13px;color:#aab8c2;line-height:1.5}
+.line{border-top:1px solid #344957;margin:15px 0}
+.signal{
+ background:#263744;padding:12px;border-radius:8px;
+ margin:8px 0
+}
+.good{color:#42d392}
+.warn{color:#ffd16a}
 </style>
 </head>
 <body>
 
 <header>
-<h2>🎯 OZON-СНАЙПЕР</h2>
-<div>Торговая система для акций OZON</div>
+<h1>🎯 OZON-СНАЙПЕР</h1>
+<p>Автоматизированная торговая панель</p>
 </header>
 
-<section>
+<main>
+
 <div class="panel">
-<h3>График OZON — TradingView</h3>
+<h2>📈 ГРАФИК OZON</h2>
 <div class="chart">
 <div class="tradingview-widget-container"
 style="height:100%;width:100%">
@@ -65,22 +91,34 @@ async>
 </div>
 
 <div class="panel">
-<h3>АНАЛИЗ РЫНКА</h3>
-<div class="status">ОЖИДАНИЕ ДАННЫХ</div>
-<p>Автоматический анализ пока не подключён.</p>
-<p class="small">
-Система ещё не получает биржевые свечи напрямую.
-Покупать по этому статусу нельзя.
+<h2>🤖 АНАЛИЗ РЫНКА</h2>
+<div class="status">ОЖИДАНИЕ ПОДКЛЮЧЕНИЯ КОТИРОВОК</div>
+<div class="signal">
+Направление рынка: <b class="warn">Нет данных</b>
+</div>
+<div class="signal">
+Объёмы: <b class="warn">Нет данных</b>
+</div>
+<div class="signal">
+Сигнал покупки: <b class="warn">Ожидание</b>
+</div>
+<div class="signal">
+Сигнал продажи: <b class="warn">Ожидание</b>
+</div>
+<p class="muted">
+Для автоматических сигналов необходимо подключить
+реальные биржевые свечи и поток котировок.
+Пока система не рекомендует совершать сделки.
 </p>
 </div>
 
 <div class="panel">
-<h3>РАСЧЁТ СДЕЛКИ</h3>
+<h2>💰 РАСЧЁТ СДЕЛКИ</h2>
 
-<label>Цена покупки, ₽</label>
+<label>Цена покупки (₽)</label>
 <input id="buy" type="number" step="0.01" placeholder="Например, 3800">
 
-<label>Цена продажи, ₽</label>
+<label>Цена продажи (₽)</label>
 <input id="sell" type="number" step="0.01" placeholder="Например, 3830">
 
 <label>Количество акций</label>
@@ -88,28 +126,63 @@ async>
 
 <button onclick="calculate()">РАССЧИТАТЬ ПРИБЫЛЬ</button>
 
-<div class="panel">
-<div>Результат после расходов:</div>
-<p class="result" id="profit">— ₽</p>
-<div id="details" class="small">
-Введите цены покупки и продажи.
-</div>
+<div class="line"></div>
+<h3>Чистый финансовый результат</h3>
+<div class="result" id="profit">— ₽</div>
+<div class="muted" id="details">
+Введите цены и количество акций.
 </div>
 </div>
 
 <div class="panel">
-<h3>ТОРГОВЫЕ СИГНАЛЫ</h3>
-<p>Покупка: <b id="buySignal">Ожидание данных</b></p>
-<p>Продажа: <b id="sellSignal">Ожидание данных</b></p>
-<p>Стоп-лосс: <b>Не рассчитан</b></p>
-<p>Цели прибыли: <b>Не рассчитаны</b></p>
+<h2>🎯 ПЛАН СДЕЛКИ</h2>
+
+<label>Планируемая цена входа (₽)</label>
+<input id="entry" type="number" step="0.01" placeholder="Цена входа">
+
+<label>Стоп-лосс (₽)</label>
+<input id="stop" type="number" step="0.01" placeholder="Уровень защиты">
+
+<label>Первая цель (₽)</label>
+<input id="target1" type="number" step="0.01" placeholder="Цель 1">
+
+<label>Вторая цель (₽)</label>
+<input id="target2" type="number" step="0.01" placeholder="Цель 2">
+
+<button onclick="checkPlan()">ПРОВЕРИТЬ ПЛАН</button>
+<div id="planResult" class="signal">
+Ожидание параметров сделки.
+</div>
 </div>
 
-<div class="small">
-OZON-Снайпер — аналитический инструмент.
-Реальные заявки брокеру пока не отправляются.
+<div class="panel">
+<h2>⚙️ ПАРАМЕТРЫ ТОРГОВЛИ</h2>
+<div class="signal">Комиссия покупки: <b>10,07 ₽</b></div>
+<div class="signal">Комиссия продажи: <b>10,07 ₽</b></div>
+<div class="signal">Налог на прибыль: <b>13%</b></div>
+<div class="signal">Основной интервал: <b>5 минут</b></div>
+<p class="muted">
+Налог в калькуляторе рассчитывается ориентировочно
+с положительной прибыли после комиссии.
+Фактический налог зависит от налогового учёта брокера.
+</p>
 </div>
-</section>
+
+<div class="panel">
+<h2>📡 СОСТОЯНИЕ СИСТЕМЫ</h2>
+<div class="signal">График TradingView: <b class="good">Встроен</b></div>
+<div class="signal">Калькулятор: <b class="good">Работает</b></div>
+<div class="signal">Биржевые котировки: <b class="warn">Не подключены</b></div>
+<div class="signal">Автоматические сигналы: <b class="warn">Не подключены</b></div>
+<div class="signal">Отправка заявок брокеру: <b class="warn">Не подключена</b></div>
+</div>
+
+<p class="muted">
+OZON-Снайпер. Аналитическая система.
+Реальные сделки пока не совершаются.
+</p>
+
+</main>
 
 <script>
 function calculate(){
@@ -117,8 +190,9 @@ function calculate(){
  const sell=Number(document.getElementById('sell').value);
  const qty=Number(document.getElementById('qty').value);
 
- if(!buy||!sell||!qty||buy<=0||sell<=0||qty<1){
-  alert('Проверьте цены и количество акций');
+ if(!buy||!sell||!qty||buy<=0||sell<=0||qty<1||
+    !Number.isInteger(qty)){
+  alert('Проверьте цены и количество акций.');
   return;
  }
 
@@ -129,12 +203,44 @@ function calculate(){
  const net=gross-commission-tax;
 
  document.getElementById('profit').textContent=
-  net.toFixed(2)+' ₽';
+ net.toFixed(2)+' ₽';
+
+ document.getElementById('profit').style.color=
+ net>=0?'#42d392':'#ff7777';
 
  document.getElementById('details').textContent=
-  'Результат до расходов: '+gross.toFixed(2)+' ₽. '+
-  'Комиссии: 20,14 ₽. Налог (расчётный): '+
-  tax.toFixed(2)+' ₽.';
+ 'Результат до расходов: '+gross.toFixed(2)+' ₽. '+
+ 'Комиссии: '+commission.toFixed(2)+' ₽. '+
+ 'Расчётный налог: '+tax.toFixed(2)+' ₽.';
+}
+
+function checkPlan(){
+ const entry=Number(document.getElementById('entry').value);
+ const stop=Number(document.getElementById('stop').value);
+ const t1=Number(document.getElementById('target1').value);
+ const t2=Number(document.getElementById('target2').value);
+ const result=document.getElementById('planResult');
+
+ if(!entry||!stop||!t1||!t2||entry<=0||
+    stop<=0||t1<=0||t2<=0){
+  result.textContent='Заполните все четыре поля.';
+  return;
+ }
+
+ if(!(stop<entry&&entry<t1&&t1<t2)){
+  result.textContent=
+   'Проверьте уровни: стоп < вход < цель 1 < цель 2.';
+  return;
+ }
+
+ const risk=entry-stop;
+ const reward=t1-entry;
+
+ result.innerHTML=
+  'План введён. Риск на акцию: <b>'+risk.toFixed(2)+
+  ' ₽</b>. Потенциал до цели 1: <b>'+
+  reward.toFixed(2)+' ₽</b>. Соотношение прибыль/риск: <b>'+
+  (reward/risk).toFixed(2)+'</b>.';
 }
 </script>
 
