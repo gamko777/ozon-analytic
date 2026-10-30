@@ -3,93 +3,93 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OZON-Снайпер 3.1</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OZON-Снайпер 3.2</title>
 <style>
+:root{color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;padding:13px;background:#10151e;color:#edf2fa;font-family:Arial,sans-serif}
-.wrap{max-width:850px;margin:auto}
+body{margin:0;padding:14px;background:#10141d;color:#edf1f8;font-family:Arial,sans-serif}
+main{max-width:850px;margin:auto}
 h1{font-size:25px;margin:8px 0}
-h2{font-size:17px;margin:0 0 13px}
-.sub,.muted{color:#9ba9bb;font-size:13px}
-.card{background:#1a2330;border:1px solid #2c394b;border-radius:13px;padding:15px;margin:12px 0}
-.chart{padding:7px}
+h2{font-size:18px;margin:0 0 13px}
+.sub{color:#9ca9bc;font-size:13px;margin-bottom:18px}
+.card{background:#1a2230;border:1px solid #303c50;border-radius:13px;padding:16px;margin:13px 0}
+.chart{padding:8px}
 iframe{width:100%;height:430px;border:0;border-radius:9px}
-.price{font-size:32px;font-weight:bold;margin:9px 0}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.metric{background:#111a26;padding:12px;border-radius:9px}
-.metric b{display:block;font-size:18px;margin-top:6px}
-.signal{font-size:21px;font-weight:bold;text-align:center;padding:14px;background:#293342;border-radius:9px}
-.good{color:#50df9a}
-.bad{color:#ff7777}
-.warn{color:#ffca65}
-.status{font-size:14px;line-height:1.5;margin-top:9px}
-button{background:#2879d5;color:white;border:0;padding:12px 17px;border-radius:9px;font-size:15px;cursor:pointer}
-input{width:100%;padding:11px;border-radius:8px;border:1px solid #40516a;background:#101923;color:white;font-size:16px;margin:6px 0 12px}
-label{font-size:13px;color:#aebbd0}
-table{width:100%;border-collapse:collapse;font-size:14px}
-td{padding:9px 3px;border-bottom:1px solid #334052}
+.price{font-size:34px;font-weight:bold;margin:8px 0}
+.muted{color:#9ca9bc;font-size:13px;line-height:1.5}
+.status{padding:12px;border-radius:9px;background:#273244;margin-top:10px;line-height:1.5}
+.good{color:#54d69a}
+.bad{color:#ff7373}
+.warn{color:#ffc66d}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:#111a27;padding:12px;border-radius:9px}
+.metric span{display:block;color:#9ca9bc;font-size:12px;margin-bottom:7px}
+.metric b{font-size:19px}
+button{background:#2778e7;color:white;border:0;padding:13px 17px;border-radius:9px;font-size:15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+input{width:100%;padding:12px;margin:5px 0 12px;background:#111a27;border:1px solid #46536a;border-radius:8px;color:white;font-size:16px}
+label{font-size:13px;color:#b8c3d4}
+table{width:100%;border-collapse:collapse}
+td{padding:8px 4px;border-bottom:1px solid #303c50}
 td:last-child{text-align:right;font-weight:bold}
-.footer{font-size:12px;color:#8796aa;line-height:1.5}
-@media(max-width:480px){
- iframe{height:370px}
- .price{font-size:28px}
-}
+.bigSignal{font-size:21px;font-weight:bold;margin:5px 0}
+footer{font-size:12px;color:#8997aa;line-height:1.6;padding:10px}
+@media(max-width:480px){body{padding:9px}.grid{gap:7px}.metric{padding:10px}.metric b{font-size:17px}iframe{height:350px}.price{font-size:30px}}
 </style>
 </head>
-
 <body>
-<div class="wrap">
+<main>
+<header>
+<h1>🎯 OZON-Снайпер 3.2</h1>
+<div class="sub">Автоматический анализ акции OZON · Московская биржа</div>
+</header>
 
-<h1>🎯 OZON-Снайпер 3.1</h1>
-<div class="sub">Автоматический анализ акции OZON · MOEX</div>
-
-<div class="card chart">
+<section class="card chart">
 <h2>График TradingView · 5 минут</h2>
-<iframe
-src="https://s.tradingview.com/widgetembed/?symbol=RUS%3AOZON&interval=5&theme=dark&style=1&locale=ru&hide_top_toolbar=false&hide_side_toolbar=true&allow_symbol_change=false"
-allowfullscreen>
-</iframe>
-<div class="muted">График TradingView. Аналитические данные ниже загружаются отдельно с MOEX.</div>
-</div>
+<div class="muted">График TradingView. Аналитические данные приложения загружаются отдельно с MOEX.</div>
+<div style="height:10px"></div>
+<iframe src="https://s.tradingview.com/widgetembed/?symbol=MOEX%3AOZON&interval=5&theme=dark&style=1&locale=ru&toolbarbg=111a27&hide_top_toolbar=false&allow_symbol_change=true&save_image=false&withdateranges=true"
+allowtransparency="true" scrolling="no" allowfullscreen></iframe>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Котировка OZON</h2>
 <div class="price" id="price">Загрузка...</div>
-<div class="muted" id="candleTime">Ожидание данных MOEX</div>
-<div class="status" id="connection">Подключение...</div>
-<button onclick="loadData()">Обновить данные</button>
-</div>
+<div class="muted" id="quoteTime">Получаем данные с биржи</div>
+<div class="status" id="connection">Подключение к MOEX ISS...</div>
+<div style="height:12px"></div>
+<button id="refresh" onclick="loadData()">Обновить данные</button>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Сигнал системы</h2>
-<div class="signal" id="signal">АНАЛИЗИРУЮ...</div>
-<div class="status" id="signalReason">Жду данные.</div>
-</div>
+<div class="bigSignal" id="signal">ОЖИДАНИЕ ДАННЫХ</div>
+<div id="signalText" class="muted">Загружаем историю и проверяем свежесть котировки.</div>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Показатели рынка</h2>
 <div class="grid">
-<div class="metric"><span class="muted">Тренд</span><b id="trend">—</b></div>
-<div class="metric"><span class="muted">RSI (14)</span><b id="rsi">—</b></div>
-<div class="metric"><span class="muted">Объём / средний</span><b id="volume">—</b></div>
-<div class="metric"><span class="muted">ATR (14)</span><b id="atr">—</b></div>
+<div class="metric"><span>Тренд</span><b id="trend">—</b></div>
+<div class="metric"><span>RSI (14)</span><b id="rsi">—</b></div>
+<div class="metric"><span>Объём / средний</span><b id="volume">—</b></div>
+<div class="metric"><span>ATR (14)</span><b id="atr">—</b></div>
 </div>
-</div>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Поддержка и сопротивление</h2>
-<table>
-<tr><td>Сопротивление</td><td id="resistance">—</td></tr>
-<tr><td>Поддержка</td><td id="support">—</td></tr>
-<tr><td>Средняя 9</td><td id="sma9">—</td></tr>
-<tr><td>Средняя 21</td><td id="sma21">—</td></tr>
-<tr><td>Свечей загружено</td><td id="count">—</td></tr>
-</table>
+<div class="grid">
+<div class="metric"><span>Сопротивление</span><b id="resistance">—</b></div>
+<div class="metric"><span>Поддержка</span><b id="support">—</b></div>
+<div class="metric"><span>Средняя 9</span><b id="sma9">—</b></div>
+<div class="metric"><span>Средняя 21</span><b id="sma21">—</b></div>
 </div>
+<div class="status muted" id="candleCount">Свечи ещё не загружены.</div>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Торговый план (расчётный)</h2>
 <table>
 <tr><td>Предполагаемый вход</td><td id="entry">—</td></tr>
@@ -97,516 +97,385 @@ allowfullscreen>
 <tr><td>Цель 1</td><td id="target1">—</td></tr>
 <tr><td>Цель 2</td><td id="target2">—</td></tr>
 </table>
-<div class="muted" id="planNote">Ожидание сигнала.</div>
-</div>
+<div class="muted" id="planText" style="margin-top:10px">План появится только при наличии подтверждённого сигнала.</div>
+</section>
 
-<div class="card">
+<section class="card">
 <h2>Калькулятор сделки</h2>
-
 <label>Количество акций</label>
-<input id="shares" type="number" value="10" min="1">
-
+<input id="shares" type="number" min="1" step="1" placeholder="Например, 10">
 <label>Цена покупки, ₽</label>
-<input id="buyPrice" type="number" placeholder="Например, 3800">
-
+<input id="buyPrice" type="number" min="0" step="0.01" placeholder="Цена покупки">
 <label>Цена продажи, ₽</label>
-<input id="sellPrice" type="number" placeholder="Например, 3850">
-
+<input id="sellPrice" type="number" min="0" step="0.01" placeholder="Цена продажи">
 <button onclick="calculate()">Рассчитать результат</button>
-
 <div class="status" id="calcResult">Введи цены и количество акций.</div>
+<div class="muted">Комиссия: 10,07 ₽ за покупку и 10,07 ₽ за продажу. Налог 13% — ориентировочная оценка.</div>
+</section>
 
-<div class="muted">
-Комиссия: 10,07 ₽ за покупку и 10,07 ₽ за продажу.
-Налог 13% — ориентировочная оценка.
-</div>
-</div>
-
-<div class="card">
+<section class="card">
 <h2>Состояние системы</h2>
-<div class="status" id="systemStatus">Ожидание запуска.</div>
-</div>
+<div id="systemStatus" class="muted">Ожидание загрузки.</div>
+</section>
 
-<div class="footer">
-Источник данных: Московская биржа, ISS.
-История запрашивается за последние 10 календарных дней.
-Котировки могут поступать с задержкой.
-Сигналы расчётные и не гарантируют прибыль.
+<footer>
+Источник: Московская биржа, ISS.
+Бесплатные биржевые данные могут поступать с задержкой и не являются гарантированно реальными котировками.
+TradingView отображается отдельно и не передаёт свои свечи в расчёты приложения.
+Сигналы расчётные, экспериментальные и не гарантируют прибыль.
 Приложение не подключено к брокеру и не совершает сделки.
-</div>
-
-</div>
+</footer>
+</main>
 
 <script>
-const API="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json";
+const API="https://iss.moex.com/iss";
+const SYMBOL="OZON";
+const BOARD="TQBR";
+const MAX_MINUTES=5000;
+const STALE_MINUTES=20;
 
-let candles=[];
+let minuteCandles=[];
+let fiveCandles=[];
+let lastQuote=null;
 let loading=false;
+let lastLoadTime=null;
 
-function fmt(n){
- return Number.isFinite(n)
- ? n.toLocaleString("ru-RU",{
-   minimumFractionDigits:2,
-   maximumFractionDigits:2
- })+" ₽"
- : "—";
+function money(v){
+  if(!Number.isFinite(Number(v))) return "—";
+  return Number(v).toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₽";
 }
-
-function moscowDate(){
- const parts=new Intl.DateTimeFormat("en-CA",{
-  timeZone:"Europe/Moscow",
-  year:"numeric",
-  month:"2-digit",
-  day:"2-digit"
- }).formatToParts(new Date());
-
- const get=t=>parts.find(p=>p.type===t).value;
-
- return `${get("year")}-${get("month")}-${get("day")}`;
+function number(v,d=2){
+  if(!Number.isFinite(Number(v))) return "—";
+  return Number(v).toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d});
 }
-
-function dateDaysAgo(days){
- const d=new Date(moscowDate()+"T12:00:00Z");
- d.setUTCDate(d.getUTCDate()-days);
- return d.toISOString().slice(0,10);
+function setText(id,value){
+  document.getElementById(id).textContent=value;
 }
-
-function average(a){
- return a.length
- ? a.reduce((s,v)=>s+v,0)/a.length
- : 0;
+function moscowDateString(date=new Date()){
+  return new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Europe/Moscow",year:"numeric",month:"2-digit",day:"2-digit"
+  }).format(date);
 }
-
-function sma(a,p){
- return a.length>=p
- ? average(a.slice(-p))
- : null;
+function parseMoscowDate(value){
+  if(!value) return NaN;
+  const s=String(value).trim();
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if(!m) return NaN;
+  return Date.UTC(+m[1],+m[2]-1,+m[3],(+m[4]||0)-3,+m[5]||0,+m[6]||0);
 }
-
-function rsi(a,p=14){
- if(a.length<p+1)return null;
-
- let gains=0;
- let losses=0;
-
- for(let i=a.length-p;i<a.length;i++){
-  const d=a[i]-a[i-1];
-
-  if(d>0)gains+=d;
-  else losses-=d;
- }
-
- if(losses===0)return 100;
-
- const rs=(gains/p)/(losses/p);
-
- return 100-100/(1+rs);
+function formatMoscowTime(timestamp){
+  if(!Number.isFinite(timestamp)) return "время неизвестно";
+  return new Intl.DateTimeFormat("ru-RU",{
+    timeZone:"Europe/Moscow",day:"2-digit",month:"2-digit",
+    hour:"2-digit",minute:"2-digit"
+  }).format(new Date(timestamp));
 }
-
-function atr(a,p=14){
- if(a.length<p+1)return null;
-
- const tr=[];
-
- for(let i=a.length-p;i<a.length;i++){
-  const c=a[i];
-  const prev=a[i-1];
-
-  tr.push(Math.max(
-   c.high-c.low,
-   Math.abs(c.high-prev.close),
-   Math.abs(c.low-prev.close)
-  ));
- }
-
- return average(tr);
+async function fetchJSON(url){
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok) throw new Error("Ошибка HTTP "+response.status);
+  return await response.json();
 }
-
-function timeText(v){
- return new Date(v).toLocaleString("ru-RU",{
-  timeZone:"Europe/Moscow",
-  day:"2-digit",
-  month:"2-digit",
-  hour:"2-digit",
-  minute:"2-digit"
- });
-}
-
-async function loadData(){
-
- if(loading)return;
- loading=true;
-
- const connection=document.getElementById("connection");
-
- document.getElementById("signal").textContent="ЗАГРУЖАЮ ДАННЫЕ...";
- connection.textContent="Загружаю минутные свечи MOEX за 10 дней...";
-
- try{
-
-  const from=dateDaysAgo(10);
-  const till=moscowDate();
-
-  let minuteCandles=[];
-  let start=0;
-
-  while(start<5000){
-
-   const url=
-    `${API}?from=${from}&till=${till}&interval=1&start=${start}&iss.meta=off`;
-
-   const response=await fetch(url);
-
-   if(!response.ok){
-    throw new Error("Ошибка MOEX: "+response.status);
-   }
-
-   const json=await response.json();
-
-   const rows=json.candles?.data||[];
-   const cols=json.candles?.columns||[];
-
-   if(!rows.length)break;
-
-   const ix=name=>cols.indexOf(name);
-
-   for(const row of rows){
-
-    const time=row[ix("begin")];
-    const open=Number(row[ix("open")]);
-    const close=Number(row[ix("close")]);
-    const high=Number(row[ix("high")]);
-    const low=Number(row[ix("low")]);
-    const volume=Number(row[ix("volume")]);
-
-    if(
-     time &&
-     [open,close,high,low,volume].every(Number.isFinite)
-    ){
-     minuteCandles.push({
-      time,open,close,high,low,volume
-     });
-    }
-   }
-
-   start+=rows.length;
-
-   if(rows.length<100)break;
-  }
-
-  if(!minuteCandles.length){
-   throw new Error("MOEX не вернула минутные свечи за выбранный период.");
-  }
-
-  minuteCandles.sort(
-   (a,b)=>new Date(a.time)-new Date(b.time)
-  );
-
-  // Удаляем возможные дубликаты.
-  const unique=new Map();
-
-  minuteCandles.forEach(c=>{
-   unique.set(c.time,c);
+function getBlockRows(json,block){
+  if(!json || !json[block] || !Array.isArray(json[block].data)) return [];
+  return json[block].data.map(row=>{
+    const obj={};
+    json[block].columns.forEach((key,i)=>obj[key]=row[i]);
+    return obj;
   });
+}
+function dateDaysAgo(days){
+  const d=new Date();
+  d.setDate(d.getDate()-days);
+  return moscowDateString(d);
+}
+function buildURL(path,params){
+  const u=new URL(API+path+".json");
+  Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,String(v)));
+  u.searchParams.set("iss.meta","off");
+  return u.toString();
+}
 
-  minuteCandles=Array.from(unique.values());
+async function fetchCandles(){
+  const from=dateDaysAgo(10);
+  const till=moscowDateString();
+  const path="/engines/stock/markets/shares/boards/"+BOARD+"/securities/"+SYMBOL+"/candles";
+  const all=[];
+  let start=0;
+  let pages=0;
 
-  // Объединяем минутные свечи в пятиминутные.
-  const groups=new Map();
-
-  for(const c of minuteCandles){
-
-   const timestamp=new Date(c.time).getTime();
-   const bucket=Math.floor(timestamp/300000)*300000;
-   const key=String(bucket);
-
-   if(!groups.has(key)){
-
-    groups.set(key,{
-     time:new Date(bucket).toISOString(),
-     open:c.open,
-     close:c.close,
-     high:c.high,
-     low:c.low,
-     volume:c.volume
+  while(start<MAX_MINUTES && pages<15){
+    const url=buildURL(path,{
+      from,till,interval:1,start,
+      "iss.reverse":"true"
     });
+    const json=await fetchJSON(url);
+    const rows=getBlockRows(json,"candles");
+    if(!rows.length) break;
 
-   }else{
+    all.push(...rows);
+    start+=rows.length;
+    pages++;
 
-    const g=groups.get(key);
+    if(rows.length<500) break;
+  }
 
-    g.close=c.close;
-    g.high=Math.max(g.high,c.high);
-    g.low=Math.min(g.low,c.low);
-    g.volume+=c.volume;
-   }
+  const unique=new Map();
+  for(const r of all){
+    const ts=parseMoscowDate(r.begin);
+    if(!Number.isFinite(ts)) continue;
+    unique.set(ts,{
+      time:ts,
+      open:Number(r.open),
+      high:Number(r.high),
+      low:Number(r.low),
+      close:Number(r.close),
+      volume:Number(r.volume)||0,
+      value:Number(r.value)||0
+    });
+  }
+
+  return [...unique.values()].sort((a,b)=>a.time-b.time);
+}
+
+async function fetchMarketQuote(){
+  const path="/engines/stock/markets/shares/boards/"+BOARD+"/securities/"+SYMBOL;
+  const url=buildURL(path,{});
+  const json=await fetchJSON(url);
+  const rows=getBlockRows(json,"marketdata");
+  return rows[0]||null;
+}
+
+function aggregateFiveMinutes(minutes){
+  const groups=new Map();
+  for(const c of minutes){
+    const bucket=Math.floor(c.time/300000)*300000;
+    if(!groups.has(bucket)){
+      groups.set(bucket,{
+        time:bucket,open:c.open,high:c.high,low:c.low,
+        close:c.close,volume:c.volume,value:c.value
+      });
+    }else{
+      const g=groups.get(bucket);
+      g.high=Math.max(g.high,c.high);
+      g.low=Math.min(g.low,c.low);
+      g.close=c.close;
+      g.volume+=c.volume;
+      g.value+=c.value;
+    }
   }
 
   const now=Date.now();
+  return [...groups.values()]
+    .filter(c=>c.time+300000<=now-30000)
+    .sort((a,b)=>a.time-b.time);
+}
 
-  // Оставляем только полностью закрытые свечи.
-  candles=Array.from(groups.values())
-   .filter(c=>
-    new Date(c.time).getTime()+300000<=now
-   )
-   .sort((a,b)=>
-    new Date(a.time)-new Date(b.time)
-   );
+function average(values){
+  if(!values.length) return NaN;
+  return values.reduce((a,b)=>a+b,0)/values.length;
+}
+function sma(data,period){
+  if(data.length<period) return NaN;
+  return average(data.slice(-period).map(x=>x.close));
+}
+function rsi(data,period=14){
+  if(data.length<=period) return NaN;
+  let gains=0,losses=0;
+  for(let i=data.length-period;i<data.length;i++){
+    const diff=data[i].close-data[i-1].close;
+    if(diff>0) gains+=diff;
+    else losses-=diff;
+  }
+  if(losses===0) return 100;
+  const rs=(gains/period)/(losses/period);
+  return 100-(100/(1+rs));
+}
+function atr(data,period=14){
+  if(data.length<=period) return NaN;
+  const tr=[];
+  for(let i=data.length-period;i<data.length;i++){
+    const c=data[i],prev=data[i-1];
+    tr.push(Math.max(c.high-c.low,Math.abs(c.high-prev.close),Math.abs(c.low-prev.close)));
+  }
+  return average(tr);
+}
+function getStats(data){
+  if(data.length<30) throw new Error("Недостаточно пятиминутных свечей для анализа.");
+  const last=data[data.length-1];
+  const previous=data.slice(0,-1);
+  const ma9=sma(data,9);
+  const ma21=sma(data,21);
+  const r=rsi(data,14);
+  const a=atr(data,14);
+  const volAvg=average(previous.slice(-20).map(x=>x.volume));
+  const volRatio=volAvg>0?last.volume/volAvg:NaN;
+  const recent=previous.slice(-20);
+  const resistance=Math.max(...recent.map(x=>x.high));
+  const support=Math.min(...recent.map(x=>x.low));
+  const trend=ma9>ma21?"ВВЕРХ":ma9<ma21?"ВНИЗ":"БОКОВОЙ";
+  return {last,ma9,ma21,r,a,volRatio,resistance,support,trend};
+}
 
-  if(candles.length<25){
-   throw new Error("Недостаточно закрытых пятиминутных свечей.");
+function isMarketHours(){
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"Europe/Moscow",weekday:"short",hour:"2-digit",
+    minute:"2-digit",hourCycle:"h23"
+  }).formatToParts(new Date());
+  const get=t=>parts.find(p=>p.type===t)?.value;
+  const day=get("weekday");
+  const hour=Number(get("hour"));
+  const minute=Number(get("minute"));
+  const mins=hour*60+minute;
+  return !["Sat","Sun"].includes(day) && mins>=410 && mins<=1430;
+}
+function renderQuote(quote,stats){
+  const marketLast=quote?Number(quote.LAST):NaN;
+  const currentPrice=Number.isFinite(marketLast)&&marketLast>0
+    ?marketLast:stats.last.close;
+  lastQuote=currentPrice;
+  setText("price",money(currentPrice));
+
+  const candleAge=Math.max(0,(Date.now()-(stats.last.time+300000))/60000);
+  setText("quoteTime","Последняя закрытая свеча: "+formatMoscowTime(stats.last.time)+" · возраст "+Math.round(candleAge)+" мин.");
+
+  const quoteUpdate=quote?.UPDATETIME;
+  const marketStatus=quote?.STATUS;
+  const statusParts=[];
+  if(marketStatus) statusParts.push("Статус биржи: "+marketStatus);
+  if(quoteUpdate) statusParts.push("Время обновления котировки: "+quoteUpdate);
+  setText("connection","● Данные получены. MOEX ISS подключена."+(statusParts.length?" "+statusParts.join(" · "):""));
+}
+function renderStats(data,stats){
+  setText("trend",stats.trend);
+  setText("rsi",number(stats.r,1));
+  setText("volume",Number.isFinite(stats.volRatio)?number(stats.volRatio,2)+"×":"—");
+  setText("atr",money(stats.a));
+  setText("resistance",money(stats.resistance));
+  setText("support",money(stats.support));
+  setText("sma9",money(stats.ma9));
+  setText("sma21",money(stats.ma21));
+  setText("candleCount","Загружено пятиминутных свечей: "+data.length+
+    ". Последняя свеча: "+formatMoscowTime(stats.last.time)+".");
+}
+function renderSignal(stats){
+  const age=(Date.now()-(stats.last.time+300000))/60000;
+  const signal=document.getElementById("signal");
+  const signalText=document.getElementById("signalText");
+  const planText=document.getElementById("planText");
+
+  ["entry","stop","target1","target2"].forEach(id=>setText(id,"—"));
+
+  if(age>STALE_MINUTES){
+    signal.textContent="ДАННЫЕ УСТАРЕЛИ";
+    signal.className="bigSignal bad";
+    signalText.textContent="Последняя закрытая свеча старше "+STALE_MINUTES+
+      " минут ("+Math.round(age)+" мин.). Торговые сигналы заблокированы. "+
+      (isMarketHours()?"Проверьте обновление данных MOEX.":"Возможно, биржа сейчас не торгует.");
+    planText.textContent="Торговый план не сформирован: данные недостаточно свежие.";
+    return;
   }
 
-  const result=analyze(candles);
+  const c=stats.last;
+  const buy=c.close>stats.resistance && stats.trend==="ВВЕРХ" && stats.r>50 && stats.r<75 && stats.volRatio>1;
+  const sell=c.close<stats.support && stats.trend==="ВНИЗ" && stats.r<50 && stats.r>25 && stats.volRatio>1;
 
-  display(result);
-
-  connection.innerHTML=
-   '<span class="good">● Данные получены. MOEX ISS подключена.</span>';
-
-  document.getElementById("systemStatus").textContent=
-   `Получено ${minuteCandles.length} минутных свечей. `+
-   `После объединения — ${candles.length} закрытых пятиминутных свечей. `+
-   `Период: ${from} — ${till}. Обновление раз в минуту.`;
-
- }catch(e){
-
-  connection.innerHTML=
-   '<span class="bad">● Ошибка: '+e.message+'</span>';
-
-  document.getElementById("signal").textContent="НЕТ ДАННЫХ";
-
-  document.getElementById("signalReason").textContent=
-   "Не удалось выполнить анализ. Попробуй обновить страницу.";
-
-  document.getElementById("systemStatus").textContent=
-   "Анализ остановлен. Торговые сигналы отключены.";
-
- }finally{
-  loading=false;
- }
+  if(buy && Number.isFinite(stats.a)){
+    const stop=Math.min(c.close-stats.a*1.5,stats.support-stats.a*0.2);
+    const risk=c.close-stop;
+    signal.textContent="ВОЗМОЖНАЯ ПОКУПКА";
+    signal.className="bigSignal good";
+    signalText.textContent="Условия пробоя вверх совпали. Это расчётный сигнал, не гарантия роста.";
+    setText("entry",money(c.close));
+    setText("stop",money(stop));
+    setText("target1",money(c.close+risk));
+    setText("target2",money(c.close+risk*2));
+    planText.textContent="План рассчитан по последней закрытой пятиминутной свече. Перед сделкой проверь цену и спред у брокера.";
+  }else if(sell){
+    signal.textContent="ВОЗМОЖЕН СИГНАЛ ВНИЗ";
+    signal.className="bigSignal warn";
+    signalText.textContent="Цена пробила поддержку вниз. Покупка сейчас не подтверждена.";
+    planText.textContent="Система не предлагает покупку. Дождись нового подтверждения.";
+  }else{
+    signal.textContent="НЕТ СИГНАЛА";
+    signal.className="bigSignal warn";
+    signalText.textContent="Условия входа не совпали. Лучше дождаться более ясной ситуации.";
+    planText.textContent="Торговый план не сформирован.";
+  }
 }
 
-function analyze(data){
+async function loadData(){
+  if(loading) return;
+  loading=true;
+  const button=document.getElementById("refresh");
+  button.disabled=true;
+  button.textContent="Загружаю...";
+  setText("connection","Запрашиваю свежую котировку и последние свечи MOEX...");
+  try{
+    const results=await Promise.allSettled([fetchCandles(),fetchMarketQuote()]);
+    if(results[0].status!=="fulfilled") throw results[0].reason;
+    minuteCandles=results[0].value;
+    lastQuote=results[1].status==="fulfilled"?results[1].value:null;
 
- const closes=data.map(c=>c.close);
- const last=data[data.length-1];
+    fiveCandles=aggregateFiveMinutes(minuteCandles);
+    if(fiveCandles.length<30) throw new Error("MOEX вернула слишком мало закрытых свечей: "+fiveCandles.length);
 
- const fast=sma(closes,9);
- const slow=sma(closes,21);
+    const stats=getStats(fiveCandles);
+    renderQuote(lastQuote,stats);
+    renderStats(fiveCandles,stats);
+    renderSignal(stats);
+    lastLoadTime=new Date();
 
- const r=rsi(closes,14);
- const a=atr(data,14);
-
- // Уровни по предыдущим 20 свечам.
- const prev=data.slice(-21,-1);
-
- const resistance=Math.max(
-  ...prev.map(c=>c.high)
- );
-
- const support=Math.min(
-  ...prev.map(c=>c.low)
- );
-
- const avgVol=average(
-  prev.map(c=>c.volume)
- );
-
- const volRatio=avgVol>0
-  ? last.volume/avgVol
-  : 0;
-
- const age=(
-  Date.now()-new Date(last.time).getTime()
- )/60000;
-
- const fresh=age<=10;
-
- const up=fast>slow&&last.close>slow;
- const down=fast<slow&&last.close<slow;
-
- let signal="ЖДАТЬ";
- let reason="Нет совпадения всех условий для сигнала.";
-
- if(!fresh){
-
-  signal="ДАННЫЕ УСТАРЕЛИ";
-
-  reason=
-   `Последняя свеча старше 10 минут (${Math.round(age)} мин.). `+
-   "Сигналы заблокированы.";
-
- }else if(
-  up &&
-  r>=50 &&
-  r<=68 &&
-  volRatio>=1.2 &&
-  last.close>resistance
- ){
-
-  signal="ВОЗМОЖНАЯ ПОКУПКА";
-
-  reason=
-   "Тренд вверх, RSI подтверждает движение, "+
-   "объём повышен, сопротивление пробито.";
-
- }else if(
-  down &&
-  r>=32 &&
-  r<=50 &&
-  volRatio>=1.2 &&
-  last.close<support
- ){
-
-  signal="ВОЗМОЖНАЯ ПРОДАЖА";
-
-  reason=
-   "Тренд вниз, RSI подтверждает движение, "+
-   "объём повышен, поддержка пробита.";
-
- }else{
-
-  reason=
-   (up?"Тренд вверх. ":down?"Тренд вниз. ":"Ясного тренда нет. ")+
-   `RSI ${r.toFixed(1)}; объём ${volRatio.toFixed(2)}×. `+
-   "Нет полного подтверждения пробоя.";
- }
-
- let stop=null;
- let t1=null;
- let t2=null;
-
- if(a&&signal==="ВОЗМОЖНАЯ ПОКУПКА"){
-
-  stop=last.close-a;
-  t1=last.close+a*1.5;
-  t2=last.close+a*2.5;
- }
-
- if(a&&signal==="ВОЗМОЖНАЯ ПРОДАЖА"){
-
-  stop=last.close+a;
-  t1=last.close-a*1.5;
-  t2=last.close-a*2.5;
- }
-
- return {
-  last,fast,slow,r,a,
-  resistance,support,volRatio,age,
-  up,down,signal,reason,stop,t1,t2
- };
-}
-
-function display(x){
-
- document.getElementById("price").textContent=
-  fmt(x.last.close);
-
- document.getElementById("candleTime").textContent=
-  `Последняя закрытая свеча: ${timeText(x.last.time)} · `+
-  `возраст ${Math.max(0,Math.round(x.age))} мин.`;
-
- const s=document.getElementById("signal");
-
- s.textContent=x.signal;
- s.className="signal";
-
- if(x.signal==="ВОЗМОЖНАЯ ПОКУПКА"){
-  s.classList.add("good");
- }else if(
-  x.signal==="ВОЗМОЖНАЯ ПРОДАЖА" ||
-  x.signal==="ДАННЫЕ УСТАРЕЛИ"
- ){
-  s.classList.add("bad");
- }else{
-  s.classList.add("warn");
- }
-
- document.getElementById("signalReason").textContent=x.reason;
-
- document.getElementById("trend").textContent=
-  x.up?"ВВЕРХ":x.down?"ВНИЗ":"БОКОВОЙ";
-
- document.getElementById("rsi").textContent=
-  x.r.toFixed(1);
-
- document.getElementById("volume").textContent=
-  x.volRatio.toFixed(2)+"×";
-
- document.getElementById("atr").textContent=
-  fmt(x.a);
-
- document.getElementById("resistance").textContent=
-  fmt(x.resistance);
-
- document.getElementById("support").textContent=
-  fmt(x.support);
-
- document.getElementById("sma9").textContent=
-  fmt(x.fast);
-
- document.getElementById("sma21").textContent=
-  fmt(x.slow);
-
- document.getElementById("count").textContent=
-  candles.length;
-
- document.getElementById("entry").textContent=
-  x.stop?fmt(x.last.close):"—";
-
- document.getElementById("stop").textContent=
-  x.stop?fmt(x.stop):"—";
-
- document.getElementById("target1").textContent=
-  x.t1?fmt(x.t1):"—";
-
- document.getElementById("target2").textContent=
-  x.t2?fmt(x.t2):"—";
-
- document.getElementById("planNote").textContent=
-  x.stop
-   ? "Уровни рассчитаны по ATR. Это учебный ориентир, не рекомендация к сделке."
-   : "Нет подтверждённого сигнала. Торговый план не сформирован.";
+    const first=minuteCandles[0]?.time;
+    const last=minuteCandles[minuteCandles.length-1]?.time;
+    setText("systemStatus",
+      "Минутных свечей получено: "+minuteCandles.length+
+      ". После объединения — "+fiveCandles.length+" закрытых пятиминутных свечей."+
+      "\nПериод данных: "+formatMoscowTime(first)+" — "+formatMoscowTime(last)+
+      ".\nПоследняя проверка: "+lastLoadTime.toLocaleTimeString("ru-RU")+
+      ".\nАвтоматическое обновление — раз в минуту."+
+      "\nПорог устаревания данных: "+STALE_MINUTES+" минут."+
+      "\nЕсли котировка недоступна, приложение использует закрытие последней свечи и явно показывает её возраст."
+    );
+  }catch(error){
+    setText("signal","ОШИБКА ДАННЫХ");
+    document.getElementById("signal").className="bigSignal bad";
+    setText("signalText",error.message||"Не удалось получить данные.");
+    setText("connection","Не удалось обновить данные MOEX: "+(error.message||"ошибка подключения"));
+    setText("systemStatus","Последняя попытка: "+new Date().toLocaleTimeString("ru-RU")+
+      ". Подробности: "+(error.message||"неизвестная ошибка")+
+      ". Проверь интернет-соединение и попробуй обновить данные.");
+  }finally{
+    loading=false;
+    button.disabled=false;
+    button.textContent="Обновить данные";
+  }
 }
 
 function calculate(){
+  const shares=Number(document.getElementById("shares").value);
+  const buy=Number(document.getElementById("buyPrice").value);
+  const sell=Number(document.getElementById("sellPrice").value);
+  const out=document.getElementById("calcResult");
 
- const n=Number(document.getElementById("shares").value);
- const buy=Number(document.getElementById("buyPrice").value);
- const sell=Number(document.getElementById("sellPrice").value);
-
- const out=document.getElementById("calcResult");
-
- if(
-  !Number.isFinite(n)||n<=0||
-  !Number.isFinite(buy)||buy<=0||
-  !Number.isFinite(sell)||sell<=0
- ){
-
-  out.textContent="Проверь введённые значения.";
-  return;
- }
-
- const gross=(sell-buy)*n;
- const fees=20.14;
-
- const beforeTax=gross-fees;
- const tax=Math.max(0,beforeTax)*0.13;
- const net=beforeTax-tax;
-
- out.innerHTML=
-  `Результат до расходов: ${fmt(gross)}<br>`+
-  `Комиссия за обе стороны: ${fmt(fees)}<br>`+
-  `Ориентировочный налог: ${fmt(tax)}<br>`+
-  `<b>Итог после расходов: `+
-  `<span class="${net>=0?'good':'bad'}">${fmt(net)}</span></b>`;
+  if(!Number.isFinite(shares)||shares<=0||!Number.isInteger(shares)||
+     !Number.isFinite(buy)||buy<=0||!Number.isFinite(sell)||sell<=0){
+    out.textContent="Проверь введённые данные. Количество должно быть целым числом, цены — больше нуля.";
+    return;
+  }
+  const gross=(sell-buy)*shares;
+  const commission=20.14;
+  const taxable=Math.max(0,gross-commission);
+  const tax=taxable*0.13;
+  const net=gross-commission-tax;
+  out.innerHTML=
+    "Результат до расходов: <b>"+money(gross)+"</b><br>"+
+    "Комиссия за две сделки: <b>"+money(commission)+"</b><br>"+
+    "Ориентировочный налог: <b>"+money(tax)+"</b><br>"+
+    "ИТОГО после расходов: <b class='"+(net>=0?"good":"bad")+"'>"+money(net)+"</b>";
 }
 
 loadData();
-
 setInterval(loadData,60000);
 </script>
-
 </body>
 </html>
