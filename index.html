@@ -4,364 +4,378 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OZON-Снайпер</title>
+<title>OZON-Снайпер 2.0</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:14px;background:#101722;color:#edf2f7;font-family:Arial,sans-serif}
-header{text-align:center;padding:12px}
-h1{color:#55c5ff;margin:5px}
-h2{font-size:19px;color:#55c5ff}
-.card{background:#1b2736;border:1px solid #34465b;border-radius:12px;padding:15px;margin:12px 0}
-.status{padding:10px;border-radius:8px;background:#34465b;margin:8px 0}
-.good{color:#58df9b}.bad{color:#ff7777}.warn{color:#ffd166}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-input{width:100%;padding:12px;margin:5px 0 12px;border-radius:7px;border:1px solid #52677f;background:#101722;color:white;font-size:16px}
-label{font-size:13px;color:#b8c8d8}
-button{width:100%;padding:13px;background:#168bd0;color:white;border:0;border-radius:8px;font-size:16px;font-weight:bold;margin:6px 0}
-.result{font-size:20px;font-weight:bold;margin:12px 0}
-.small{font-size:12px;color:#aab8c8;line-height:1.5}
-#chart{height:480px;width:100%}
-.metric{padding:8px;background:#101722;border-radius:7px;margin:5px 0}
+body{margin:0;background:#10151e;color:#edf2fa;font-family:Arial,sans-serif;padding:14px}
+.wrap{max-width:850px;margin:auto}
+h1{font-size:25px;margin:8px 0}
+.sub{color:#9ba9bb;font-size:13px;margin-bottom:18px}
+.card{background:#1a2330;border:1px solid #2c394b;border-radius:13px;padding:15px;margin:12px 0}
+h2{font-size:17px;margin:0 0 12px;color:#dce8f7}
+.price{font-size:34px;font-weight:bold;margin:8px 0}
+.muted{color:#9ba9bb;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:#111a26;padding:12px;border-radius:9px}
+.metric b{display:block;font-size:18px;margin-top:5px}
+.signal{font-size:23px;font-weight:bold;padding:13px;border-radius:9px;text-align:center;background:#293342}
+.good{color:#50df9a}
+.bad{color:#ff7777}
+.warn{color:#ffca65}
+.status{font-size:14px;margin-top:9px;line-height:1.5}
+button{background:#2879d5;color:white;border:0;padding:12px 17px;border-radius:9px;font-size:15px;cursor:pointer}
+input{width:100%;padding:11px;border-radius:8px;border:1px solid #40516a;background:#101923;color:white;font-size:16px;margin:5px 0 12px}
+label{font-size:13px;color:#aebbd0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:9px 3px;border-bottom:1px solid #334052}
+td:last-child{text-align:right;font-weight:bold}
+iframe{width:100%;height:420px;border:0;border-radius:10px}
+.footer{font-size:12px;color:#8796aa;line-height:1.5}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.price{font-size:28px}iframe{height:350px}}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header>
-<h1>🎯 OZON-СНАЙПЕР</h1>
-<div>Автоматизированная аналитическая панель</div>
-</header>
+<h1>🎯 OZON-Снайпер 2.0</h1>
+<div class="sub">Автоматический анализ акции OZON · MOEX</div>
 
-<section class="card">
-<h2>📈 ГРАФИК OZON</h2>
-<div id="chart"></div>
-</section>
-
-<section class="card">
-<h2>🤖 АНАЛИЗ РЫНКА</h2>
-<div id="connection" class="status warn">Подключение к Московской бирже...</div>
-<div class="metric">Цена по последней свече: <b id="price">—</b></div>
-<div class="metric">Время последней свечи: <b id="candleTime">—</b></div>
-<div class="metric">Направление рынка: <b id="trend">Нет данных</b></div>
-<div class="metric">Объём: <b id="volume">Нет данных</b></div>
-<div class="metric">RSI (14): <b id="rsi">—</b></div>
-<div class="metric">Сигнал покупки: <b id="buySignal">Ожидание</b></div>
-<div class="metric">Сигнал продажи: <b id="sellSignal">Ожидание</b></div>
-<div class="small" id="analysisNote">
-Ожидание биржевых данных.
+<div class="card">
+  <h2>Котировка OZON</h2>
+  <div class="price" id="price">Загрузка...</div>
+  <div class="muted" id="candleTime">Ожидание данных MOEX</div>
+  <div class="status" id="connection">Подключение к источнику данных...</div>
+  <button onclick="loadData()">Обновить данные</button>
 </div>
-<button onclick="loadMarketData()">ОБНОВИТЬ ДАННЫЕ</button>
-<div class="small">Источник: Московская биржа ISS. Бесплатные данные могут иметь задержку около 15 минут. Обновление проверки — раз в минуту.</div>
-</section>
 
-<section class="card">
-<h2>💰 РАСЧЁТ СДЕЛКИ</h2>
-<label>Цена покупки (₽)</label>
-<input id="buyPrice" type="number" step="0.01" placeholder="Например, 3800">
-<label>Цена продажи (₽)</label>
-<input id="sellPrice" type="number" step="0.01" placeholder="Например, 3820">
-<label>Количество акций</label>
-<input id="quantity" type="number" min="1" step="1" placeholder="Например, 10">
-<button onclick="calculate()">РАССЧИТАТЬ ПРИБЫЛЬ</button>
-<div>Чистый финансовый результат:</div>
-<div class="result" id="profit">— ₽</div>
-<div class="small" id="profitNote">Комиссия покупки и продажи — по 10,07 ₽. Налог — ориентировочно 13% с положительной прибыли после комиссии.</div>
-</section>
+<div class="card">
+  <h2>Сигнал системы</h2>
+  <div class="signal" id="signal">АНАЛИЗИРУЮ...</div>
+  <div class="status" id="signalReason">Жду данные для анализа.</div>
+</div>
 
-<section class="card">
-<h2>🎯 ПЛАН СДЕЛКИ</h2>
-<label>Планируемая цена входа (₽)</label>
-<input id="entry" type="number" step="0.01">
-<label>Стоп-лосс (₽)</label>
-<input id="stop" type="number" step="0.01">
-<label>Первая цель (₽)</label>
-<input id="target1" type="number" step="0.01">
-<label>Вторая цель (₽)</label>
-<input id="target2" type="number" step="0.01">
-<button onclick="checkPlan()">ПРОВЕРИТЬ ПЛАН</button>
-<div id="planResult">Ожидание параметров сделки.</div>
-</section>
+<div class="card">
+  <h2>Показатели рынка</h2>
+  <div class="grid">
+    <div class="metric"><span class="muted">Тренд</span><b id="trend">—</b></div>
+    <div class="metric"><span class="muted">RSI (14)</span><b id="rsi">—</b></div>
+    <div class="metric"><span class="muted">Объём / средний</span><b id="volume">—</b></div>
+    <div class="metric"><span class="muted">ATR (14)</span><b id="atr">—</b></div>
+  </div>
+</div>
 
-<section class="card">
-<h2>⚙️ ПАРАМЕТРЫ ТОРГОВЛИ</h2>
-<div>Комиссия покупки: <b>10,07 ₽</b></div>
-<div>Комиссия продажи: <b>10,07 ₽</b></div>
-<div>Налог на прибыль: <b>13%</b></div>
-<div>Основной интервал анализа: <b>5 минут</b></div>
-<div class="small">Пятиминутные свечи формируются из минутных данных биржи. Налог рассчитывается ориентировочно; фактический налог зависит от налогового учёта брокера.</div>
-</section>
+<div class="card">
+  <h2>Поддержка и сопротивление</h2>
+  <table>
+    <tr><td>Сопротивление</td><td id="resistance">—</td></tr>
+    <tr><td>Поддержка</td><td id="support">—</td></tr>
+    <tr><td>Средняя 9</td><td id="sma9">—</td></tr>
+    <tr><td>Средняя 21</td><td id="sma21">—</td></tr>
+  </table>
+</div>
 
-<section class="card">
-<h2>📡 СОСТОЯНИЕ СИСТЕМЫ</h2>
-<div>График TradingView: <b class="good">Встроен</b></div>
-<div>Калькулятор: <b class="good">Работает</b></div>
-<div>Котировки MOEX: <b id="quoteStatus" class="warn">Подключение...</b></div>
-<div>Автоматический анализ: <b id="signalStatus" class="warn">Ожидание данных</b></div>
-<div>Отправка заявок брокеру: <b>Не подключена</b></div>
-<div class="small">Программа анализирует данные, но не совершает сделки и не гарантирует прибыль.</div>
-</section>
+<div class="card">
+  <h2>Торговый план (расчётный)</h2>
+  <table>
+    <tr><td>Предполагаемый вход</td><td id="entry">—</td></tr>
+    <tr><td>Стоп-лосс</td><td id="stop">—</td></tr>
+    <tr><td>Цель 1</td><td id="target1">—</td></tr>
+    <tr><td>Цель 2</td><td id="target2">—</td></tr>
+  </table>
+  <div class="muted" id="planNote">Уровни появятся после загрузки данных.</div>
+</div>
 
-<footer class="small" style="text-align:center;padding:15px">
-OZON-Снайпер. Аналитическая система.
-</footer>
+<div class="card">
+  <h2>Калькулятор сделки</h2>
+  <label>Количество акций</label>
+  <input id="shares" type="number" value="10" min="1">
+  <label>Цена покупки, ₽</label>
+  <input id="buyPrice" type="number" placeholder="Например, 3800">
+  <label>Цена продажи, ₽</label>
+  <input id="sellPrice" type="number" placeholder="Например, 3850">
+  <button onclick="calculate()">Рассчитать результат</button>
+  <div class="status" id="calcResult">Введи цены и количество акций.</div>
+  <div class="muted">Комиссия: 10,07 ₽ за покупку и 10,07 ₽ за продажу. Налог 13% — ориентировочная оценка.</div>
+</div>
 
-<script src="https://s3.tradingview.com/tv.js"></script>
+<div class="card">
+  <h2>График TradingView</h2>
+  <div class="muted">График независим от данных MOEX, которые анализирует программа.</div>
+  <iframe src="https://s.tradingview.com/widgetembed/?symbol=MOEX%3AOZON&interval=5&theme=dark&style=1&locale=ru&hide_top_toolbar=false&hide_side_toolbar=true&allow_symbol_change=false"
+  allowfullscreen></iframe>
+</div>
+
+<div class="card">
+  <h2>Состояние системы</h2>
+  <div class="status" id="systemStatus">Ожидание запуска.</div>
+</div>
+
+<div class="footer">
+  Источник котировок: Московская биржа, ISS. Данные могут поступать с задержкой.
+  Сигналы являются расчётными и не гарантируют прибыль.
+  Приложение не подключено к брокеру и не совершает сделки.
+</div>
+
+</div>
+
 <script>
-new TradingView.widget({
-  autosize:true,
-  symbol:"RUS:OZON",
-  interval:"5",
-  timezone:"Europe/Moscow",
-  theme:"dark",
-  style:"1",
-  locale:"ru",
-  enable_publishing:false,
-  allow_symbol_change:false,
-  container_id:"chart"
-});
+const API = "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json";
 
-const API =
-"https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json";
+let candles = [];
+let analysis = null;
 
-let candles=[];
+function fmt(n) {
+  return Number.isFinite(n)
+    ? n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}) + " ₽"
+    : "—";
+}
 
-function moscowDate(){
-  return new Intl.DateTimeFormat("en-CA",{
+function moscowDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone:"Europe/Moscow",
     year:"numeric",month:"2-digit",day:"2-digit"
-  }).format(new Date());
+  }).formatToParts(new Date());
+  const get = t => parts.find(p=>p.type===t).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
-function setText(id,value){
-  document.getElementById(id).textContent=value;
+function average(arr) {
+  return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
 }
 
-function parseCandles(json){
-  const block=json.candles;
-  if(!block || !block.data || !block.columns) return [];
-  return block.data.map(row=>{
-    const c={};
-    block.columns.forEach((name,i)=>c[name.toLowerCase()]=row[i]);
-    return {
-      begin:c.begin,
-      open:Number(c.open),
-      high:Number(c.high),
-      low:Number(c.low),
-      close:Number(c.close),
-      volume:Number(c.volume || 0)
-    };
-  }).filter(c=>c.begin && Number.isFinite(c.close));
+function sma(values, period) {
+  if(values.length < period) return null;
+  return average(values.slice(-period));
 }
 
-function aggregateFiveMinutes(rows){
-  const groups={};
-
-  rows.forEach(c=>{
-    const time=new Date(c.begin.replace(" ","T")+"+03:00");
-    if(Number.isNaN(time.getTime())) return;
-
-    const minute=time.getMinutes();
-    const bucket=Math.floor(minute/5)*5;
-    time.setMinutes(bucket,0,0);
-
-    const key=time.toISOString();
-    if(!groups[key]){
-      groups[key]={
-        begin:c.begin,
-        time,
-        open:c.open,
-        high:c.high,
-        low:c.low,
-        close:c.close,
-        volume:c.volume
-      };
-    }else{
-      const g=groups[key];
-      g.high=Math.max(g.high,c.high);
-      g.low=Math.min(g.low,c.low);
-      g.close=c.close;
-      g.volume+=c.volume;
-    }
-  });
-
-  return Object.values(groups)
-    .sort((a,b)=>a.time-b.time)
-    .filter(c=>c.time.getTime()+5*60000<=Date.now());
-}
-
-async function loadMarketData(){
-  setText("connection","Запрашиваем данные Московской биржи...");
-  setText("quoteStatus","Загрузка...");
-
-  try{
-    const date=moscowDate();
-    let all=[];
-    let start=0;
-
-    for(let page=0;page<10;page++){
-      const url=API+
-        "?iss.meta=off"+
-        "&iss.only=candles"+
-        "&candles.columns=begin,open,high,low,close,volume"+
-        "&interval=1"+
-        "&from="+date+
-        "&till="+date+
-        "&start="+start;
-
-      const response=await fetch(url,{cache:"no-store"});
-      if(!response.ok) throw new Error("Ошибка HTTP "+response.status);
-
-      const json=await response.json();
-      const part=parseCandles(json);
-      all=all.concat(part);
-
-      if(part.length<100) break;
-      start+=part.length;
-    }
-
-    const five=aggregateFiveMinutes(all);
-
-    if(!five.length){
-      throw new Error("Биржа пока не вернула готовые свечи. Возможно, торги не идут.");
-    }
-
-    candles=five;
-    updateAnalysis(five);
-
-    setText("connection","Данные получены. Бесплатный источник MOEX.");
-    setText("quoteStatus","Подключён");
-    setText("signalStatus","Расчёт по полученным свечам");
-
-  }catch(error){
-    setText("connection","Не удалось получить данные: "+error.message);
-    setText("quoteStatus","Ошибка подключения");
-    setText("signalStatus","Нет данных");
-    setText("analysisNote","Проверь интернет. Если ошибка повторяется, возможно, браузер блокирует запросы к бирже.");
+function rsi(values, period=14) {
+  if(values.length < period+1) return null;
+  let gains=0, losses=0;
+  for(let i=values.length-period;i<values.length;i++){
+    const d=values[i]-values[i-1];
+    if(d>0) gains+=d;
+    else losses-=d;
   }
-}
-
-function average(values){
-  if(!values.length) return 0;
-  return values.reduce((a,b)=>a+b,0)/values.length;
-}
-
-function calculateRSI(data,period=14){
-  if(data.length<=period) return null;
-  let gains=0,losses=0;
-
-  for(let i=data.length-period;i<data.length;i++){
-    const change=data[i].close-data[i-1].close;
-    if(change>0) gains+=change;
-    else losses-=change;
-  }
-
   if(losses===0) return 100;
   const rs=(gains/period)/(losses/period);
   return 100-(100/(1+rs));
 }
 
-function updateAnalysis(data){
-  const last=data[data.length-1];
-  const closes=data.map(c=>c.close);
-
-  setText("price",last.close.toFixed(2)+" ₽");
-  setText("candleTime",last.begin);
-  setText("volume",last.volume.toLocaleString("ru-RU"));
-
-  if(data.length<22){
-    setText("analysisNote","Пока недостаточно свечей для расчёта сигналов.");
-    return;
+function atr(data, period=14) {
+  if(data.length < period+1) return null;
+  const trs=[];
+  for(let i=data.length-period;i<data.length;i++){
+    const c=data[i], prev=data[i-1];
+    trs.push(Math.max(
+      c.high-c.low,
+      Math.abs(c.high-prev.close),
+      Math.abs(c.low-prev.close)
+    ));
   }
-
-  const fast=average(closes.slice(-9));
-  const slow=average(closes.slice(-21));
-  const prevFast=average(closes.slice(-10,-1));
-  const prevSlow=average(closes.slice(-22,-1));
-  const rsi=calculateRSI(data);
-
-  setText("rsi",rsi===null?"—":rsi.toFixed(1));
-
-  let trend="Боковое движение";
-  if(fast>slow) trend="Восходящее";
-  if(fast<slow) trend="Нисходящее";
-  setText("trend",trend);
-
-  const avgVolume=average(data.slice(-21,-1).map(c=>c.volume));
-  const volumeText=avgVolume>0?
-    (last.volume/avgVolume).toFixed(2)+" от среднего":"Недостаточно данных";
-  setText("volume",last.volume.toLocaleString("ru-RU")+" ("+volumeText+")");
-
-  const buy=prevFast<=prevSlow && fast>slow && rsi>=50 && rsi<70;
-  const sell=prevFast>=prevSlow && fast<slow && rsi>30 && rsi<=50;
-
-  setText("buySignal",buy?"ВОЗМОЖНЫЙ СИГНАЛ":"Ожидание");
-  setText("sellSignal",sell?"ВОЗМОЖНЫЙ СИГНАЛ":"Ожидание");
-
-  document.getElementById("buySignal").className=buy?"good":"";
-  document.getElementById("sellSignal").className=sell?"bad":"";
-
-  const age=Math.round((Date.now()-last.time.getTime())/60000);
-  setText("analysisNote",
-    "Свечей: "+data.length+
-    ". Последняя свеча примерно "+age+
-    " мин. назад. Сигналы основаны на пересечении средних SMA 9/21 и RSI. "+
-    "Это учебные условия, не гарантия разворота или прибыли."
-  );
+  return average(trs);
 }
 
-function calculate(){
+function timeText(value) {
+  return new Date(value).toLocaleString("ru-RU",{
+    timeZone:"Europe/Moscow",
+    day:"2-digit",month:"2-digit",
+    hour:"2-digit",minute:"2-digit"
+  });
+}
+
+async function loadData() {
+  const connection=document.getElementById("connection");
+  const signal=document.getElementById("signal");
+  connection.textContent="Загружаю котировки MOEX...";
+  signal.textContent="АНАЛИЗИРУЮ...";
+  try {
+    const date=moscowDate();
+    let all=[];
+    for(let start=0;start<1000;start+=100){
+      const url=`${API}?from=${date}&till=${date}&interval=1&start=${start}&iss.meta=off`;
+      const response=await fetch(url);
+      if(!response.ok) throw new Error("Ошибка ответа MOEX: "+response.status);
+      const json=await response.json();
+      const rows=json.candles?.data || [];
+      const cols=json.candles?.columns || [];
+      if(!rows.length) break;
+      const idx=name=>cols.indexOf(name);
+      for(const row of rows){
+        const begin=row[idx("begin")];
+        const open=Number(row[idx("open")]);
+        const close=Number(row[idx("close")]);
+        const high=Number(row[idx("high")]);
+        const low=Number(row[idx("low")]);
+        const volume=Number(row[idx("volume")]);
+        if(begin && [open,close,high,low,volume].every(Number.isFinite)){
+          all.push({time:begin,open,close,high,low,volume});
+        }
+      }
+      if(rows.length<100) break;
+    }
+
+    if(!all.length) throw new Error("MOEX пока не вернула свечи за сегодня.");
+    all.sort((a,b)=>new Date(a.time)-new Date(b.time));
+
+    const groups={};
+    for(const c of all){
+      const d=new Date(c.time);
+      const minute=d.getMinutes();
+      const bucket=new Date(d);
+      bucket.setMinutes(minute-minute%5,0,0);
+      const key=bucket.toISOString();
+      if(!groups[key]){
+        groups[key]={time:bucket.toISOString(),open:c.open,close:c.close,
+          high:c.high,low:c.low,volume:c.volume};
+      }else{
+        groups[key].close=c.close;
+        groups[key].high=Math.max(groups[key].high,c.high);
+        groups[key].low=Math.min(groups[key].low,c.low);
+        groups[key].volume+=c.volume;
+      }
+    }
+
+    candles=Object.values(groups).sort((a,b)=>new Date(a.time)-new Date(b.time));
+
+    // Используем только полностью закрытые пятиминутные свечи.
+    const now=Date.now();
+    candles=candles.filter(c=>new Date(c.time).getTime()+5*60000<=now);
+
+    if(candles.length<25) throw new Error("Недостаточно закрытых свечей для анализа.");
+
+    analysis=makeAnalysis(candles);
+    showAnalysis(analysis);
+    connection.innerHTML='<span class="good">● Данные получены. Источник MOEX ISS.</span>';
+    document.getElementById("systemStatus").textContent=
+      `Загружено ${candles.length} закрытых пятиминутных свечей. Обновление раз в минуту.`;
+  } catch(e) {
+    connection.innerHTML='<span class="bad">● Не удалось загрузить данные: '+e.message+'</span>';
+    document.getElementById("signal").textContent="НЕТ ДАННЫХ";
+    document.getElementById("signalReason").textContent="Проверь подключение к интернету и попробуй обновить.";
+    document.getElementById("systemStatus").textContent="Ошибка загрузки. Торговые сигналы отключены.";
+  }
+}
+
+function makeAnalysis(data) {
+  const closes=data.map(c=>c.close);
+  const last=data[data.length-1];
+  const fast=sma(closes,9);
+  const slow=sma(closes,21);
+  const r=rsi(closes,14);
+  const a=atr(data,14);
+
+  const previous=data.slice(-21,-1);
+  const resistance=Math.max(...previous.map(c=>c.high));
+  const support=Math.min(...previous.map(c=>c.low));
+
+  const volumes=data.slice(-21,-1).map(c=>c.volume);
+  const avgVol=average(volumes);
+  const volRatio=avgVol>0 ? last.volume/avgVol : 0;
+
+  const age=(Date.now()-new Date(last.time).getTime())/60000;
+  const fresh=age<=10;
+
+  const up=fast>slow && last.close>slow;
+  const down=fast<slow && last.close<slow;
+
+  let signal="ЖДАТЬ";
+  let reason="Условия для сильного сигнала пока не совпали.";
+
+  if(!fresh){
+    signal="ДАННЫЕ УСТАРЕЛИ";
+    reason=`Последняя закрытая свеча старше 10 минут (${Math.round(age)} мин.). Торговые сигналы заблокированы.`;
+  }else if(up && r>=50 && r<=68 && volRatio>=1.2 && last.close>resistance){
+    signal="ВОЗМОЖНЫЙ ПОКУПАТЬ";
+    reason="Восходящий тренд, RSI в рабочей зоне, объём повышен, цена пробила сопротивление.";
+  }else if(down && r>=32 && r<=50 && volRatio>=1.2 && last.close<support){
+    signal="ВОЗМОЖНАЯ ПРОДАЖА";
+    reason="Нисходящий тренд, RSI в рабочей зоне, объём повышен, цена пробила поддержку.";
+  }else{
+    const details=[];
+    details.push(up?"Тренд вверх":down?"Тренд вниз":"Нет ясного тренда");
+    details.push(`RSI ${r.toFixed(1)}`);
+    details.push(`объём ${volRatio.toFixed(2)}×`);
+    details.push("нет полного подтверждения пробоя");
+    reason=details.join(" · ");
+  }
+
+  let entry=last.close, stop=null, target1=null, target2=null;
+  if(a && Number.isFinite(a)){
+    if(signal==="ВОЗМОЖНЫЙ ПОКУПАТЬ"){
+      stop=entry-a;
+      target1=entry+a*1.5;
+      target2=entry+a*2.5;
+    }else if(signal==="ВОЗМОЖНАЯ ПРОДАЖА"){
+      stop=entry+a;
+      target1=entry-a*1.5;
+      target2=entry-a*2.5;
+    }
+  }
+
+  return {last,fast,slow,r,a,resistance,support,volRatio,age,fresh,
+    up,down,signal,reason,entry,stop,target1,target2};
+}
+
+function showAnalysis(x) {
+  document.getElementById("price").textContent=fmt(x.last.close);
+  document.getElementById("candleTime").textContent=
+    "Последняя закрытая свеча: "+timeText(x.last.time)+
+    ` · возраст ${Math.max(0,Math.round(x.age))} мин.`;
+
+  const signal=document.getElementById("signal");
+  signal.textContent=x.signal;
+  signal.className="signal";
+  if(x.signal==="ВОЗМОЖНЫЙ ПОКУПАТЬ") signal.classList.add("good");
+  else if(x.signal==="ВОЗМОЖНАЯ ПРОДАЖА" || x.signal==="ДАННЫЕ УСТАРЕЛИ") signal.classList.add("bad");
+  else signal.classList.add("warn");
+
+  document.getElementById("signalReason").textContent=x.reason;
+  document.getElementById("trend").textContent=x.up?"ВВЕРХ":x.down?"ВНИЗ":"БОКОВОЙ";
+  document.getElementById("rsi").textContent=x.r?.toFixed(1) ?? "—";
+  document.getElementById("volume").textContent=x.volRatio.toFixed(2)+"×";
+  document.getElementById("atr").textContent=x.a?fmt(x.a):"—";
+  document.getElementById("resistance").textContent=fmt(x.resistance);
+  document.getElementById("support").textContent=fmt(x.support);
+  document.getElementById("sma9").textContent=fmt(x.fast);
+  document.getElementById("sma21").textContent=fmt(x.slow);
+
+  document.getElementById("entry").textContent=fmt(x.entry);
+  document.getElementById("stop").textContent=x.stop?fmt(x.stop):"—";
+  document.getElementById("target1").textContent=x.target1?fmt(x.target1):"—";
+  document.getElementById("target2").textContent=x.target2?fmt(x.target2):"—";
+
+  document.getElementById("planNote").textContent=x.stop
+    ?"Уровни рассчитаны от ATR. Это ориентир, а не готовая рекомендация к сделке."
+    :"Нет подтверждённого сигнала. Не открывай сделку только по этим уровням.";
+}
+
+function calculate() {
+  const n=Number(document.getElementById("shares").value);
   const buy=Number(document.getElementById("buyPrice").value);
   const sell=Number(document.getElementById("sellPrice").value);
-  const qty=Number(document.getElementById("quantity").value);
+  const out=document.getElementById("calcResult");
 
-  if(!(buy>0 && sell>0 && qty>0 && Number.isInteger(qty))){
-    setText("profit","Проверь введённые значения");
+  if(!Number.isFinite(n)||n<=0||!Number.isFinite(buy)||buy<=0||
+     !Number.isFinite(sell)||sell<=0){
+    out.textContent="Проверь введённые значения.";
     return;
   }
 
-  const gross=(sell-buy)*qty;
-  const afterCommission=gross-20.14;
-  const tax=afterCommission>0?afterCommission*0.13:0;
-  const net=afterCommission-tax;
+  const gross=(sell-buy)*n;
+  const fees=20.14;
+  const beforeTax=gross-fees;
+  const tax=Math.max(0,beforeTax)*0.13;
+  const net=beforeTax-tax;
 
-  setText("profit",net.toFixed(2)+" ₽");
-  setText("profitNote",
-    "До комиссий: "+gross.toFixed(2)+
-    " ₽. Комиссии: 20,14 ₽. Ориентировочный налог: "+
-    tax.toFixed(2)+" ₽."
-  );
+  out.innerHTML=
+    `Результат до комиссии: ${fmt(gross)}<br>`+
+    `Комиссия за обе стороны: ${fmt(fees)}<br>`+
+    `Ориентировочный налог: ${fmt(tax)}<br>`+
+    `<b>Итог после расходов: <span class="${net>=0?'good':'bad'}">${fmt(net)}</span></b>`;
 }
 
-function checkPlan(){
-  const entry=Number(document.getElementById("entry").value);
-  const stop=Number(document.getElementById("stop").value);
-  const t1=Number(document.getElementById("target1").value);
-  const t2=Number(document.getElementById("target2").value);
-
-  if(!(entry>0 && stop>0 && t1>0 && t2>0)){
-    setText("planResult","Заполни все четыре поля.");
-    return;
-  }
-
-  if(!(stop<entry && t1>entry && t2>t1)){
-    setText("planResult","Проверь уровни: для плана покупки стоп ниже входа, первая цель выше входа, вторая выше первой.");
-    return;
-  }
-
-  const risk=entry-stop;
-  const reward1=t1-entry;
-  const reward2=t2-entry;
-
-  setText("planResult",
-    "Риск на акцию: "+risk.toFixed(2)+" ₽. "+
-    "Потенциал до первой цели: "+reward1.toFixed(2)+" ₽. "+
-    "До второй цели: "+reward2.toFixed(2)+" ₽. "+
-    "Соотношение риск/прибыль до первой цели: 1:"+
-    (reward1/risk).toFixed(2)+"."
-  );
-}
-
-loadMarketData();
-setInterval(loadMarketData,60000);
+loadData();
+setInterval(loadData,60000);
 </script>
 </body>
 </html>
