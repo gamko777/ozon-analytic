@@ -2,74 +2,141 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OZON-Снайпер</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #101820;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 16px;
-      text-align: center;
-      background: #172633;
-    }
-    h2 { margin: 0; color: #42d392; }
-    .price {
-      padding: 12px;
-      text-align: center;
-      color: #42d392;
-    }
-    .chart {
-      width: 100%;
-      height: 75vh;
-      min-height: 450px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OZON-Снайпер</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:#fff;font-family:Arial}
+header{background:#172633;padding:17px;text-align:center}
+h2{color:#42d392;margin:0 0 7px}
+section{padding:14px}
+h3{color:#42d392;margin:5px 0 14px}
+.chart{height:480px;width:100%}
+.panel{background:#1b2b38;border-radius:12px;padding:15px;margin:12px 0}
+.status{color:#ffc857;font-weight:bold}
+label{display:block;margin-top:12px;color:#bdcbd5}
+input{width:100%;padding:12px;margin-top:6px;
+border:1px solid #526574;border-radius:7px;
+background:#101820;color:white;font-size:17px}
+button{width:100%;padding:14px;margin-top:15px;
+background:#42d392;color:#10221b;border:0;
+border-radius:8px;font-size:16px;font-weight:bold}
+.result{font-size:20px;color:#42d392;font-weight:bold}
+.small{color:#aab8c2;font-size:13px;line-height:1.5}
+</style>
 </head>
 <body>
-  <header>
-    <h2>OZON-СНАЙПЕР</h2>
-    <div>Автоматический анализ акций OZON</div>
-  </header>
 
-  <div class="price">
-    График OZON — TradingView
-  </div>
+<header>
+<h2>🎯 OZON-СНАЙПЕР</h2>
+<div>Торговая система для акций OZON</div>
+</header>
 
-  <div class="chart">
-    <div class="tradingview-widget-container"
-         style="height:100%;width:100%">
-      <div class="tradingview-widget-container__widget"
-           style="height:100%;width:100%"></div>
-      <script
-        type="text/javascript"
-        src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-        async>
-      {
-        "autosize": true,
-        "symbol": "RUS:OZON",
-        "interval": "5",
-        "timezone": "Europe/Moscow",
-        "theme": "dark",
-        "style": "1",
-        "locale": "ru",
-        "allow_symbol_change": false,
-        "calendar": false,
-        "hide_side_toolbar": false,
-        "hide_top_toolbar": false,
-        "save_image": false,
-        "withdateranges": true,
-        "details": false,
-        "hotlist": false,
-        "studies": ["Volume@tv-basicstudies"]
-      }
-      </script>
-    </div>
-  </div>
+<section>
+<div class="panel">
+<h3>График OZON — TradingView</h3>
+<div class="chart">
+<div class="tradingview-widget-container"
+style="height:100%;width:100%">
+<div class="tradingview-widget-container__widget"
+style="height:100%;width:100%"></div>
+<script
+src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
+async>
+{
+"autosize":true,
+"symbol":"RUS:OZON",
+"interval":"5",
+"timezone":"Europe/Moscow",
+"theme":"dark",
+"style":"1",
+"locale":"ru",
+"allow_symbol_change":false,
+"withdateranges":true,
+"hide_side_toolbar":false,
+"hide_top_toolbar":false,
+"save_image":false,
+"studies":["Volume@tv-basicstudies"]
+}
+</script>
+</div>
+</div>
+</div>
+
+<div class="panel">
+<h3>АНАЛИЗ РЫНКА</h3>
+<div class="status">ОЖИДАНИЕ ДАННЫХ</div>
+<p>Автоматический анализ пока не подключён.</p>
+<p class="small">
+Система ещё не получает биржевые свечи напрямую.
+Покупать по этому статусу нельзя.
+</p>
+</div>
+
+<div class="panel">
+<h3>РАСЧЁТ СДЕЛКИ</h3>
+
+<label>Цена покупки, ₽</label>
+<input id="buy" type="number" step="0.01" placeholder="Например, 3800">
+
+<label>Цена продажи, ₽</label>
+<input id="sell" type="number" step="0.01" placeholder="Например, 3830">
+
+<label>Количество акций</label>
+<input id="qty" type="number" min="1" step="1" value="1">
+
+<button onclick="calculate()">РАССЧИТАТЬ ПРИБЫЛЬ</button>
+
+<div class="panel">
+<div>Результат после расходов:</div>
+<p class="result" id="profit">— ₽</p>
+<div id="details" class="small">
+Введите цены покупки и продажи.
+</div>
+</div>
+</div>
+
+<div class="panel">
+<h3>ТОРГОВЫЕ СИГНАЛЫ</h3>
+<p>Покупка: <b id="buySignal">Ожидание данных</b></p>
+<p>Продажа: <b id="sellSignal">Ожидание данных</b></p>
+<p>Стоп-лосс: <b>Не рассчитан</b></p>
+<p>Цели прибыли: <b>Не рассчитаны</b></p>
+</div>
+
+<div class="small">
+OZON-Снайпер — аналитический инструмент.
+Реальные заявки брокеру пока не отправляются.
+</div>
+</section>
+
+<script>
+function calculate(){
+ const buy=Number(document.getElementById('buy').value);
+ const sell=Number(document.getElementById('sell').value);
+ const qty=Number(document.getElementById('qty').value);
+
+ if(!buy||!sell||!qty||buy<=0||sell<=0||qty<1){
+  alert('Проверьте цены и количество акций');
+  return;
+ }
+
+ const gross=(sell-buy)*qty;
+ const commission=20.14;
+ const taxable=Math.max(0,gross-commission);
+ const tax=taxable*0.13;
+ const net=gross-commission-tax;
+
+ document.getElementById('profit').textContent=
+  net.toFixed(2)+' ₽';
+
+ document.getElementById('details').textContent=
+  'Результат до расходов: '+gross.toFixed(2)+' ₽. '+
+  'Комиссии: 20,14 ₽. Налог (расчётный): '+
+  tax.toFixed(2)+' ₽.';
+}
+</script>
+
 </body>
 </html>
