@@ -1,141 +1,101 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101827">
-<title>OZON ANALYTIC</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OZON Снайпер</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#131e2e;--muted:#91a0b5;--text:#eef4ff;--green:#28c58b;--red:#ff667a;--line:#26364c;--blue:#70a7ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
-header{padding:20px 16px 12px;background:#101a2a;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line)}
-h1{font-size:20px;margin:0 0 4px;letter-spacing:.5px} .sub{color:var(--muted);font-size:12px}
-main{padding:14px;max-width:900px;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row.between{justify-content:space-between}
-button{border:1px solid #344761;background:#1b2a40;color:var(--text);border-radius:10px;padding:10px 13px;font-weight:650}
-button.active{background:#28528b;border-color:#70a7ff}button:disabled{opacity:.5}
-.price{font-size:28px;font-weight:750;letter-spacing:-.5px}.muted{color:var(--muted)}.small{font-size:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#0d1726;border-radius:10px;padding:10px;min-width:0}.stat b{display:block;font-size:15px;margin-top:4px;overflow:hidden;text-overflow:ellipsis}
-canvas{width:100%;height:310px;display:block;margin-top:8px}
-.status{font-size:12px;color:var(--muted);padding-top:8px}.good{color:var(--green)}.bad{color:var(--red)}
-.signal{font-size:18px;font-weight:750}.pill{border-radius:20px;padding:5px 9px;background:#203047;font-size:12px}
-input{background:#0d1726;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:9px;width:90px}
-footer{color:var(--muted);font-size:11px;line-height:1.5;padding:4px 2px 24px}
-@media(max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}canvas{height:270px}}
+body{margin:0;background:#101827;color:white;font-family:Arial;padding:16px}
+h1{color:#42d69a}
+.card{background:#1d2b40;padding:16px;border-radius:14px;margin:14px 0}
+input,button{padding:13px;border-radius:8px;border:0;margin:5px 0;font-size:16px}
+input{width:90%;background:#293b53;color:white}
+button{background:#20a878;color:white;font-weight:bold}
+.small{color:#a9bbce;font-size:13px}
+.price{font-size:28px;font-weight:bold}
 </style>
 </head>
 <body>
-<header><h1>OZON ANALYTIC</h1><div class="sub">MOEX · OZON · технический анализ</div></header>
-<main>
-<section class="panel">
- <div class="row between"><div><div class="muted small">АКЦИЯ OZON · RUB</div><div class="price" id="price">—</div><div class="small" id="change">Загрузка котировок…</div></div><span class="pill" id="delay">MOEX ISS · задержка до 15 мин</span></div>
- <div class="stats">
-  <div class="stat"><span class="muted small">Открытие</span><b id="open">—</b></div>
-  <div class="stat"><span class="muted small">Максимум</span><b id="high">—</b></div>
-  <div class="stat"><span class="muted small">Минимум</span><b id="low">—</b></div>
- </div>
- <div class="status" id="updated">—</div>
-</section>
-<section class="panel">
- <div class="row between"><b>График цены</b><div class="row">
-  <button data-period="5" class="active">5 мин</button><button data-period="15">15 мин</button><button data-period="24">1 день</button>
- </div></div>
- <canvas id="chart"></canvas>
- <div class="row between small muted"><span id="range">—</span><span>Свечи OHLC · объём</span></div>
-</section>
-<section class="panel">
- <div class="row between"><b>Технический анализ</b><span class="pill" id="trend">—</span></div>
- <div class="stats">
-  <div class="stat"><span class="muted small">RSI (14)</span><b id="rsi">—</b></div>
-  <div class="stat"><span class="muted small">Поддержка*</span><b id="support">—</b></div>
-  <div class="stat"><span class="muted small">Сопротивление*</span><b id="resistance">—</b></div>
- </div>
- <p class="small muted" id="analysis">После загрузки здесь появится описание показателей.</p>
-</section>
-<section class="panel">
- <div class="row between"><b>Обновление данных</b><button id="refresh">Обновить</button></div>
- <div class="status" id="status">Подключение к Московской бирже…</div>
-</section>
-<footer>
-Источник: публичный MOEX ISS. Для анонимного доступа биржа указывает задержку данных до 15 минут; реальное время требует соответствующего доступа. Периоды 5 и 15 минут формируются из минутных свечей. *Поддержка и сопротивление — ориентировочные локальные экстремумы, не торговая рекомендация. Данные могут быть недоступны вне торгов и при ограничениях API.
-</footer>
-</main>
+<h1>🎯 OZON Снайпер</h1>
+<p class="small">Автоматический мониторинг · MOEX</p>
+
+<div class="card">
+<div class="small">График OZON · TradingView</div>
+<div class="tradingview-widget-container">
+<div id="tradingview_chart" style="height:400px"></div>
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-const API='https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json';
-let period=5, candles=[], timer=null;
-const $=id=>document.getElementById(id);
-const fmt=n=>Number(n).toLocaleString('ru-RU',{maximumFractionDigits:2});
-function dateDaysAgo(days){const d=new Date();d.setDate(d.getDate()-days);return d.toISOString().slice(0,10)}
-async function getCandles(interval,days){
- const url=`${API}?interval=${interval}&from=${dateDaysAgo(days)}&iss.meta=off& limit=500`;
- const clean=url.replace('& limit','&limit');
- const r=await fetch(clean,{cache:'no-store'}); if(!r.ok) throw Error('MOEX ответил HTTP '+r.status);
- const j=await r.json(), block=j.candles;
- if(!block||!block.data||!block.columns) throw Error('Биржа не вернула свечи');
- return block.data.map(row=>Object.fromEntries(block.columns.map((c,i)=>[c,row[i]]))).filter(x=>Number.isFinite(Number(x.close)));
-}
-function aggregate(rows,size){
- const out=[];
- for(let i=0;i<rows.length;i+=size){const a=rows.slice(i,i+size);if(!a.length)continue;
- out.push({begin:a[0].begin,open:+a[0].open,high:Math.max(...a.map(x=>+x.high)),low:Math.min(...a.map(x=>+x.low)),close:+a[a.length-1].close,volume:a.reduce((s,x)=>s+(+x.volume||0),0)});}
- return out;
-}
-function calcRSI(rows){
- if(rows.length<15)return null;let gains=0,losses=0;
- for(let i=rows.length-14;i<rows.length;i++){let d=+rows[i].close-(+rows[i-1].close);if(d>0)gains+=d;else losses-=d;}
- if(losses===0)return 100;return 100-100/(1+(gains/14)/(losses/14));
-}
-function levels(rows){
- const tail=rows.slice(-60);if(!tail.length)return {};
- const price=+tail[tail.length-1].close, lows=tail.map(x=>+x.low).filter(x=>x<price), highs=tail.map(x=>+x.high).filter(x=>x>price);
- return {s:lows.length?Math.max(...lows):Math.min(...tail.map(x=>+x.low)),r:highs.length?Math.min(...highs):Math.max(...tail.map(x=>+x.high))};
-}
-function draw(rows){
- const c=$('chart'),ctx=c.getContext('2d'),dpr=devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;
- c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
- if(!rows.length){ctx.fillStyle='#91a0b5';ctx.fillText('Нет данных для графика',16,30);return}
- const shown=rows.slice(-70),min=Math.min(...shown.map(x=>+x.low)),max=Math.max(...shown.map(x=>+x.high)),pad=(max-min)*.12||1,lo=min-pad,hi=max+pad;
- const left=8,right=52,top=12,bottom=28,cw=w-left-right,ch=h-top-bottom;
- ctx.font='10px system-ui';ctx.strokeStyle='#26364c';ctx.fillStyle='#91a0b5';ctx.lineWidth=1;
- for(let k=0;k<=4;k++){let y=top+ch*k/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.fillText(fmt(hi-(hi-lo)*k/4),w-right+5,y+3)}
- const step=cw/shown.length,bw=Math.max(2,step*.58);
- shown.forEach((x,i)=>{let xx=left+i*step+step/2,yo=top+(hi-+x.open)/(hi-lo)*ch,yc=top+(hi-+x.close)/(hi-lo)*ch,yh=top+(hi-+x.high)/(hi-lo)*ch,yl=top+(hi-+x.low)/(hi-lo)*ch,col=+x.close>=+x.open?'#28c58b':'#ff667a';
- ctx.strokeStyle=col;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(xx,yh);ctx.lineTo(xx,yl);ctx.stroke();ctx.fillRect(xx-bw/2,Math.min(yo,yc),bw,Math.max(1,Math.abs(yc-yo)));
- });
- ctx.fillStyle='#91a0b5';ctx.fillText(shown[0].begin||'',left,h-8);ctx.fillText(shown[shown.length-1].begin||'',Math.max(left,w-right-75),h-8);
- $('range').textContent=`${shown.length} свечей · ${fmt(min)}–${fmt(max)} ₽`;
-}
-async function load(){
- $('status').textContent='Загружаю данные MOEX…';$('refresh').disabled=true;
- try{
-  let raw;
-  if(period===24) raw=await getCandles(24,500);
-  else {raw=await getCandles(1,10);raw=aggregate(raw,period);}
-  if(!raw.length)throw Error('Свечи не найдены. Возможно, сейчас нет торгов или MOEX временно не отдаёт данные.');
-  candles=raw;draw(candles);
-  const last=raw[raw.length-1],first=raw[0],prev=raw.length>1?raw[raw.length-2]:first;
-  $('price').textContent=fmt(last.close)+' ₽';
-  const diff=+last.close-(+prev.close),pct=diff/(+prev.close)*100;
-  $('change').textContent=(diff>=0?'+':'')+fmt(diff)+' ₽ ('+(pct>=0?'+':'')+fmt(pct)+'%) к предыдущей свече';
-  $('change').className='small '+(diff>=0?'good':'bad');
-  $('open').textContent=fmt(last.open)+' ₽';$('high').textContent=fmt(last.high)+' ₽';$('low').textContent=fmt(last.low)+' ₽';
-  const rsi=calcRSI(raw),lv=levels(raw);
-  $('rsi').textContent=rsi===null?'нужно больше данных':fmt(rsi);
-  $('support').textContent=lv.s?fmt(lv.s)+' ₽':'—';$('resistance').textContent=lv.r?fmt(lv.r)+' ₽':'—';
-  const sma=raw.slice(-20).reduce((s,x)=>s+(+x.close),0)/Math.min(20,raw.length),trend=+last.close>sma?'Выше средней':'Ниже средней';
-  $('trend').textContent=trend;
-  $('analysis').textContent=`Цена ${trend.toLowerCase()} за последние ${Math.min(20,raw.length)} свечей. RSI ${rsi===null?'пока не рассчитан':fmt(rsi)+(rsi>70?' — зона повышенного риска перегрева':rsi<30?' — зона возможной перепроданности':' — нейтральная область')}. Уровни рассчитаны по локальным экстремумам последних 60 свечей.`;
-  const stamp=new Date();$('updated').textContent='Последнее обновление: '+stamp.toLocaleString('ru-RU');
-  $('status').textContent='Данные получены. Автообновление — раз в 60 секунд; фактическая задержка MOEX может достигать 15 минут.';
- }catch(e){$('status').textContent='Ошибка загрузки: '+e.message;$('status').className='status bad';}
- finally{$('refresh').disabled=false;}
-}
-document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{period=+b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===b));load()}));
-$('refresh').addEventListener('click',load);
-window.addEventListener('resize',()=>draw(candles));
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
-load();timer=setInterval(load,60000);
+new TradingView.widget({
+"autosize":true,
+"symbol":"MOEX:OZON",
+"interval":"5",
+"timezone":"Europe/Moscow",
+"theme":"dark",
+"style":"1",
+"locale":"ru",
+"enable_publishing":false,
+"allow_symbol_change":false,
+"container_id":"tradingview_chart"
+});
 </script>
-</body></html>
+</div>
+</div>
+
+<div class="card">
+<h3>Сигнал системы</h3>
+<div class="price">ОЖИДАНИЕ</div>
+<p class="small">Автоматический анализ подключим после настройки биржевых данных.</p>
+</div>
+
+<div class="card">
+<h3>Виртуальные сделки</h3>
+<p>Начальный виртуальный баланс: 100 000 ₽</p>
+<label>Цена покупки / продажи (₽)</label><br>
+<input id="price" type="number" placeholder="Введи цену акции">
+<br>
+<label>Количество акций</label><br>
+<input id="qty" type="number" value="1">
+<br>
+<button onclick="buy()">Виртуально купить</button>
+<button onclick="sell()">Виртуально продать</button>
+<p id="result">Сделок пока нет</p>
+</div>
+
+<div class="card">
+<h3>Параметры торговли</h3>
+<p>Комиссия покупки: 10,07 ₽</p>
+<p>Комиссия продажи: 10,07 ₽</p>
+<p>Налог на прибыль: 13%</p>
+</div>
+
+<script>
+let balance=100000;
+let position=null;
+let history=[];
+function buy(){
+let p=Number(document.getElementById('price').value);
+let q=Number(document.getElementById('qty').value);
+if(!p||!q||p*q+10.07>balance){alert('Проверь цену, количество и баланс');return;}
+balance-=p*q+10.07;
+position={p,q};
+show('Виртуальная покупка: '+q+' акц. по '+p+' ₽');
+}
+function sell(){
+let p=Number(document.getElementById('price').value);
+if(!p||!position){alert('Нет открытой виртуальной позиции');return;}
+let profit=(p-position.p)*position.q-20.14;
+let tax=Math.max(0,profit)*0.13;
+let net=profit-tax;
+balance+=p*position.q-10.07;
+history.push(net);
+show('Результат сделки: '+net.toFixed(2)+' ₽');
+position=null;
+}
+function show(message){
+document.getElementById('result').innerHTML=
+message+'<br>Баланс: '+balance.toFixed(2)+' ₽';
+}
+</script>
+</body>
+</html>
