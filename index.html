@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OZON-Снайпер 3.3</title>
+<title>OZON-Снайпер 3.4</title>
 <style>
 :root{color-scheme:dark}
 *{box-sizing:border-box}
@@ -19,6 +19,8 @@ iframe{width:100%;height:430px;border:0;border-radius:9px}
 .price{font-size:34px;font-weight:bold;margin:8px 0}
 .status{padding:12px;border-radius:9px;background:#273244;margin-top:10px;line-height:1.5}
 .good{color:#54d69a}.bad{color:#ff7373}.warn{color:#ffc66d}
+.stale-banner{display:none;padding:14px;border:1px solid #a83d48;background:#451e29;color:#ffd9dd;border-radius:10px;margin:12px 0;font-weight:bold;line-height:1.5}
+.stale-banner.show{display:block}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .metric{background:#111a27;padding:12px;border-radius:9px}
 .metric span{display:block;color:#9ca9bc;font-size:12px;margin-bottom:7px}
@@ -39,7 +41,7 @@ footer{font-size:12px;color:#8997aa;line-height:1.6;padding:10px}
 <body>
 <main>
 <header>
-<h1>🎯 OZON-Снайпер 3.3</h1>
+<h1>🎯 OZON-Снайпер 3.4</h1>
 <div class="sub">Автоматический анализ акции OZON · Московская биржа</div>
 </header>
 
@@ -59,6 +61,8 @@ allowtransparency="true" scrolling="no" allowfullscreen></iframe>
 <div style="height:12px"></div>
 <button id="refresh" onclick="loadData()">Обновить данные</button>
 </section>
+
+<div id="staleBanner" class="stale-banner" role="alert">⚠ ДАННЫЕ УСТАРЕЛИ. Торговые сигналы заблокированы до получения свежих свечей MOEX.</div>
 
 <section class="card">
 <h2>Сигналы системы</h2>
@@ -136,7 +140,7 @@ const API="https://iss.moex.com/iss";
 const SYMBOL="OZON";
 const BOARD="TQBR";
 const MAX_MINUTES=5000;
-const STALE_MINUTES=20;
+const STALE_MINUTES=10;
 const COMMISSION=20.14;
 
 let minuteCandles=[];
@@ -271,12 +275,25 @@ function getStats(data){
   const trend=maGap<0.00025?"БОКОВОЙ":ma9>ma21?"ВВЕРХ":"ВНИЗ";
   return {last,ma9,ma21,r,a,volRatio,resistance,support,trend,maGap};
 }
+function showStale(message){
+  const banner=document.getElementById("staleBanner");
+  banner.classList.add("show");
+  if(message) banner.textContent="⚠ ДАННЫЕ УСТАРЕЛИ. "+message+" Торговые сигналы заблокированы до получения свежих свечей MOEX.";
+  setText("earlySignal","ДАННЫЕ УСТАРЕЛИ");
+  document.getElementById("earlySignal").className="bigSignal bad";
+  setText("earlyText","Последняя закрытая свеча старше "+STALE_MINUTES+" минут. Новые сигналы не формируются.");
+  setText("signal","ДАННЫЕ УСТАРЕЛИ");
+  document.getElementById("signal").className="bigSignal bad";
+  setText("signalText","Проверь обновление данных MOEX. Покупать по старому сигналу нельзя.");
+  clearPlan();
+}
+function hideStale(){document.getElementById("staleBanner").classList.remove("show");}
 function renderQuote(quote,stats){
   const marketLast=quote?Number(quote.LAST):NaN;
   const current=Number.isFinite(marketLast)&&marketLast>0?marketLast:stats.last.close;
   setText("price",money(current));
   const age=Math.max(0,(Date.now()-(stats.last.time+300000))/60000);
-  setText("quoteTime","Последняя закрытая свеча: "+formatMoscowTime(stats.last.time)+" · возраст "+Math.round(age)+" мин.");
+  setText("quoteTime","Последняя закрытая свеча: "+formatMoscowTime(stats.last.time)+" · возраст "+number(age,1)+" мин.");
   const parts=[];
   if(quote?.STATUS) parts.push("Статус биржи: "+quote.STATUS);
   if(quote?.UPDATETIME) parts.push("Время обновления котировки: "+quote.UPDATETIME);
@@ -297,14 +314,10 @@ function renderSignals(s){
   const age=(Date.now()-(s.last.time+300000))/60000;
   clearPlan();
   if(age>STALE_MINUTES){
-    setText("earlySignal","ДАННЫЕ УСТАРЕЛИ");
-    document.getElementById("earlySignal").className="bigSignal bad";
-    setText("earlyText","Последняя закрытая свеча старше "+STALE_MINUTES+" минут. Новые сигналы не формируются.");
-    setText("signal","ДАННЫЕ УСТАРЕЛИ");
-    document.getElementById("signal").className="bigSignal bad";
-    setText("signalText","Проверь обновление данных MOEX.");
+    showStale("Последняя закрытая свеча старше "+STALE_MINUTES+" минут.");
     return;
   }
+  hideStale();
   const c=s.last,atrValue=Number.isFinite(s.a)&&s.a>0?s.a:0;
   const aboveMA=c.close>s.ma9&&s.ma9>=s.ma21;
   const belowMA=c.close<s.ma9&&s.ma9<=s.ma21;
@@ -375,10 +388,10 @@ async function loadData(){
       ". Последняя проверка: "+lastLoadTime.toLocaleTimeString("ru-RU")+
       ". Автообновление — раз в минуту. Порог устаревания — "+STALE_MINUTES+" минут.");
   }catch(error){
-    setText("signal","ОШИБКА ДАННЫХ");document.getElementById("signal").className="bigSignal bad";
-    setText("signalText",error.message||"Не удалось получить данные.");
+    showStale("Не удалось подтвердить свежесть данных: "+(error.message||"ошибка подключения")+".");
+    setText("signalText","Нет подтверждённого обновления MOEX. Торговля по прежнему сигналу запрещена.");
     setText("connection","Не удалось обновить данные MOEX: "+(error.message||"ошибка подключения"));
-    setText("systemStatus","Последняя попытка: "+new Date().toLocaleTimeString("ru-RU")+". "+(error.message||"Неизвестная ошибка"));
+    setText("systemStatus","Последняя попытка: "+new Date().toLocaleTimeString("ru-RU")+". Данные не подтверждены; сигналы заблокированы. "+(error.message||"Неизвестная ошибка"));
   }finally{
     loading=false;button.disabled=false;button.textContent="Обновить данные";
   }
