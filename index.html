@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OZON-Снайпер 3.4</title>
+<title>OZON-Снайпер 3.5</title>
 <style>
 :root{color-scheme:dark}
 *{box-sizing:border-box}
@@ -41,7 +41,7 @@ footer{font-size:12px;color:#8997aa;line-height:1.6;padding:10px}
 <body>
 <main>
 <header>
-<h1>🎯 OZON-Снайпер 3.4</h1>
+<h1>🎯 OZON-Снайпер 3.5</h1>
 <div class="sub">Автоматический анализ акции OZON · Московская биржа</div>
 </header>
 
@@ -141,6 +141,7 @@ const SYMBOL="OZON";
 const BOARD="TQBR";
 const MAX_MINUTES=5000;
 const STALE_MINUTES=10;
+const QUOTE_STALE_MINUTES=10;
 const COMMISSION=20.14;
 
 let minuteCandles=[];
@@ -278,7 +279,7 @@ function getStats(data){
 function showStale(message){
   const banner=document.getElementById("staleBanner");
   banner.classList.add("show");
-  if(message) banner.textContent="⚠ ДАННЫЕ УСТАРЕЛИ. "+message+" Торговые сигналы заблокированы до получения свежих свечей MOEX.";
+  if(message) banner.textContent="⚠ ДАННЫЕ УСТАРЕЛИ. "+message+" Торговые сигналы заблокированы до получения свежих данных MOEX.";
   setText("earlySignal","ДАННЫЕ УСТАРЕЛИ");
   document.getElementById("earlySignal").className="bigSignal bad";
   setText("earlyText","Последняя закрытая свеча старше "+STALE_MINUTES+" минут. Новые сигналы не формируются.");
@@ -288,16 +289,38 @@ function showStale(message){
   clearPlan();
 }
 function hideStale(){document.getElementById("staleBanner").classList.remove("show");}
+function getQuoteTimestamp(quote){
+  if(!quote||!quote.UPDATETIME) return NaN;
+  const time=String(quote.UPDATETIME).trim();
+  if(!/^\d{2}:\d{2}(:\d{2})?$/.test(time)) return NaN;
+  const date=/^\d{4}-\d{2}-\d{2}$/.test(String(quote.TRADEDATE||""))
+    ? String(quote.TRADEDATE)
+    : moscowDateString();
+  return parseMoscowDate(date+" "+time);
+}
 function renderQuote(quote,stats){
   const marketLast=quote?Number(quote.LAST):NaN;
-  const current=Number.isFinite(marketLast)&&marketLast>0?marketLast:stats.last.close;
+  const hasPrice=Number.isFinite(marketLast)&&marketLast>0;
+  const current=hasPrice?marketLast:stats.last.close;
   setText("price",money(current));
-  const age=Math.max(0,(Date.now()-(stats.last.time+300000))/60000);
-  setText("quoteTime","Последняя закрытая свеча: "+formatMoscowTime(stats.last.time)+" · возраст "+number(age,1)+" мин.");
+
+  const candleAge=Math.max(0,(Date.now()-(stats.last.time+300000))/60000);
+  const quoteTimestamp=getQuoteTimestamp(quote);
+  const quoteAge=Number.isFinite(quoteTimestamp)?(Date.now()-quoteTimestamp)/60000:NaN;
+  const quoteFresh=!!quote&&hasPrice&&Number.isFinite(quoteAge)&&quoteAge>=-1&&quoteAge<=QUOTE_STALE_MINUTES;
+
+  setText("quoteTime",
+    "Свеча: "+number(candleAge,1)+" мин. · Котировка: "+
+    (Number.isFinite(quoteAge)?number(Math.max(0,quoteAge),1)+" мин.":"время не определено"));
+
   const parts=[];
   if(quote?.STATUS) parts.push("Статус биржи: "+quote.STATUS);
-  if(quote?.UPDATETIME) parts.push("Время обновления котировки: "+quote.UPDATETIME);
-  setText("connection","● Данные MOEX получены."+(parts.length?" "+parts.join(" · "):""));
+  if(quote?.UPDATETIME) parts.push("Время котировки: "+quote.UPDATETIME);
+  if(!quote) parts.push("Котировка не получена");
+  else if(!hasPrice) parts.push("Цена котировки отсутствует");
+  if(!Number.isFinite(quoteTimestamp)) parts.push("Не удалось определить время обновления котировки");
+  setText("connection",(quoteFresh?"● Котировка свежая. ":"⚠ Свежесть котировки не подтверждена. ")+parts.join(" · "));
+  return {fresh:quoteFresh,age:quoteAge};
 }
 function renderStats(data,s){
   setText("trend",s.trend);setText("rsi",number(s.r,1));
@@ -310,11 +333,18 @@ function clearPlan(){
   ["entry","stop","target1","target2"].forEach(id=>setText(id,"—"));
   setText("planText","План появится при подтверждённом сигнале.");
 }
-function renderSignals(s){
+function renderSignals(s,quoteStatus){
   const age=(Date.now()-(s.last.time+300000))/60000;
   clearPlan();
   if(age>STALE_MINUTES){
     showStale("Последняя закрытая свеча старше "+STALE_MINUTES+" минут.");
+    return;
+  }
+  if(!quoteStatus||!quoteStatus.fresh){
+    const detail=quoteStatus&&Number.isFinite(quoteStatus.age)
+      ? "Возраст котировки "+number(Math.max(0,quoteStatus.age),1)+" мин.; допустимо не более "+QUOTE_STALE_MINUTES+" минут."
+      : "Время обновления котировки не удалось определить.";
+    showStale("Свежесть котировки не подтверждена. "+detail);
     return;
   }
   hideStale();
@@ -381,12 +411,12 @@ async function loadData(){
     fiveCandles=aggregateFiveMinutes(minuteCandles);
     if(fiveCandles.length<30)throw new Error("MOEX вернула слишком мало закрытых свечей: "+fiveCandles.length);
     const stats=getStats(fiveCandles);
-    renderQuote(lastQuote,stats);renderStats(fiveCandles,stats);renderSignals(stats);
+    const quoteStatus=renderQuote(lastQuote,stats);renderStats(fiveCandles,stats);renderSignals(stats,quoteStatus);
     lastLoadTime=new Date();
     setText("systemStatus","Минутных свечей: "+minuteCandles.length+". Закрытых пятиминутных свечей: "+fiveCandles.length+
       ". Период: "+formatMoscowTime(minuteCandles[0]?.time)+" — "+formatMoscowTime(minuteCandles[minuteCandles.length-1]?.time)+
       ". Последняя проверка: "+lastLoadTime.toLocaleTimeString("ru-RU")+
-      ". Автообновление — раз в минуту. Порог устаревания — "+STALE_MINUTES+" минут.");
+      ". Автообновление — раз в минуту. Порог свежести свечей и котировки — "+STALE_MINUTES+" минут.");
   }catch(error){
     showStale("Не удалось подтвердить свежесть данных: "+(error.message||"ошибка подключения")+".");
     setText("signalText","Нет подтверждённого обновления MOEX. Торговля по прежнему сигналу запрещена.");
