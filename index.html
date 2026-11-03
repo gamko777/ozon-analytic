@@ -2,10 +2,13 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080e1b">
-<meta name="description" content="OZON SNIPER 5.1 — график TradingView и технические анализаторы акций OZON">
-<title>OZON SNIPER 5.1</title>
+<meta name="description" content="OZON SNIPER 5.2 — график TradingView и технические анализаторы акций OZON">
+<title>OZON SNIPER 5.2</title>
 <style>
 :root{color-scheme:dark;--bg:#080e1b;--panel:#111c2d;--panel2:#0c1626;--line:#26364e;--muted:#91a3bc;--text:#edf4ff;--green:#24d6a0;--red:#ff647b;--yellow:#f5c75e;--blue:#69aaff;--purple:#b69cff}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1b3151 0,#080e1b 58%);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -14,16 +17,16 @@ button,select,input{font:inherit;color:var(--text);background:#0b1729;border:1px
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:11px}.card{background:linear-gradient(180deg,#121e30,#0e1828);border:1px solid var(--line);border-radius:15px;padding:14px;min-width:0;box-shadow:0 10px 30px #0002}.s12{grid-column:span 12}.s8{grid-column:span 8}.s7{grid-column:span 7}.s6{grid-column:span 6}.s5{grid-column:span 5}.s4{grid-column:span 4}
 .label{font-size:11px;text-transform:uppercase;letter-spacing:.75px;color:var(--muted)}.muted,.small{color:var(--muted)}.small{font-size:11px}.price{font-size:30px;font-weight:850;letter-spacing:-.8px;margin:3px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}.signal{font-size:23px;font-weight:950;margin:3px 0}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--yellow)}
 .statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px}.stat{background:#0a1423;border:1px solid #223149;border-radius:11px;padding:9px;min-width:0}.stat b{display:block;font-size:16px;margin-top:3px;overflow-wrap:anywhere}.meter{height:7px;background:#26354b;border-radius:10px;overflow:hidden;margin:8px 0}.meter i{display:block;height:100%;background:linear-gradient(90deg,#f5c75e,#24d6a0);width:0}
-.tv-wrap{height:530px;min-height:420px;background:#080e1b;border:1px solid #25364f;border-radius:12px;overflow:hidden;margin-top:10px}.tradingview-widget-container,.tradingview-widget-container__widget,#tv_chart{width:100%;height:100%}
+.tv-wrap{height:650px;min-height:520px;background:#080e1b;border:1px solid #25364f;border-radius:12px;overflow:hidden;margin-top:10px}.tradingview-widget-container,.tradingview-widget-container__widget,#tv_chart{width:100%;height:100%}
 .analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mini-chart{height:170px;width:100%;display:block;margin-top:6px}.analyzer-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.analyzer-value{font-size:17px;font-weight:800}.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.level{background:#0a1423;border:1px solid #223149;border-radius:11px;padding:10px}.level b{display:block;font-size:16px;margin-top:4px;overflow-wrap:anywhere}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.field input{width:100%}.result{font-size:24px;font-weight:850;margin:7px 0}.positive{color:var(--green)}.negative{color:var(--red)}.notice{padding:10px 12px;border:1px solid #6d5929;background:#2b2415;color:#f4d98f;border-radius:11px;font-size:12px;margin-top:10px}.notice.good{border-color:#245d4c;background:#10251f;color:#9af0d0}.notice.error{border-color:#713644;background:#2a1720;color:#ffb6c0}.reasons{padding-left:17px;margin:7px 0 0}.reasons li{margin:5px 0;color:#cbd7e7}.footer{text-align:center;color:#72849e;font-size:10px;margin-top:17px}
-@media(max-width:800px){.s8,.s7,.s6,.s5,.s4{grid-column:span 12}.tv-wrap{height:440px;min-height:380px}.analysis-grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,minmax(0,1fr))}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.price{font-size:27px}}
+@media(max-width:800px){.s8,.s7,.s6,.s5,.s4{grid-column:span 12}.tv-wrap{height:560px;min-height:480px}.analysis-grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,minmax(0,1fr))}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.price{font-size:27px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top">
- <div class="brand"><div class="logo">OS</div><div><h1>OZON SNIPER <span style="color:var(--blue)">5.1</span></h1><small>TradingView · MOEX · технические анализаторы</small></div></div>
- <div class="toolbar"><span class="pill" id="connection">● подключение</span><button class="primary" id="refreshBtn">Обновить данные</button></div>
+ <div class="brand"><div class="logo">OS</div><div><h1>OZON SNIPER <span style="color:var(--blue)">5.2</span></h1><small>TradingView · MOEX · технические анализаторы</small></div></div>
+ <div class="toolbar"><span class="pill" id="connection">● подключение</span><button id="alertsBtn">🔔 Включить оповещения</button><button class="primary" id="refreshBtn">Обновить данные</button></div>
 </header>
 
 <div class="grid">
@@ -43,6 +46,7 @@ button,select,input{font:inherit;color:var(--text);background:#0b1729;border:1px
  <div class="label">Главный торговый сигнал</div><div class="signal wait" id="signal">ЖДАТЬ</div>
  <div class="row"><span class="muted">Сила технического сигнала</span><b id="strength">—%</b></div><div class="meter"><i id="strengthBar"></i></div>
  <div class="small" id="signalSummary">Ожидание рыночных данных…</div>
+ <div class="notice" id="alertStatus">Оповещения выключены. Нажми «Включить оповещения», чтобы разрешить звук и уведомления.</div>
  <div class="statgrid">
   <div class="stat"><span class="label">RSI 14</span><b id="rsi">—</b></div>
   <div class="stat"><span class="label">MACD</span><b id="macd">—</b></div>
@@ -107,95 +111,5 @@ button,select,input{font:inherit;color:var(--text);background:#0b1729;border:1px
  <div class="small" style="margin-top:8px">TradingView загружается отдельно и может показывать котировки с собственными условиями задержки. Время обновления MOEX и TradingView может отличаться.</div>
 </section>
 </div>
-<div class="footer">OZON SNIPER 5.1 · Аналитический инструмент. Не подключён к брокеру, не выставляет заявки и не гарантирует доходность.</div>
+<div class="footer">OZON SNIPER 5.2 · Аналитический инструмент. Не подключён к брокеру, не выставляет заявки и не гарантирует доходность.</div>
 </div>
-<script>
-'use strict';
-const API='https://iss.moex.com/iss',SECURITY='OZON',BOARD='TQBR';
-const COMMISSION_BUY=10.07,COMMISSION_SELL=10.07,TAX_RATE=.13;
-const $=id=>document.getElementById(id);
-let raw=[],bars=[],quote=null,analysis=null,busy=false,tvWidget=null,tvInterval='5';
-const fmt=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
-const rub=v=>Number.isFinite(v)?fmt(v,2)+' ₽':'—';
-function status(msg,kind=''){ $('statusMessage').textContent=msg;$('statusMessage').className='notice '+kind; }
-function connection(msg,ok=false){$('connection').textContent='● '+msg;$('connection').style.color=ok?'var(--green)':'var(--yellow)'}
-async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
-function dateParam(d){return d.toISOString().slice(0,10)}
-async function candles(){
- const from=new Date(Date.now()-7*86400000);
- const u=`${API}/engines/stock/markets/shares/boards/${BOARD}/securities/${SECURITY}/candles.json?from=${dateParam(from)}&interval=1&limit=500&iss.meta=off`;
- const j=await json(u),cols=j.candles?.columns||[],rows=j.candles?.data||[],ix=Object.fromEntries(cols.map((v,i)=>[v,i]));
- return rows.map(r=>({time:new Date(r[ix.begin]).getTime(),open:+r[ix.open],high:+r[ix.high],low:+r[ix.low],close:+r[ix.close],volume:+r[ix.volume]})).filter(x=>x.time&&x.close>0).sort((a,b)=>a.time-b.time);
-}
-async function quoteNow(){
- const u=`${API}/engines/stock/markets/shares/boards/${BOARD}/securities/${SECURITY}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,OPEN,HIGH,LOW,CHANGE,UPDATETIME`;
- const j=await json(u),cols=j.marketdata?.columns||[],r=j.marketdata?.data?.[0];if(!r)return null;const ix=Object.fromEntries(cols.map((v,i)=>[v,i]));
- return {last:+r[ix.LAST],open:+r[ix.OPEN],change:+r[ix.CHANGE],time:r[ix.UPDATETIME]};
-}
-function aggregate(data,mins){if(mins===1)return data;const step=mins*60000,m=new Map();for(const c of data){const t=Math.floor(c.time/step)*step;let b=m.get(t);if(!b)m.set(t,{time:t,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume});else{b.high=Math.max(b.high,c.high);b.low=Math.min(b.low,c.low);b.close=c.close;b.volume+=c.volume}}return [...m.values()].sort((a,b)=>a.time-b.time)}
-function sma(v,n){return v.map((_,i)=>i<n-1?null:v.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n)}
-function ema(v,n){const out=Array(v.length).fill(null);if(v.length<n)return out;const k=2/(n+1);let prev=v.slice(0,n).reduce((a,b)=>a+b,0)/n;out[n-1]=prev;for(let i=n;i<v.length;i++){prev=v[i]*k+prev*(1-k);out[i]=prev}return out}
-function rsi(v,n=14){if(v.length<=n)return Array(v.length).fill(null);const o=Array(v.length).fill(null);let g=0,l=0;for(let i=1;i<=n;i++){let d=v[i]-v[i-1];g+=Math.max(d,0);l+=Math.max(-d,0)}g/=n;l/=n;o[n]=l===0?100:100-100/(1+g/l);for(let i=n+1;i<v.length;i++){let d=v[i]-v[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n;o[i]=l===0?100:100-100/(1+g/l)}return o}
-function atrSeries(d,n=14){const tr=d.map((b,i)=>i?Math.max(b.high-b.low,Math.abs(b.high-d[i-1].close),Math.abs(b.low-d[i-1].close)):b.high-b.low);return sma(tr,n)}
-function macdSeries(v){const e12=ema(v,12),e26=ema(v,26),line=v.map((_,i)=>e12[i]!==null&&e26[i]!==null?e12[i]-e26[i]:null);let compact=line.map(x=>x===null?0:x),sig=ema(compact,9);return {line,signal:sig,hist:line.map((x,i)=>x===null||sig[i]===null?null:x-sig[i])}}
-function findLevels(d){const tail=d.slice(-70);let lows=[],highs=[];for(let i=2;i<tail.length-2;i++){if(tail[i].low<=tail[i-1].low&&tail[i].low<=tail[i-2].low&&tail[i].low<=tail[i+1].low&&tail[i].low<=tail[i+2].low)lows.push(tail[i].low);if(tail[i].high>=tail[i-1].high&&tail[i].high>=tail[i-2].high&&tail[i].high>=tail[i+1].high&&tail[i].high>=tail[i+2].high)highs.push(tail[i].high)}const p=d.at(-1)?.close;return {support:lows.filter(x=>x<p).sort((a,b)=>b-a)[0]||Math.min(...tail.map(x=>x.low)),resistance:highs.filter(x=>x>p).sort((a,b)=>a-b)[0]||Math.max(...tail.map(x=>x.high))}}
-function calculate(d){
- const c=d.map(x=>x.close),s9=sma(c,9),s21=sma(c,21),rv=rsi(c),av=atrSeries(d),mc=macdSeries(c),i=c.length-1,p=c[i],r=rv[i],a=av[i],m=mc.line[i],ms=mc.signal[i],h=mc.hist[i];
- if(c.length<35||r===null||a===null)return {signal:'ЖДАТЬ',strength:0,reasons:['Недостаточно свечей для расчёта (нужно не менее 35)'],s9:s9[i],s21:s21[i],rsi:r,atr:a,macd:m,macdSignal:ms,macdHist:h,levels:findLevels(d)};
- let score=0,reasons=[];
- if(s9[i]>s21[i]){score++;reasons.push('SMA 9 выше SMA 21 — краткосрочный тренд вверх')}else{score--;reasons.push('SMA 9 ниже SMA 21 — краткосрочный тренд вниз')}
- if(p>s9[i]){score++;reasons.push('Цена выше SMA 9')}else{score--;reasons.push('Цена ниже SMA 9')}
- if(r>=50&&r<=68){score++;reasons.push('RSI поддерживает импульс без явной перекупленности')}else if(r<43){score--;reasons.push('RSI указывает на слабость импульса')}else if(r>72){score--;reasons.push('RSI высокий — риск перегрева')}else reasons.push('RSI в нейтральной зоне')
- if(m>ms&&h>0){score++;reasons.push('MACD выше сигнальной линии — импульс положительный')}else if(m<ms&&h<0){score--;reasons.push('MACD ниже сигнальной линии — импульс отрицательный')}else reasons.push('MACD не даёт однозначного подтверждения')
- if(d[i].close>d[i-1].high){score++;reasons.push('Последняя свеча закрылась выше максимума предыдущей')}else if(d[i].close<d[i-1].low){score--;reasons.push('Последняя свеча закрылась ниже минимума предыдущей')}
- const signal=score>=3?'ПОКУПАТЬ':score<=-3?'ПРОДАВАТЬ':'ЖДАТЬ';
- return {signal,strength:Math.min(95,Math.round(50+Math.abs(score)*9)),reasons,s9:s9[i],s21:s21[i],rsi:r,atr:a,macd:m,macdSignal:ms,macdHist:h,macdLine:mc.line,macdSignalLine:mc.signal,macdHistogram:mc.hist,rsiSeries:rv,atrSeries:av,volumeSeries:d.map(x=>x.volume),levels:findLevels(d),price:p};
-}
-function drawLine(id,series,color,minOverride,maxOverride,thresholds=[]){
- const can=$(id),ctx=can.getContext('2d'),rect=can.getBoundingClientRect(),dpr=devicePixelRatio||1,w=rect.width,h=rect.height;can.width=Math.max(250,Math.floor(w*dpr));can.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
- const vals=series.filter(Number.isFinite);if(!vals.length){ctx.fillStyle='#91a3bc';ctx.fillText('Недостаточно данных',12,25);return}
- let min=minOverride??Math.min(...vals),max=maxOverride??Math.max(...vals);if(min===max){min-=1;max+=1}const pad=10,plotH=h-20;
- ctx.strokeStyle='#26364e';ctx.lineWidth=1;thresholds.forEach(t=>{const y=pad+(max-t)/(max-min)*plotH;ctx.beginPath();ctx.setLineDash([4,4]);ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();ctx.setLineDash([])});
- const visible=series.slice(-90),step=w/Math.max(1,visible.length-1);ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.8;let started=false;visible.forEach((v,i)=>{if(!Number.isFinite(v))return;const x=i*step,y=pad+(max-v)/(max-min)*plotH;if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});ctx.stroke();
-}
-function drawMACD(){const can=$('macdChart'),ctx=can.getContext('2d'),r=can.getBoundingClientRect(),dpr=devicePixelRatio||1,w=r.width,h=r.height;can.width=Math.max(250,w*dpr);can.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);if(!analysis?.macdHistogram)return;const hist=analysis.macdHistogram.slice(-90),line=analysis.macdLine.slice(-90),sig=analysis.macdSignalLine.slice(-90),all=[...hist,...line,...sig].filter(Number.isFinite),max=Math.max(...all.map(Math.abs))||1,zero=h/2,step=w/hist.length;ctx.strokeStyle='#26364e';ctx.beginPath();ctx.moveTo(0,zero);ctx.lineTo(w,zero);ctx.stroke();hist.forEach((v,i)=>{if(v==null)return;ctx.fillStyle=v>=0?'#24d6a0':'#ff647b';let bh=Math.abs(v)/max*(h*.42);ctx.fillRect(i*step, v>=0?zero-bh:zero,Math.max(1,step*.65),bh)});function linePlot(a,color){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;let on=false;a.forEach((v,i)=>{if(!Number.isFinite(v))return;let x=i*step,y=zero-v/max*(h*.42);if(!on){ctx.moveTo(x,y);on=true}else ctx.lineTo(x,y)});ctx.stroke()}linePlot(line,'#69aaff');linePlot(sig,'#f5c75e')}
-function drawVolume(){const can=$('volumeChart'),ctx=can.getContext('2d'),r=can.getBoundingClientRect(),dpr=devicePixelRatio||1,w=r.width,h=r.height;can.width=Math.max(250,w*dpr);can.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const d=bars.slice(-90),mx=Math.max(1,...d.map(x=>x.volume||0)),step=w/Math.max(1,d.length);d.forEach((b,i)=>{ctx.fillStyle=b.close>=b.open?'#24a982':'#d9576c';let bh=(b.volume||0)/mx*(h-12);ctx.fillRect(i*step,h-bh,Math.max(1,step*.7),bh)})}
-function render(){
- analysis=calculate(bars);const a=analysis,p=quote?.last>0?quote.last:bars.at(-1)?.close;
- $('signal').textContent=a.signal;$('signal').className='signal '+(a.signal==='ПОКУПАТЬ'?'buy':a.signal==='ПРОДАВАТЬ'?'sell':'wait');$('strength').textContent=a.strength+'%';$('strengthBar').style.width=a.strength+'%';
- $('signalSummary').textContent=a.signal==='ПОКУПАТЬ'?'Есть несколько бычьих технических факторов. Проверь цену у брокера и риск.':a.signal==='ПРОДАВАТЬ'?'Преобладают медвежьи факторы. Если позиция открыта, оцени риск.':'Условия противоречивы или недостаточны. Дождись подтверждения.';
- $('rsi').textContent=fmt(a.rsi,1);$('macd').textContent=fmt(a.macd,3);$('atr').textContent=rub(a.atr);$('sma9').textContent=rub(a.s9);$('sma21').textContent=rub(a.s21);$('trend').textContent=a.s9>a.s21?'Вверх':'Вниз';
- $('reasons').replaceChildren();a.reasons.forEach(s=>{let li=document.createElement('li');li.textContent=s;$('reasons').append(li)});
- $('rsiLabel').textContent=fmt(a.rsi,1);$('macdLabel').textContent=fmt(a.macd,3);$('atrLabel').textContent=rub(a.atr);$('volumeLabel').textContent=fmt(bars.at(-1)?.volume||0,0);
- drawLine('rsiChart',a.rsiSeries||[], '#b69cff',0,100,[30,70]);drawMACD();drawVolume();drawLine('atrChart',a.atrSeries||[],'#f5c75e');
- if(p>0&&a.atr>0){const stop=p-1.5*a.atr,t1=p+1.5*a.atr,t2=p+2.5*a.atr,rr=(t1-p)/(p-stop);$('entry').textContent=rub(p);$('stop').textContent=rub(stop);$('target1').textContent=rub(t1);$('target2').textContent=rub(t2);$('support').textContent=rub(a.levels.support);$('resistance').textContent=rub(a.levels.resistance);$('atrLevel').textContent=rub(a.atr);$('rr').textContent='1 : '+fmt(rr,1);$('planStatus').textContent=a.signal==='ПОКУПАТЬ'?'Технический сигнал на покупку':'Уровни для наблюдения';$('riskNote').textContent='Стоп рассчитан примерно на 1,5 ATR, цели — 1,5 и 2,5 ATR от последней цены. При сигнале «ЖДАТЬ» уровни служат только ориентиром. Поддержка и сопротивление определены по локальным экстремумам последних свечей.'}
-
-}
-function renderQuote(){
- const p=quote?.last>0?quote.last:bars.at(-1)?.close;if(p>0){$('lastPrice').textContent=rub(p);$('priceChange').textContent=Number.isFinite(quote?.change)?'Изменение за сессию: '+rub(quote.change):'Цена по последней доступной свече';if($('buyPrice').value==='0')$('buyPrice').value=p.toFixed(2)}
- const candle=bars.at(-1),age=candle?Date.now()-candle.time:Infinity,mins=Math.max(0,Math.round(age/60000));$('updatedAt').textContent=candle?new Date(candle.time).toLocaleString('ru-RU'):'—';
- $('freshness').textContent=candle?'Последняя свеча около '+mins+' мин. назад':'Время свечи неизвестно';$('freshness').style.color=mins<=3?'var(--green)':'var(--yellow)';
- if(mins>10){status('Данные MOEX выглядят устаревшими (последняя свеча старше 10 минут). Не используй сигнал для входа без проверки у брокера.','error');connection('возможна задержка',false)}else{status('Данные получены. Сверь котировку и стакан в приложении брокера перед сделкой.','good');connection('MOEX получен',true)}
-}
-function calcTrade(){const b=+$('buyPrice').value,s=+$('sellPrice').value,q=Math.floor(+$('quantity').value||0);if(!(b>0&&s>0&&q>0)){$('gross').textContent='—';$('fees').textContent=rub(COMMISSION_BUY+COMMISSION_SELL);$('tax').textContent='—';$('net').textContent='—';$('netPercent').textContent='Заполни цены и количество.';return}const gross=(s-b)*q,fees=COMMISSION_BUY+COMMISSION_SELL,pre=gross-fees,tax=Math.max(0,pre)*TAX_RATE,net=pre-tax;$('gross').textContent=rub(gross);$('fees').textContent=rub(fees);$('tax').textContent=rub(tax);$('net').textContent=rub(net);$('net').className='result '+(net>=0?'positive':'negative');$('netPercent').textContent='Чистый результат: '+fmt(net/(b*q+COMMISSION_BUY)*100,2)+'% от затрат. Налог рассчитан условно.'}
-function calcRisk(){const cap=Math.max(0,+$('capital').value||0),pct=Math.max(0,+$('riskPct').value||0),p=quote?.last>0?quote.last:bars.at(-1)?.close,stop=p&&analysis?.atr?p-1.5*analysis.atr:null,q=p>0?Math.floor(cap/p):0;$('sharesByCapital').textContent=q?q+' шт.':'—';$('riskRub').textContent=rub(cap*pct/100);$('stopLossRub').textContent=stop!==null?rub(Math.max(0,(p-stop)*q+COMMISSION_BUY+COMMISSION_SELL)):'—'}
-function calcAll(){calcTrade();calcRisk()}
-function loadTV(interval='5'){
- tvInterval=interval;
- if(!window.TradingView){return}
- const el=$('tv_chart');el.innerHTML='';
- tvWidget=new TradingView.widget({autosize:true,symbol:'RUS:OZON',interval:interval,timezone:'Europe/Moscow',theme:'dark',style:'1',locale:'ru',enable_publishing:false,allow_symbol_change:true,hide_side_toolbar:false,withdateranges:true,details:true,hotlist:false,calendar:false,studies:['RSI@tv-basicstudies','MACD@tv-basicstudies','Volume@tv-basicstudies'],container_id:'tv_chart'});
- document.querySelectorAll('.tv-period').forEach(b=>{b.classList.toggle('primary',b.dataset.interval===interval)});
-}
-function initTV(){const s=document.createElement('script');s.src='https://s3.tradingview.com/tv.js';s.async=true;s.onload=()=>loadTV(tvInterval);s.onerror=()=>{ $('tv_chart').innerHTML='<div style="padding:18px;color:#ffb6c0">Не удалось загрузить TradingView. Проверь интернет или открой график напрямую: <a style="color:#8bbcff" href="https://ru.tradingview.com/chart/?symbol=RUS%3AOZON" target="_blank" rel="noopener">TradingView OZON</a>.</div>'};document.head.append(s)}
-async function refresh(){if(busy)return;busy=true;$('refreshBtn').disabled=true;$('refreshBtn').textContent='Загрузка…';try{const [c,q]=await Promise.all([candles(),quoteNow().catch(()=>null)]);if(!c.length)throw new Error('MOEX ISS не вернул минутные свечи OZON');raw=c;quote=q;const minutes=Number($('calcPeriodSelect').value);bars=aggregate(raw,minutes);renderQuote();render();calcAll()}catch(e){connection('ошибка данных',false);status('Не удалось загрузить MOEX: '+e.message+'. TradingView при этом может продолжать работать независимо.','error')}finally{busy=false;$('refreshBtn').disabled=false;$('refreshBtn').textContent='Обновить данные'}}
-$('refreshBtn').addEventListener('click',refresh);
-document.querySelectorAll('.tv-period').forEach(b=>b.addEventListener('click',()=>loadTV(b.dataset.interval)));
-$('calcPeriodSelect').addEventListener('change',()=>{bars=aggregate(raw,Number($('calcPeriodSelect').value));render();calcAll()});
-['buyPrice','sellPrice','quantity','capital','riskPct'].forEach(id=>$(id).addEventListener('input',calcAll));
-window.addEventListener('resize',()=>{if(analysis){drawLine('rsiChart',analysis.rsiSeries||[],'#b69cff',0,100,[30,70]);drawMACD();drawVolume();drawLine('atrChart',analysis.atrSeries||[],'#f5c75e')}});
-
-initTV();refresh();setInterval(refresh,60000);
-</script>
-</body>
-</html>
