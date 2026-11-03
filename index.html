@@ -1,116 +1,38 @@
-
 <!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080e1b">
-<meta name="description" content="OZON SNIPER 5.2 — график TradingView и технические анализаторы акций OZON">
-<title>OZON SNIPER 5.2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#091321">
+<title>OZON SNIPER 5.3</title>
 <style>
-:root{color-scheme:dark;--bg:#080e1b;--panel:#111c2d;--panel2:#0c1626;--line:#26364e;--muted:#91a3bc;--text:#edf4ff;--green:#24d6a0;--red:#ff647b;--yellow:#f5c75e;--blue:#69aaff;--purple:#b69cff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1b3151 0,#080e1b 58%);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-.wrap{max-width:1240px;margin:auto;padding:16px 13px 38px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.brand{display:flex;align-items:center;gap:11px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#1675dd,#8c55ff);display:grid;place-items:center;font-weight:950;box-shadow:0 8px 28px #3678d455}.brand h1{font-size:19px;letter-spacing:.6px;margin:0}.brand small{color:var(--muted)}.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
-button,select,input{font:inherit;color:var(--text);background:#0b1729;border:1px solid var(--line);border-radius:10px;padding:9px 11px}button{cursor:pointer}button.primary{background:#1768c6;border-color:#2c83e5;font-weight:750}button:disabled{opacity:.55}.pill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:11px}
-.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:11px}.card{background:linear-gradient(180deg,#121e30,#0e1828);border:1px solid var(--line);border-radius:15px;padding:14px;min-width:0;box-shadow:0 10px 30px #0002}.s12{grid-column:span 12}.s8{grid-column:span 8}.s7{grid-column:span 7}.s6{grid-column:span 6}.s5{grid-column:span 5}.s4{grid-column:span 4}
-.label{font-size:11px;text-transform:uppercase;letter-spacing:.75px;color:var(--muted)}.muted,.small{color:var(--muted)}.small{font-size:11px}.price{font-size:30px;font-weight:850;letter-spacing:-.8px;margin:3px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}.signal{font-size:23px;font-weight:950;margin:3px 0}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--yellow)}
-.statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px}.stat{background:#0a1423;border:1px solid #223149;border-radius:11px;padding:9px;min-width:0}.stat b{display:block;font-size:16px;margin-top:3px;overflow-wrap:anywhere}.meter{height:7px;background:#26354b;border-radius:10px;overflow:hidden;margin:8px 0}.meter i{display:block;height:100%;background:linear-gradient(90deg,#f5c75e,#24d6a0);width:0}
-.tv-wrap{height:650px;min-height:520px;background:#080e1b;border:1px solid #25364f;border-radius:12px;overflow:hidden;margin-top:10px}.tradingview-widget-container,.tradingview-widget-container__widget,#tv_chart{width:100%;height:100%}
-.analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mini-chart{height:170px;width:100%;display:block;margin-top:6px}.analyzer-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.analyzer-value{font-size:17px;font-weight:800}.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.level{background:#0a1423;border:1px solid #223149;border-radius:11px;padding:10px}.level b{display:block;font-size:16px;margin-top:4px;overflow-wrap:anywhere}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.field input{width:100%}.result{font-size:24px;font-weight:850;margin:7px 0}.positive{color:var(--green)}.negative{color:var(--red)}.notice{padding:10px 12px;border:1px solid #6d5929;background:#2b2415;color:#f4d98f;border-radius:11px;font-size:12px;margin-top:10px}.notice.good{border-color:#245d4c;background:#10251f;color:#9af0d0}.notice.error{border-color:#713644;background:#2a1720;color:#ffb6c0}.reasons{padding-left:17px;margin:7px 0 0}.reasons li{margin:5px 0;color:#cbd7e7}.footer{text-align:center;color:#72849e;font-size:10px;margin-top:17px}
-@media(max-width:800px){.s8,.s7,.s6,.s5,.s4{grid-column:span 12}.tv-wrap{height:560px;min-height:480px}.analysis-grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,minmax(0,1fr))}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.price{font-size:27px}}
+:root{color-scheme:dark;--bg:#091321;--card:#122137;--line:#293d58;--muted:#9aacc3;--text:#eef5ff;--green:#27d6a0;--red:#ff667d;--yellow:#f4c75e;--blue:#69aaff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:14px}.top,.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.top{margin-bottom:12px}.brand{font-size:20px;font-weight:850}.brand span{color:var(--blue)}.muted,.small{color:var(--muted)}.small{font-size:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}.price{font-size:30px;font-weight:850}.signal{font-size:25px;font-weight:900}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--yellow)}button,input{background:#0a1729;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;font:inherit}button{cursor:pointer}.active{background:#1768c6;border-color:#4a9cff}.chart{height:540px;width:100%;overflow:hidden;border-radius:10px;background:#0a1422}.chart iframe{width:100%;height:100%;border:0}.periods{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.stat{background:#0a1729;border:1px solid var(--line);padding:10px;border-radius:10px}.stat b{display:block;font-size:17px;margin-top:4px}.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.level{background:#0a1729;border:1px solid var(--line);border-radius:10px;padding:10px}.level b{display:block;font-size:17px;margin-top:4px}.calc{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.calc label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}.calc input{width:100%}.result{font-size:24px;font-weight:850}.notice{background:#2a2415;border:1px solid #6b572a;color:#f2d991;padding:10px;border-radius:9px;margin-top:10px}.good{background:#10271f;border-color:#27624e;color:#a4f0d2}.bad{background:#2b1720;border-color:#743746;color:#ffb6c1}.footer{text-align:center;color:var(--muted);font-size:11px;padding:10px}@media(max-width:650px){.chart{height:470px}.stats{grid-template-columns:repeat(2,1fr)}.levels{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
-<body>
-<div class="wrap">
-<header class="top">
- <div class="brand"><div class="logo">OS</div><div><h1>OZON SNIPER <span style="color:var(--blue)">5.2</span></h1><small>TradingView · MOEX · технические анализаторы</small></div></div>
- <div class="toolbar"><span class="pill" id="connection">● подключение</span><button id="alertsBtn">🔔 Включить оповещения</button><button class="primary" id="refreshBtn">Обновить данные</button></div>
-</header>
-
-<div class="grid">
-<section class="card s8">
- <div class="row">
-  <div><div class="label">OZON · Московская биржа</div><div class="price" id="lastPrice">— ₽</div><div class="small" id="priceChange">Ожидание котировки MOEX</div></div>
-  <div style="text-align:right"><div class="label">Данные MOEX</div><b id="updatedAt">—</b><div class="small" id="freshness">Свежесть не проверена</div></div>
- </div>
- <div class="row" style="margin-top:10px"><span class="pill">Основной график TradingView</span><span class="small">Можно менять масштаб, индикаторы и период прямо на графике</span></div>
- <div class="tv-wrap"><div class="tradingview-widget-container"><div id="tv_chart"></div></div></div>
- <div class="toolbar" style="margin-top:9px">
-  <button class="tv-period" data-interval="1">1 мин</button><button class="tv-period primary" data-interval="5">5 мин</button><button class="tv-period" data-interval="15">15 мин</button><button class="tv-period" data-interval="60">1 час</button><button class="tv-period" data-interval="240">4 часа</button><span class="small">Переключатель меняет период TradingView</span>
- </div>
-</section>
-
-<section class="card s4">
- <div class="label">Главный торговый сигнал</div><div class="signal wait" id="signal">ЖДАТЬ</div>
- <div class="row"><span class="muted">Сила технического сигнала</span><b id="strength">—%</b></div><div class="meter"><i id="strengthBar"></i></div>
- <div class="small" id="signalSummary">Ожидание рыночных данных…</div>
- <div class="notice" id="alertStatus">Оповещения выключены. Нажми «Включить оповещения», чтобы разрешить звук и уведомления.</div>
- <div class="statgrid">
-  <div class="stat"><span class="label">RSI 14</span><b id="rsi">—</b></div>
-  <div class="stat"><span class="label">MACD</span><b id="macd">—</b></div>
-  <div class="stat"><span class="label">ATR</span><b id="atr">—</b></div>
-  <div class="stat"><span class="label">SMA 9</span><b id="sma9">—</b></div>
-  <div class="stat"><span class="label">SMA 21</span><b id="sma21">—</b></div>
-  <div class="stat"><span class="label">Тренд</span><b id="trend">—</b></div>
- </div>
- <ul class="reasons" id="reasons"><li>Загрузка индикаторов</li></ul>
-</section>
-
-<section class="card s12">
- <div class="row"><div><div class="label">Дополнительные графики анализаторов</div><div class="small">Рассчитаны по минутным свечам MOEX, отдельно от графика TradingView</div></div><div class="toolbar"><label class="small" for="calcPeriodSelect">Период анализаторов</label><select id="calcPeriodSelect"><option value="1">1 мин</option><option value="5" selected>5 мин</option><option value="15">15 мин</option></select></div></div>
- <div class="analysis-grid" style="margin-top:12px">
-  <div class="stat"><div class="analyzer-head"><div><div class="label">RSI · индекс силы</div><div class="small">Выше 70 — возможная перекупленность, ниже 30 — перепроданность</div></div><div class="analyzer-value" id="rsiLabel">—</div></div><canvas class="mini-chart" id="rsiChart"></canvas></div>
-  <div class="stat"><div class="analyzer-head"><div><div class="label">MACD · импульс</div><div class="small">Линия MACD, сигнальная линия и гистограмма</div></div><div class="analyzer-value" id="macdLabel">—</div></div><canvas class="mini-chart" id="macdChart"></canvas></div>
-  <div class="stat"><div class="analyzer-head"><div><div class="label">Объёмы торгов</div><div class="small">Объём по каждой свече; последний столбец — последняя свеча</div></div><div class="analyzer-value" id="volumeLabel">—</div></div><canvas class="mini-chart" id="volumeChart"></canvas></div>
-  <div class="stat"><div class="analyzer-head"><div><div class="label">ATR · волатильность</div><div class="small">Средний истинный диапазон за 14 свечей</div></div><div class="analyzer-value" id="atrLabel">—</div></div><canvas class="mini-chart" id="atrChart"></canvas></div>
- </div>
-</section>
-
-<section class="card s12">
- <div class="row"><div><div class="label">План сделки и ключевые уровни</div><div class="small">Расчётные ориентиры, не гарантированные цены исполнения</div></div><span class="pill" id="planStatus">Ожидание</span></div>
- <div class="levels">
-  <div class="level"><span class="label">Возможный вход</span><b id="entry">—</b></div>
-  <div class="level"><span class="label">Стоп-лосс</span><b id="stop">—</b></div>
-  <div class="level"><span class="label">Цель 1</span><b id="target1">—</b></div>
-  <div class="level"><span class="label">Цель 2</span><b id="target2">—</b></div>
-  <div class="level"><span class="label">Поддержка</span><b id="support">—</b></div>
-  <div class="level"><span class="label">Сопротивление</span><b id="resistance">—</b></div>
-  <div class="level"><span class="label">ATR 14</span><b id="atrLevel">—</b></div>
-  <div class="level"><span class="label">Соотношение риск/цель 1</span><b id="rr">—</b></div>
- </div>
- <div class="notice" id="riskNote">Дожидаемся достаточного количества свечей. Сигнал не является индивидуальной инвестиционной рекомендацией.</div>
-</section>
-
-<section class="card s6">
- <div class="label">Калькулятор чистого результата</div><div class="small">Комиссии по 10,07 ₽ за покупку и продажу; условный налог 13% с положительной прибыли после комиссий.</div>
- <div class="formgrid" style="margin-top:11px">
-  <div class="field"><label for="buyPrice">Цена покупки, ₽</label><input id="buyPrice" type="number" min="0" step=".01" value="0"></div>
-  <div class="field"><label for="sellPrice">Цена продажи, ₽</label><input id="sellPrice" type="number" min="0" step=".01" value="0"></div>
-  <div class="field"><label for="quantity">Количество акций</label><input id="quantity" type="number" min="1" step="1" value="1"></div>
-  <div class="field"><label>Комиссии обеих сторон</label><input value="20,14 ₽" disabled></div>
- </div>
- <div class="statgrid"><div class="stat"><span class="label">До расходов</span><b id="gross">—</b></div><div class="stat"><span class="label">Комиссии</span><b id="fees">20,14 ₽</b></div><div class="stat"><span class="label">Налог</span><b id="tax">—</b></div></div>
- <div class="label" style="margin-top:12px">Чистый результат</div><div class="result" id="net">—</div><div class="small" id="netPercent">Заполни цену покупки и продажи.</div>
-</section>
-
-<section class="card s6">
- <div class="label">Размер позиции и риск</div>
- <div class="formgrid" style="margin-top:11px">
-  <div class="field"><label for="capital">Сумма сделки, ₽</label><input id="capital" type="number" min="0" step="100" value="10000"></div>
-  <div class="field"><label for="riskPct">Риск от суммы, %</label><input id="riskPct" type="number" min=".1" max="10" step=".1" value="1"></div>
- </div>
- <div class="statgrid"><div class="stat"><span class="label">Количество акций</span><b id="sharesByCapital">—</b></div><div class="stat"><span class="label">Лимит риска</span><b id="riskRub">—</b></div><div class="stat"><span class="label">Убыток до стопа*</span><b id="stopLossRub">—</b></div></div>
- <div class="notice">*Оценка без проскальзывания и гэпов. Фактический убыток может быть больше. Налоговый расчёт упрощённый.</div>
-</section>
-
-<section class="card s12">
- <div class="row"><div><div class="label">Состояние системы</div><div class="small">Автообновление данных MOEX раз в минуту, пока страница открыта.</div></div><span class="pill">GitHub Pages · статическое приложение</span></div>
- <div id="statusMessage" class="notice">Подключение к MOEX ISS…</div>
- <div class="small" style="margin-top:8px">TradingView загружается отдельно и может показывать котировки с собственными условиями задержки. Время обновления MOEX и TradingView может отличаться.</div>
-</section>
-</div>
-<div class="footer">OZON SNIPER 5.2 · Аналитический инструмент. Не подключён к брокеру, не выставляет заявки и не гарантирует доходность.</div>
-</div>
+<body><main class="wrap">
+<header class="top"><div><div class="brand">OZON SNIPER <span>5.3</span></div><div class="small">Один график · MOEX · технический анализ</div></div><div class="row"><span class="small" id="connection">Подключение…</span><button id="refresh">Обновить</button><button id="notify">Включить оповещения</button></div></header>
+<section class="card"><div class="row"><div><div class="small">OZON · Московская биржа</div><div class="price" id="price">— ₽</div><div class="small" id="change">Ожидание котировки</div></div><div style="text-align:right"><div class="small">Последнее обновление</div><b id="updated">—</b><div class="small" id="age">—</div></div></div></section>
+<section class="card"><div class="row"><b>График TradingView</b><span class="small">RUS:OZON</span></div><div class="chart" id="chart"></div><div class="periods"><button data-p="1">1 мин</button><button class="active" data-p="5">5 мин</button><button data-p="15">15 мин</button><button data-p="60">1 час</button></div></section>
+<section class="card"><div class="small">ГЛАВНЫЙ ТОРГОВЫЙ СИГНАЛ</div><div class="signal wait" id="signal">ЖДАТЬ</div><div class="small" id="summary">Загружаем рыночные данные…</div><div class="stats"><div class="stat"><span class="small">RSI 14</span><b id="rsi">—</b></div><div class="stat"><span class="small">MACD</span><b id="macd">—</b></div><div class="stat"><span class="small">SMA 9</span><b id="sma9">—</b></div><div class="stat"><span class="small">SMA 21</span><b id="sma21">—</b></div><div class="stat"><span class="small">ATR 14</span><b id="atr">—</b></div><div class="stat"><span class="small">Тренд</span><b id="trend">—</b></div></div><div id="reasons" class="small" style="margin-top:10px"></div><div class="notice" id="alertStatus">Оповещения выключены. Страница должна оставаться открытой.</div></section>
+<section class="card"><b>Торговые уровни</b><div class="levels" style="margin-top:10px"><div class="level"><span class="small">Вход (ориентир)</span><b id="entry">—</b></div><div class="level"><span class="small">Стоп-лосс</span><b id="stop">—</b></div><div class="level"><span class="small">Цель 1</span><b id="target1">—</b></div><div class="level"><span class="small">Цель 2</span><b id="target2">—</b></div></div><div class="notice" id="riskNote">Уровни появятся после получения достаточного количества свечей.</div></section>
+<section class="card"><b>Калькулятор чистой прибыли</b><div class="small">Комиссия 10,07 ₽ при покупке и 10,07 ₽ при продаже. Налог условно 13% с прибыли после комиссий.</div><div class="calc" style="margin-top:12px"><div><label for="buy">Цена покупки, ₽</label><input id="buy" type="number" step="0.01" value="0"></div><div><label for="sell">Цена продажи, ₽</label><input id="sell" type="number" step="0.01" value="0"></div><div><label for="qty">Количество акций</label><input id="qty" type="number" min="1" step="1" value="1"></div></div><div class="stats"><div class="stat"><span class="small">Прибыль до расходов</span><b id="gross">—</b></div><div class="stat"><span class="small">Налог</span><b id="tax">—</b></div><div class="stat"><span class="small">Комиссии</span><b>20,14 ₽</b></div></div><div class="small" style="margin-top:10px">Чистый результат</div><div class="result" id="net">—</div></section>
+<div class="notice" id="status">Подключение к MOEX ISS…</div><div class="footer">OZON SNIPER 5.3 · Только анализ и оповещения. Приложение не подключено к брокеру и не выставляет заявки. Сигналы не гарантируют прибыль.</div>
+</main>
+<script>
+'use strict';
+const API='https://iss.moex.com/iss',SEC='OZON',BOARD='TQBR',FEE=20.14,TAX=.13,$=id=>document.getElementById(id);let raw=[],data=[],quote=null,calc=null,prevSignal=null,alerts=false,ctx=null,period='5';
+const money=n=>Number.isFinite(n)?n.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽':'—';
+async function get(url){let r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);return r.json()}
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length}function sma(a,n){return a.map((_,i)=>i<n-1?null:avg(a.slice(i-n+1,i+1)))}
+function ema(a,n){let o=Array(a.length).fill(null);if(a.length<n)return o;let v=avg(a.slice(0,n)),k=2/(n+1);o[n-1]=v;for(let i=n;i<a.length;i++){v=a[i]*k+v*(1-k);o[i]=v}return o}
+function rsi(a,n=14){let o=Array(a.length).fill(null);if(a.length<=n)return o;let g=0,l=0;for(let i=1;i<=n;i++){let d=a[i]-a[i-1];g+=Math.max(0,d);l+=Math.max(0,-d)}g/=n;l/=n;o[n]=l?100-100/(1+g/l):100;for(let i=n+1;i<a.length;i++){let d=a[i]-a[i-1];g=(g*(n-1)+Math.max(0,d))/n;l=(l*(n-1)+Math.max(0,-d))/n;o[i]=l?100-100/(1+g/l):100}return o}
+function aggregate(a,n){if(n===1)return a;let m=new Map(),step=n*60000;for(let c of a){let t=Math.floor(c.time/step)*step,b=m.get(t);if(!b)m.set(t,{time:t,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume});else{b.high=Math.max(b.high,c.high);b.low=Math.min(b.low,c.low);b.close=c.close;b.volume+=c.volume}}return [...m.values()]}
+async function load(){let from=new Date(Date.now()-7*86400000).toISOString().slice(0,10),u=`${API}/engines/stock/markets/shares/boards/${BOARD}/securities/${SEC}/candles.json?from=${from}&interval=1&limit=500&iss.meta=off`;let j=await get(u),c=j.candles.columns,ix=Object.fromEntries(c.map((x,i)=>[x,i]));raw=j.candles.data.map(r=>({time:new Date(r[ix.begin]).getTime(),open:+r[ix.open],high:+r[ix.high],low:+r[ix.low],close:+r[ix.close],volume:+r[ix.volume]})).filter(x=>x.time&&x.close>0);let q=await get(`${API}/engines/stock/markets/shares/boards/${BOARD}/securities/${SEC}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=LAST,CHANGE,UPDATETIME`),qc=q.marketdata.columns,qr=q.marketdata.data[0];if(qr){let qi=Object.fromEntries(qc.map((x,i)=>[x,i]));quote={last:+qr[qi.LAST],change:+qr[qi.CHANGE],time:qr[qi.UPDATETIME]}}data=aggregate(raw,Number($('calcPeriod')?.value||5));render()}
+function analyze(){let c=data.map(x=>x.close),i=c.length-1,s9=sma(c,9),s21=sma(c,21),rr=rsi(c),e12=ema(c,12),e26=ema(c,26),ml=c.map((_,k)=>e12[k]!=null&&e26[k]!=null?e12[k]-e26[k]:null),sig=ema(ml.map(x=>x??0),9),tr=data.map((x,k)=>k?Math.max(x.high-x.low,Math.abs(x.high-data[k-1].close),Math.abs(x.low-data[k-1].close)):x.high-x.low),at=sma(tr,14);if(i<35||rr[i]==null||at[i]==null)return null;let score=0,why=[];if(s9[i]>s21[i]){score++;why.push('SMA 9 выше SMA 21')}else{score--;why.push('SMA 9 ниже SMA 21')}if(c[i]>s9[i]){score++;why.push('Цена выше SMA 9')}else{score--;why.push('Цена ниже SMA 9')}if(rr[i]>=50&&rr[i]<=68){score++;why.push('RSI подтверждает импульс')}else if(rr[i]<43||rr[i]>72){score--;why.push('RSI: слабость или перегрев')}else why.push('RSI нейтральный');if(ml[i]>sig[i]){score++;why.push('MACD выше сигнальной линии')}else{score--;why.push('MACD ниже сигнальной линии')}return {p:c[i],r:rr[i],m:ml[i],s9:s9[i],s21:s21[i],atr:at[i],score,why,signal:score>=3?'ПОКУПАТЬ':score<=-3?'ПРОДАВАТЬ':'ЖДАТЬ'}}
+function render(){let p=quote?.last||data.at(-1)?.close;if(p){$('price').textContent=money(p);$('change').textContent=Number.isFinite(quote?.change)?'Изменение: '+money(quote.change):'Цена последней свечи';if($('buy').value==='0')$('buy').value=p.toFixed(2)}let last=data.at(-1),age=last?Math.max(0,Math.round((Date.now()-last.time)/60000)):999;$('updated').textContent=last?new Date(last.time).toLocaleString('ru-RU'):'—';$('age').textContent=last?'Последняя свеча: '+age+' мин. назад':'Нет времени свечи';$('connection').textContent=age<10?'MOEX подключён':'Проверь свежесть данных';calc=analyze();if(!calc){$('signal').textContent='ЖДАТЬ';$('summary').textContent='Недостаточно свечей для расчёта индикаторов.';$('status').textContent='MOEX ответил, но свечей пока недостаточно.';return}let a=calc;$('signal').textContent=a.signal;$('signal').className='signal '+(a.signal==='ПОКУПАТЬ'?'buy':a.signal==='ПРОДАВАТЬ'?'sell':'wait');$('summary').textContent='Сила условий: '+Math.round(50+Math.abs(a.score)*10)+'%. Это техническая оценка, не гарантия движения цены.';$('rsi').textContent=a.r.toFixed(1);$('macd').textContent=a.m.toFixed(3);$('sma9').textContent=money(a.s9);$('sma21').textContent=money(a.s21);$('atr').textContent=money(a.atr);$('trend').textContent=a.s9>a.s21?'Вверх':'Вниз';$('reasons').textContent=a.why.join(' · ');$('entry').textContent=money(a.p);$('stop').textContent=money(a.p-1.5*a.atr);$('target1').textContent=money(a.p+1.5*a.atr);$('target2').textContent=money(a.p+2.5*a.atr);$('riskNote').textContent='Стоп и цели рассчитаны по ATR от последней цены. Это ориентиры, не гарантированные уровни исполнения.';$('status').textContent=age>10?'ВНИМАНИЕ: последняя свеча старше 10 минут. Проверь цену у брокера.':'Данные MOEX получены. Перед сделкой сверь котировку и стакан у брокера.';signalAlert(a.signal)}
+function signalAlert(s){if(prevSignal===null){prevSignal=s;return}if(s===prevSignal)return;prevSignal=s;if(s==='ЖДАТЬ')return;$('alertStatus').textContent='Изменение сигнала: '+s;if(!alerts)return;try{if(ctx){let o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=s==='ПОКУПАТЬ'?880:440;g.gain.value=.12;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.35)}if(Notification.permission==='granted')new Notification('OZON SNIPER: '+s,{body:'Проверь цену, свежесть данных и торговый план.'})}catch(e){}}
+async function refresh(){if($('refresh').disabled)return;$('refresh').disabled=true;try{await load()}catch(e){$('status').textContent='Ошибка загрузки MOEX: '+e.message+' . Проверь интернет-соединение.';$('connection').textContent='Нет данных'}finally{$('refresh').disabled=false;calcProfit()}}
+function calcProfit(){let b=+$('buy').value,s=+$('sell').value,q=Math.floor(+$('qty').value);if(!(b>0&&s>0&&q>0))return;let gross=(s-b)*q,pre=gross-FEE,tax=Math.max(0,pre)*TAX,net=pre-tax;$('gross').textContent=money(gross);$('tax').textContent=money(tax);$('net').textContent=money(net);$('net').style.color=net>=0?'var(--green)':'var(--red)'}
+function chart(){let url=`https://www.tradingview.com/widgetembed/?frameElementId=tvchart&symbol=RUS%3AOZON&interval=${period}&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=101d30&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1&studies=%5B%5D`;let f=document.createElement('iframe');f.src=url;f.title='График акций OZON TradingView';f.allow='fullscreen';$('chart').replaceChildren(f);document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('active',b.dataset.p===period))}
+document.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.p;chart()}));$('refresh').addEventListener('click',refresh);['buy','sell','qty'].forEach(id=>$(id).addEventListener('input',calcProfit));$('notify').addEventListener('click',async()=>{if(!('Notification'in window)){ $('alertStatus').textContent='Браузер не поддерживает уведомления.';return}let p=await Notification.requestPermission();if(p==='granted'){alerts=true;ctx=new(window.AudioContext||window.webkitAudioContext)();$('notify').textContent='Оповещения включены';$('alertStatus').textContent='Уведомления разрешены. Оставляй страницу открытой.'}else $('alertStatus').textContent='Разрешение не выдано. Разреши уведомления в браузере.'});chart();refresh();setInterval(refresh,60000);
+</script></body></html>
