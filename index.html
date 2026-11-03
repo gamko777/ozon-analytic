@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OZON SNIPER 5.4</title>
+<title>OZON SNIPER 5.4.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:12px;background:#10151d;color:#e9eef5;font:14px Arial,sans-serif}
@@ -16,8 +16,8 @@ button{background:#29394d;color:white;border:1px solid #52677f;border-radius:8px
 button.active{background:#087dbe;border-color:#24b8ff}
 input{background:#101923;color:white;border:1px solid #52677f;border-radius:7px;padding:9px;width:100px}
 .price{font-size:28px;font-weight:bold;color:#45c8ff}
-.signal{font-size:23px;font-weight:bold;margin:5px 0}
-.buy{color:#37d98b}.sell{color:#ff6875}.wait{color:#ffd166}
+.signal{font-size:22px;font-weight:bold;margin:7px 0}
+.buy,.good{color:#37d98b}.sell,.bad{color:#ff6875}.wait{color:#ffd166}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .metric{background:#111a25;border-radius:8px;padding:9px}
 .metric b{display:block;font-size:17px;margin-top:5px}
@@ -25,13 +25,12 @@ canvas{width:100%;height:300px;display:block;background:#101923;border-radius:8p
 table{width:100%;border-collapse:collapse}
 td{padding:7px 3px;border-bottom:1px solid #2b394a}
 td:last-child{text-align:right;font-weight:bold}
-.good{color:#37d98b}.bad{color:#ff6875}
 #status{color:#ffd166}
 </style>
 </head>
 <body>
 
-<h2>OZON SNIPER <span class="small">версия 5.4</span></h2>
+<h2>OZON SNIPER <span class="small">версия 5.4.1</span></h2>
 <div class="small">График и индикаторы по свечам MOEX · Только анализ, без выставления заявок</div>
 
 <div class="panel">
@@ -112,7 +111,7 @@ td:last-child{text-align:right;font-weight:bold}
   <button id="notify">Разрешить уведомления</button>
   <span class="small" id="notifyStatus">Не включены</span>
  </div>
- <div class="small" style="margin-top:8px">Уведомления работают, пока эта страница открыта. Для фоновых уведомлений потребуется отдельная серверная настройка.</div>
+ <div class="small" style="margin-top:8px">Если системные уведомления недоступны, приложение использует звуковое предупреждение и сообщение на странице. Для уведомлений при закрытой странице нужна отдельная настройка сервера.</div>
 </div>
 
 <div class="panel">
@@ -142,6 +141,9 @@ function dateText(s){
  let t=parseMoscow(s);
  return Number.isFinite(t)?new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"}).format(t):"—";
 }
+function moscowNow(){
+ return new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Moscow"}));
+}
 function clock(){
  $("clock").textContent=new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
 }
@@ -152,14 +154,16 @@ async function getJSON(url){
  if(!r.ok)throw new Error("HTTP "+r.status);
  return r.json();
 }
+
 async function loadCandles(){
- let from=new Date(Date.now()-10*86400000);
- let ds=from.toISOString().slice(0,10);
+ let now=moscowNow();
+ let till=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+ let fromDate=new Date(now.getTime()-5*86400000);
+ let from=fromDate.getFullYear()+"-"+String(fromDate.getMonth()+1).padStart(2,"0")+"-"+String(fromDate.getDate()).padStart(2,"0");
  let all=[];
  for(let start=0;start<5000;start+=500){
-  let url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json?from="+ds+"&interval=1&start="+start+"&limit=500&iss.meta=off";
-  let j=await getJSON(url);
-  let block=j.candles;
+  let url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON/candles.json?from="+from+"&till="+till+"&interval=1&start="+start+"&limit=500&iss.meta=off";
+  let j=await getJSON(url),block=j.candles;
   if(!block||!block.data||!block.data.length)break;
   let ix=Object.fromEntries(block.columns.map((x,i)=>[x,i]));
   for(let r of block.data){
@@ -176,6 +180,7 @@ async function loadCandles(){
  raw=[...map.values()].sort((a,b)=>parseMoscow(a.begin)-parseMoscow(b.begin));
  if(!raw.length)throw new Error("MOEX не вернула минутные свечи");
 }
+
 async function loadQuote(){
  let url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/OZON.json?iss.meta=off&iss.only=marketdata&marketdata.columns=LAST,CHANGE,UPDATETIME";
  let j=await getJSON(url),b=j.marketdata;
@@ -184,6 +189,7 @@ async function loadQuote(){
  let r=b.data[0];
  return {last:+r[ix.LAST],change:+r[ix.CHANGE],time:r[ix.UPDATETIME]};
 }
+
 function aggregate(a,p){
  if(p===1)return a.slice();
  let groups=new Map();
@@ -194,8 +200,10 @@ function aggregate(a,p){
   if(!groups.has(key))groups.set(key,{begin:c.begin,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume,_t:t});
   else{
    let g=groups.get(key);
-   g.high=Math.max(g.high,c.high);g.low=Math.min(g.low,c.low);
-   g.close=c.close;g.volume+=c.volume;
+   g.high=Math.max(g.high,c.high);
+   g.low=Math.min(g.low,c.low);
+   g.close=c.close;
+   g.volume+=c.volume;
   }
  }
  return [...groups.values()].sort((a,b)=>a._t-b._t).map(({_t,...c})=>c);
@@ -213,7 +221,8 @@ function rsi(a,n=14){
  if(a.length<=n)return NaN;
  let up=0,dn=0;
  for(let i=a.length-n;i<a.length;i++){
-  let d=a[i]-a[i-1];if(d>0)up+=d;else dn-=d;
+  let d=a[i]-a[i-1];
+  if(d>0)up+=d;else dn-=d;
  }
  if(dn===0)return 100;
  return 100-100/(1+up/dn);
@@ -233,10 +242,10 @@ function macd(a){
  let e12=emaSeries(c,12),e26=emaSeries(c,26);
  let line=e12.map((x,i)=>x-e26[i]);
  let sig=emaSeries(line,9);
- return {m:line.at(-1),s:sig.at(-1)};
+ return {m:line[line.length-1],s:sig[sig.length-1]};
 }
 function analysis(a){
- let c=a.map(x=>x.close),price=c.at(-1);
+ let c=a.map(x=>x.close),price=c[c.length-1];
  let s9=sma(c,9),s21=sma(c,21),rv=rsi(c),av=atr(a),m=macd(a);
  let score=0,why=[];
  if(s9>s21){score++;why.push("SMA 9 выше SMA 21");}
@@ -250,6 +259,7 @@ function analysis(a){
  let signal=score>=3?"ПОКУПАТЬ":score<=-3?"ПРОДАВАТЬ":"ЖДАТЬ";
  return {price,s9,s21,rv,av,m,score,signal,why};
 }
+
 function draw(a){
  const canvas=$("chart"),ctx=canvas.getContext("2d");
  let w=canvas.clientWidth,h=canvas.clientHeight,dpr=window.devicePixelRatio||1;
@@ -270,22 +280,63 @@ function draw(a){
   ctx.fillText(fmt(max-i*(max-min)/4,1),w-pad.r+4,yy+3);
  }
  shown.forEach((c,i)=>{
-  let x=pad.l+i*cw+cw/2;
-  let up=c.close>=c.open;
+  let x=pad.l+i*cw+cw/2,up=c.close>=c.open;
   ctx.strokeStyle=up?"#32d68b":"#ff6875";
   ctx.fillStyle=ctx.strokeStyle;
   ctx.beginPath();ctx.moveTo(x,y(c.high));ctx.lineTo(x,y(c.low));ctx.stroke();
   let top=y(Math.max(c.open,c.close)),bottom=y(Math.min(c.open,c.close));
   ctx.fillRect(x-Math.max(1,cw*.28),top,Math.max(2,cw*.56),Math.max(1,bottom-top));
  });
- let last=shown.at(-1).close,yy=y(last);
+ let last=shown[shown.length-1].close,yy=y(last);
  ctx.strokeStyle="#45c8ff";ctx.setLineDash([4,3]);
  ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.setLineDash([]);
  ctx.fillStyle="#45c8ff";ctx.fillRect(w-pad.r+1,yy-8,pad.r-2,16);
  ctx.fillStyle="#07131e";ctx.fillText(fmt(last,1),w-pad.r+4,yy+3);
  ctx.fillStyle="#aab7c5";
  ctx.fillText(dateText(shown[0].begin),pad.l,h-7);
- ctx.fillText(dateText(shown.at(-1).begin),Math.max(pad.l,w-pad.r-65),h-7);
+ ctx.fillText(dateText(shown[shown.length-1].begin),Math.max(pad.l,w-pad.r-65),h-7);
+}
+
+function marketIsOpen(){
+ let d=moscowNow(),day=d.getDay(),minutes=d.getHours()*60+d.getMinutes();
+ return day>=1&&day<=5&&minutes>=590&&minutes<=1435;
+}
+function isFresh(c){
+ let age=(Date.now()-parseMoscow(c.begin))/60000;
+ let limit=marketIsOpen()?20:2880;
+ return {ok:Number.isFinite(age)&&age>=-5&&age<=limit,age,limit};
+}
+function clearSignal(message){
+ $("signal").textContent="НЕТ АКТУАЛЬНЫХ ДАННЫХ";
+ $("signal").className="signal bad";
+ $("reason").textContent=message;
+ ["rsi","macd","sma9","sma21","atr","close","entry","stop","target1","target2"].forEach(id=>$(id).textContent="—");
+ $("chartInfo").textContent="График отображает последние полученные свечи. Сигнал отключён до обновления данных.";
+ lastSignal="";
+}
+function playTone(signal){
+ try{
+  let ac=new (window.AudioContext||window.webkitAudioContext)();
+  let o=ac.createOscillator(),g=ac.createGain();
+  o.connect(g);g.connect(ac.destination);
+  o.frequency.value=signal==="ПОКУПАТЬ"?880:440;
+  g.gain.value=.08;o.start();o.stop(ac.currentTime+.22);
+ }catch(e){}
+}
+async function sendNotification(signal,price){
+ let message="OZON SNIPER: "+signal+" · Цена "+fmt(price)+" ₽";
+ $("status").textContent=message;
+ playTone(signal);
+ try{
+  if("serviceWorker"in navigator){
+   let reg=await navigator.serviceWorker.getRegistration();
+   if(reg&&reg.showNotification&&Notification.permission==="granted"){
+    await reg.showNotification("OZON SNIPER",{body:message});
+   }
+  }
+ }catch(e){
+  $("notifyStatus").textContent="Системное уведомление недоступно; звуковое предупреждение работает.";
+ }
 }
 function render(){
  let a=aggregate(raw,period);
@@ -293,7 +344,18 @@ function render(){
  $("count").textContent=a.length;
  $("rawCount").textContent=raw.length;
  if(!a.length)return;
- let x=analysis(a),last=a.at(-1);
+ let last=a[a.length-1],fresh=isFresh(last);
+ $("candleTime").textContent="Свеча: "+dateText(last.begin);
+ $("lastCandle").textContent=dateText(last.begin);
+ if(!fresh.ok){
+  clearSignal("Последняя свеча устарела ("+Math.max(0,Math.round(fresh.age))+" мин назад). Торговый сигнал отключён. Ждём свежие данные MOEX.");
+  return;
+ }
+ let x=analysis(a);
+ if(!Number.isFinite(x.av)||!Number.isFinite(x.rv)||!Number.isFinite(x.m.m)){
+  clearSignal("Недостаточно свечей для расчёта индикаторов.");
+  return;
+ }
  $("close").textContent=fmt(x.price);
  $("rsi").textContent=fmt(x.rv);
  $("macd").textContent=fmt(x.m.m)+" / "+fmt(x.m.s);
@@ -304,27 +366,28 @@ function render(){
  $("signal").className="signal "+(x.signal==="ПОКУПАТЬ"?"buy":x.signal==="ПРОДАВАТЬ"?"sell":"wait");
  $("reason").textContent="Оценка "+x.score+". "+x.why.join("; ")+".";
  let entry=x.price,stop=entry-x.av*1.5,t1=entry+x.av*1.5,t2=entry+x.av*2.5;
- if(x.signal==="ПРОДАВАТЬ"){stop=entry+x.av*1.5;t1=entry-x.av*1.5;t2=entry-x.av*2.5;}
+ if(x.signal==="ПРОДАВАТЬ"){
+  stop=entry+x.av*1.5;t1=entry-x.av*1.5;t2=entry-x.av*2.5;
+ }
  $("entry").textContent=fmt(entry);
  $("stop").textContent=fmt(stop);
  $("target1").textContent=fmt(t1);
  $("target2").textContent=fmt(t2);
- $("candleTime").textContent="Свеча: "+dateText(last.begin);
- $("lastCandle").textContent=dateText(last.begin);
  $("chartInfo").textContent="Период: "+period+" мин · График построен по свечам MOEX";
  if(notifyOn&&x.signal!==lastSignal&&(x.signal==="ПОКУПАТЬ"||x.signal==="ПРОДАВАТЬ")){
-  if(Notification.permission==="granted")new Notification("OZON SNIPER: "+x.signal,{body:"Цена свечи: "+fmt(entry)+" ₽"});
-  try{let ac=new (window.AudioContext||window.webkitAudioContext)(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=x.signal==="ПОКУПАТЬ"?880:440;g.gain.value=.08;o.start();o.stop(ac.currentTime+.22);}catch(e){}
+  sendNotification(x.signal,entry);
  }
  lastSignal=x.signal;
 }
+
 async function refresh(){
  if(refreshing)return;
  refreshing=true;
  $("status").textContent="Загружаю данные MOEX…";
  try{
   await loadCandles();
-  let q=null;try{q=await loadQuote();}catch(e){}
+  let q=null;
+  try{q=await loadQuote();}catch(e){}
   if(q&&Number.isFinite(q.last)){
    $("last").textContent=fmt(q.last)+" ₽";
    $("quoteTime").textContent="Время котировки: "+(q.time||"нет данных");
@@ -333,32 +396,50 @@ async function refresh(){
    $("quoteTime").textContent="Котировка недоступна";
   }
   $("fetchTime").textContent=new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
-  let age=(Date.now()-parseMoscow(raw.at(-1).begin))/60000;
+  let age=(Date.now()-parseMoscow(raw[raw.length-1].begin))/60000;
   $("status").textContent="Данные получены. Возраст последней свечи: "+(Number.isFinite(age)?Math.max(0,Math.round(age))+" мин":"неизвестен");
-  $("status").style.color=age>15?"#ff6875":"#37d98b";
+  $("status").style.color="#37d98b";
   render();
  }catch(e){
   $("status").textContent="Ошибка загрузки: "+e.message+". Проверь интернет и доступ к MOEX.";
   $("status").style.color="#ff6875";
+  clearSignal("Не удалось получить свежие данные. Сигнал отключён.");
  }
  refreshing=false;
 }
+
 document.querySelectorAll(".period").forEach(b=>b.addEventListener("click",()=>{
  document.querySelectorAll(".period").forEach(x=>x.classList.remove("active"));
  b.classList.add("active");period=+b.dataset.p;render();
 }));
+
 $("notify").onclick=async()=>{
- if(!("Notification"in window)){ $("notifyStatus").textContent="Браузер не поддерживает уведомления";return;}
- let p=await Notification.requestPermission();
- notifyOn=p==="granted";
- $("notifyStatus").textContent=notifyOn?"Уведомления разрешены":"Разрешение не получено";
+ if(!("Notification"in window)){
+  $("notifyStatus").textContent="Браузер не поддерживает уведомления";
+  return;
+ }
+ try{
+  let p=await Notification.requestPermission();
+  notifyOn=p==="granted";
+  $("notifyStatus").textContent=notifyOn?
+   "Разрешение получено. Звук работает на открытой странице.":
+   "Разрешение не получено";
+ }catch(e){
+  $("notifyStatus").textContent="Браузер ограничивает системные уведомления. Будет звуковое предупреждение.";
+  notifyOn=true;
+ }
 };
+
 $("calc").onclick=()=>{
  let b=+$("buy").value,s=+$("sell").value,q=+$("qty").value;
- if(!(b>0&&s>0&&q>0)){ $("result").textContent="Введи цены и количество.";return;}
+ if(!(b>0&&s>0&&q>0)){
+  $("result").textContent="Введи цены и количество.";
+  return;
+ }
  let gross=(s-b)*q,after=gross-20.14,tax=Math.max(0,after)*.13,net=after-tax;
  $("result").innerHTML="До комиссии: "+fmt(gross)+" ₽<br>После комиссии: "+fmt(after)+" ₽<br>Налог: "+fmt(tax)+" ₽<br><b>Итог: <span class='"+(net>=0?"good":"bad")+"'>"+fmt(net)+" ₽</span></b>";
 };
+
 window.addEventListener("resize",()=>render());
 refresh();
 setInterval(refresh,60000);
