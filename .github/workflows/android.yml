@@ -1,0 +1,66 @@
+
+name: Сборка OZON SNIPER Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Получение файлов проекта
+        uses: actions/checkout@v4
+
+      - name: Установка Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Установка Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Установка Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Подготовка проекта
+        run: |
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/android@7
+          npm install --save-dev @capacitor/cli@7
+          mkdir www
+          cp index.html www/
+          cp manifest.webmanifest www/
+          cp sw.js www/
+          cp icon.svg www/
+
+      - name: Создание Android-приложения
+        run: |
+          npx cap init "OZON SNIPER 9.4 PRO" com.gamko777.ozonsniper --web-dir=www
+          npx cap add android
+          npx cap sync android
+
+      - name: Сборка APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Сохранение APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OZON-SNIPER-ANDROID
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
