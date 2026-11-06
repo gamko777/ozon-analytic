@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>OZON SNIPER 9.3 PRO</title>
+<title>OZON SNIPER 9.4 PRO</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b1018;color:#e8edf5;font-family:Arial,sans-serif;padding:12px}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px}
-h1{font-size:21px;color:#50dca0;margin:8px 0}
-h2{font-size:15px;margin:5px 0 12px}
+h1{font-size:21px;color:#50dca0;margin:8px 0}h2{font-size:15px;margin:5px 0 12px}
 small,.muted{color:#8997aa}
 .card{background:#151e2b;border:1px solid #263448;border-radius:13px;padding:13px;margin:10px 0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -18,36 +17,29 @@ small,.muted{color:#8997aa}
 .metric b{font-size:18px;overflow-wrap:anywhere}
 .green{color:#4be0a0!important}.red{color:#ff6878!important}.yellow{color:#ffd166!important}
 button,select{background:#233349;color:#fff;border:1px solid #40536d;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s;touch-action:manipulation}
-button:active{transform:scale(.97)}
-button.active{background:#087c55!important;border:1px solid #50e5a6!important;color:#fff!important;box-shadow:0 0 0 2px #39ce9140,0 0 12px #39ce9150}
-button.loading{border-color:#ffd166!important;box-shadow:0 0 0 2px #ffd16630}
-button.danger{background:#71313c}
+button:active{transform:scale(.97)}button.active{background:#087c55!important;border:1px solid #50e5a6!important;color:#fff!important;box-shadow:0 0 0 2px #39ce9140,0 0 12px #39ce9150}
+button.loading{border-color:#ffd166!important}button.danger{background:#71313c}
 button:disabled{opacity:.4;cursor:default}
 button:focus-visible{outline:2px solid #50e5a6;outline-offset:2px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.row>*{flex:1;min-width:0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:0}
 .status{font-size:12px;padding:9px;border-radius:8px;background:#101925;margin-top:8px;line-height:1.5;overflow-wrap:anywhere}
 #chart{width:100%;height:350px;display:block;background:#0d1520;border-radius:9px}
-#history{max-height:350px;overflow:auto}
-.trade{padding:10px;border-bottom:1px solid #293548;font-size:12px;line-height:1.7}
-.trade b{font-size:13px}
+#history{max-height:350px;overflow:auto}.trade{padding:10px;border-bottom:1px solid #293548;font-size:12px;line-height:1.7}.trade b{font-size:13px}
 .tag{font-size:10px;padding:4px 7px;border-radius:5px;background:#263448;white-space:nowrap}
 input{background:#0e1723;color:white;border:1px solid #40536d;padding:9px;border-radius:7px;width:100%;margin-top:5px}
 hr{border:0;border-top:1px solid #293548;margin:12px 0}
 footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 .chart-note{font-size:10px;color:#8997aa;line-height:1.5;margin-top:8px}
 .level{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #293548;font-size:12px}
-.level:last-child{border:0}
-.tf{display:flex;gap:5px;flex-wrap:wrap}
+.level:last-child{border:0}.tf{display:flex;gap:5px;flex-wrap:wrap}
 .tf button{flex:1;padding:11px 4px;min-width:45px}
 .section-title{display:flex;justify-content:space-between;align-items:center;gap:8px}
-#chartLoader{display:none;color:#ffd166;font-size:11px;padding:7px 2px}
-#chartLoader.show{display:block}
+#chartLoader{display:none;color:#ffd166;font-size:11px;padding:7px 2px}#chartLoader.show{display:block}
 </style>
 </head>
 <body>
 <header>
-<div><h1>🎯 OZON SNIPER 9.3 PRO</h1><small>SMART ANALYSIS · PAPER TRADING</small></div>
+<div><h1>🎯 OZON SNIPER 9.4 PRO</h1><small>SMART ANALYSIS · PAPER TRADING</small></div>
 <span class="tag" id="connection">Загрузка...</span>
 </header>
 
@@ -143,7 +135,7 @@ footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 <button id="resetBtn" class="danger" style="width:100%;margin-top:10px">Сбросить виртуальный счёт</button>
 <small>Сброс удаляет баланс, позиции и историю сделок.</small>
 </div>
-<footer>OZON SNIPER 9.3 PRO · PAPER TRADING · БЕЗ ПОДКЛЮЧЕНИЯ К БРОКЕРУ</footer>
+<footer>OZON SNIPER 9.4 PRO · PAPER TRADING · БЕЗ ПОДКЛЮЧЕНИЯ К БРОКЕРУ</footer>
 
 <script>
 "use strict";
@@ -157,14 +149,15 @@ const state={
  prices:{OZON:0,TGLD:0},previous:{OZON:0,TGLD:0},
  running:false,selected:"OZON",filter:"all",sound:false,notifications:false,
  lastProcessed:{OZON:"",TGLD:""},dataStatus:{OZON:"",TGLD:""},
- chartOffset:0,chartTf:5,scenarios:{},
+ quoteTime:{OZON:"",TGLD:""},quoteSource:{OZON:"",TGLD:""},
+ dataFresh:{OZON:false,TGLD:false},chartOffset:0,chartTf:5,scenarios:{},
  settings:{commission:10.07,tax:13,allocation:40,refresh:60}
 };
 let timer=null,busy=false,resizeTimer=null,chartRequestId=0,selectionRequestId=0,drawPending=false;
-const CACHE_TTL=120000;
+const CACHE_TTL=120000,MAX_CANDLE_PAGES=12;
 const chartCacheKey=(s,tf)=>s+"_"+tf;
 function log(s){$("systemLog").textContent=stamp()+" — "+s;}
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,schemaVersion:4}));}catch(e){log("Ошибка сохранения: "+e.message);}}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,schemaVersion:5}));}catch(e){log("Ошибка сохранения: "+e.message);}}
 function load(){
  try{
   const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(!d)return;
@@ -210,7 +203,7 @@ function beep(type){
 function announce(msg,type){
  beep(type);
  if("speechSynthesis"in window&&state.sound){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.lang="ru-RU";speechSynthesis.speak(u);}catch(e){}}
- if(state.notifications&&"Notification"in window&&Notification.permission==="granted"){try{new Notification("OZON SNIPER 9.3",{body:msg});}catch(e){}}
+ if(state.notifications&&"Notification"in window&&Notification.permission==="granted"){try{new Notification("OZON SNIPER 9.4",{body:msg});}catch(e){}}
 }
 function notifyTrade(msg,type){announce(msg,type);$("decision").textContent=stamp()+" — "+msg;log(msg);}
 function estimateTax(gross,fees){return Math.max(0,gross-fees)*state.settings.tax/100;}
@@ -254,26 +247,72 @@ function atr(a,n=14){
 }
 async function fetchJSON(url,timeout=12000){
  const controller=new AbortController(),t=setTimeout(()=>controller.abort(),timeout);
- try{const r=await fetch(url,{cache:"no-store",signal:controller.signal});if(!r.ok)throw Error("MOEX HTTP "+r.status);return await r.json();}
- finally{clearTimeout(t);}
+ try{
+  const r=await fetch(url,{cache:"no-store",signal:controller.signal});
+  if(!r.ok)throw Error("MOEX HTTP "+r.status);
+  return await r.json();
+ }catch(e){
+  if(e.name==="AbortError")throw Error("Превышено время ожидания ответа MOEX");
+  if(e instanceof TypeError)throw Error("Сеть или CORS: браузер не разрешил получить данные MOEX ("+e.message+")");
+  throw e;
+ }finally{clearTimeout(t);}
 }
+
+/* Свечи: сначала проверенный маршрут TQBR, затем резервный маршрут ISS. */
 async function fetchCandles(symbol,interval,days){
- const base="https://iss.moex.com/iss/engines/stock/markets/shares/securities/";
- const from=moscowDateDaysAgo(days),raw=[],pageSize=500;
- for(let start=0;start<2500;start+=pageSize){
-  const url=base+encodeURIComponent(symbol)+"/candles.json?interval="+interval+"&from="+from+"&start="+start+"&iss.meta=off";
-  const j=await fetchJSON(url),t=j.candles||{},cols=t.columns||[],rows=t.data||[];
-  const ix=n=>cols.indexOf(n),get=(row,n)=>ix(n)>=0?row[ix(n)]:null;
-  if(!rows.length)break;
-  for(const row of rows){
-   const time=String(get(row,"begin")||""),open=Number(get(row,"open")),high=Number(get(row,"high")),low=Number(get(row,"low")),close=Number(get(row,"close")),volume=Number(get(row,"volume")||0);
-   if(time&&open>0&&close>0&&Number.isFinite(high)&&Number.isFinite(low))raw.push({time,open,high,low,close,volume});
-  }
-  if(rows.length<pageSize)break;
- }const unique=new Map();raw.forEach(c=>unique.set(c.time,c));
- return Array.from(unique.values()).sort((a,b)=>a.time.localeCompare(b.time));
+ const roots=[
+  "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/",
+  "https://iss.moex.com/iss/engines/stock/markets/shares/securities/"
+ ];
+ const from=moscowDateDaysAgo(days),pageSize=500;
+ let lastError=null;
+ for(const base of roots){
+  try{
+   const raw=[];
+   for(let start=0;start<pageSize*MAX_CANDLE_PAGES;start+=pageSize){
+    const url=base+encodeURIComponent(symbol)+"/candles.json?interval="+interval+"&from="+from+"&start="+start+"&iss.meta=off";
+    const j=await fetchJSON(url),t=j.candles||{},cols=t.columns||[],rows=t.data||[];
+    const ix=n=>cols.indexOf(n),get=(row,n)=>ix(n)>=0?row[ix(n)]:null;
+    if(!rows.length)break;
+    for(const row of rows){
+     const time=String(get(row,"begin")||""),open=Number(get(row,"open")),high=Number(get(row,"high")),low=Number(get(row,"low")),close=Number(get(row,"close")),volume=Number(get(row,"volume")||0);
+     if(time&&open>0&&close>0&&Number.isFinite(high)&&Number.isFinite(low))raw.push({time,open,high,low,close,volume});
+    }
+    if(rows.length<pageSize)break;
+   }
+   const unique=new Map();raw.forEach(c=>unique.set(c.time,c));
+   const result=Array.from(unique.values()).sort((a,b)=>a.time.localeCompare(b.time));
+   if(result.length)return result;
+   lastError=Error("MOEX вернула пустой список свечей "+symbol+" по адресу "+(base.includes("boards/TQBR")?"TQBR":"резервному"));
+  }catch(e){lastError=e;}
+ }
+ throw lastError||Error("Не удалось загрузить свечи "+symbol);
 }
- function aggregate(minutes,period){
+
+/* Котировка берётся с доски TQBR. PREVPRICE — предыдущая цена закрытия.
+   LASTTOPREVPRICE является процентным изменением, а не ценой. */
+async function fetchQuote(symbol){
+ const roots=[
+  "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/",
+  "https://iss.moex.com/iss/engines/stock/markets/shares/securities/"
+ ];
+ let lastError=null;
+ for(const base of roots){
+  try{
+   const url=base+encodeURIComponent(symbol)+".json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,LCURRENTPRICE,MARKETPRICE,PREVPRICE,UPDATETIME";
+   const j=await fetchJSON(url,10000),block=j.marketdata||{},cols=block.columns||[],row=(block.data||[])[0];
+   if(!row)throw Error("MOEX не вернула строку котировки "+symbol);
+   const val=n=>{const i=cols.indexOf(n);return i>=0?Number(row[i]):0;};
+   const last=[val("LAST"),val("LCURRENTPRICE"),val("MARKETPRICE")].find(v=>v>0&&Number.isFinite(v))||0;
+   const prev=val("PREVPRICE");
+   if(!last)throw Error("В котировке "+symbol+" пока нет последней цены сделки");
+   const ti=cols.indexOf("UPDATETIME");
+   return{last,prev:prev>0?prev:0,time:ti>=0?String(row[ti]||""):"",source:"MOEX TQBR"};
+  }catch(e){lastError=e;}
+ }
+ throw lastError||Error("Не удалось получить котировку "+symbol);
+}
+function aggregate(minutes,period){
  const groups=new Map(),nowBucket=Math.floor(Date.now()/(period*60000))*period*60000;
  for(const c of minutes){
   const start=bucketStartMs(c.time,period);if(!start||start>=nowBucket)continue;
@@ -282,32 +321,17 @@ async function fetchCandles(symbol,interval,days){
   else{const g=groups.get(key);g.high=Math.max(g.high,c.high);g.low=Math.min(g.low,c.low);g.close=c.close;g.volume+=c.volume;}
  }return Array.from(groups.values()).sort((a,b)=>a.time.localeCompare(b.time));
 }
-
-/* Текущая котировка MOEX: LAST — последняя цена сделки,
-   LASTTOPREVPRICE — изменение относительно предыдущей цены закрытия. */
-async function fetchQuote(symbol){
- const base="https://iss.moex.com/iss/engines/stock/markets/shares/securities/";
- const url=base+encodeURIComponent(symbol)+".json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,LASTTOPREVPRICE,UPDATETIME";
- const j=await fetchJSON(url,9000),block=j.marketdata||{},cols=block.columns||[],row=(block.data||[])[0];
- if(!row)throw Error("MOEX не вернула текущую котировку "+symbol);
- const val=n=>{const i=cols.indexOf(n);return i>=0?Number(row[i]):0;};
- const last=val("LAST"),prev=val("LASTTOPREVPRICE");
- return{last:last>0&&Number.isFinite(last)?last:0,prev:prev>0&&Number.isFinite(prev)?prev:0,time:String(row[cols.indexOf("UPDATETIME")]||"")};
-}
-function strategy(symbol,candles){
+ function strategy(symbol,candles){
  if(candles.length<25)return "WAIT";
  const c=candles.map(x=>x.close),f=sma(c,9),s=sma(c,21);
- const pf=sma(c.slice(0,-1),9),ps=sma(c.slice(0,-1),21);
- const strength=rsi(c),last=candles[candles.length-1];
- const avgVol=average(candles.slice(-20,-1).map(x=>x.volume));
- const volumeOK=avgVol<=0||last.volume>=avgVol*.7,p=state.positions[symbol];
- if(p){const pct=(last.close/p.entry-1)*100;if(pct<=-2.5||pct>=4||f<s||strength>=78)return "SELL";return "HOLD";}
+ const pf=sma(c.slice(0,-1),9),ps=sma(c.slice(0,-1),21),strength=rsi(c),last=candles.at(-1),p=state.positions[symbol];
+ const avgVol=average(candles.slice(-20,-1).map(x=>x.volume)),volumeOK=avgVol<=0||last.volume>=avgVol*.7;
+ if(p){const pct=(last.close/p.entry-1)*100;return pct<=-2.5||pct>=4||f<s||strength>=78?"SELL":"HOLD";}
  return pf>0&&ps>0&&pf<=ps&&f>s&&strength>=45&&strength<=70&&volumeOK?"BUY":"WAIT";
 }
 function buildScenarios(symbol){
  const a=state.candles[symbol]||[];if(a.length<25){state.scenarios[symbol]=null;return null;}
- const last=a[a.length-1],price=last.close,recent=a.slice(-20);
- const support=Math.min(...recent.map(x=>x.low)),resistance=Math.max(...recent.map(x=>x.high));
+ const last=a.at(-1),price=last.close,recent=a.slice(-20),support=Math.min(...recent.map(x=>x.low)),resistance=Math.max(...recent.map(x=>x.high));
  const fast=sma(a.map(x=>x.close),9),vol=atr(a)||price*.008,round=n=>Math.round(n*100)/100;
  function make(name,entry,stop,type){
   const risk=Math.max(entry-stop,vol*.35);
@@ -327,7 +351,7 @@ async function loadChartData(symbol,tf,minutes,force=false){
  let result=[];
  if(tf===1)result=minutes.filter(c=>moexTimeMs(c.time)<Date.now());
  else if(tf===5||tf===15)result=aggregate(minutes,tf);
- else{result=await fetchCandles(symbol,tf===60?60:24,tf===60?90:365);result=result.filter(c=>moexTimeMs(c.time)<Date.now());}
+ else result=await fetchCandles(symbol,tf===60?60:24,tf===60?90:365);
  state.chartCandles[key]=result;state.chartLoadedAt[key]=Date.now();return result;
 }
 function cacheMinuteData(symbol,minutes){
@@ -355,7 +379,7 @@ function sell(symbol,price,time,reason){
  notifyTrade("Продажа "+symbol+" по "+money(price)+". Чистый результат "+money(net),"sell");save();
 }
 function processCandle(symbol,candle,history){
- if(!state.running)return;
+ if(!state.running||!state.dataFresh[symbol])return;
  const signal=strategy(symbol,history),p=state.positions[symbol];
  if(signal==="BUY"&&!p)buy(symbol,candle.close,candle.time);
  else if(signal==="SELL"&&p){
@@ -370,71 +394,74 @@ function updateScenarioUI(){
  const names=["Основной вход","Покупка на снижении","Покупка при пробое"];
  $("scenarioTable").innerHTML=plan.items.map((x,i)=>`<div class="level"><div><b>${names[i]}</b><br><span class="muted">Стоп: ${money(x.stop)} · Цель 1: ${money(x.target1)} · Цель 2: ${money(x.target2)}</span></div><b class="${i===0?"green":"yellow"}">${money(x.entry)}</b></div>`).join("")+
  `<div class="level"><span>Поддержка</span><b>${money(plan.support)}</b></div><div class="level"><span>Сопротивление</span><b>${money(plan.resistance)}</b></div><div class="level"><span>RSI</span><b>${plan.rsi.toFixed(1)}</b></div>`;
- const first=plan.items[0],dist=(first.entry/plan.price-1)*100;
- $("planComment").textContent="Последняя цена "+money(plan.price)+". Основной вход "+money(first.entry)+". Отклонение "+dist.toFixed(2)+"%.";
+ $("planComment").textContent="Последняя цена "+money(plan.price)+". Основной вход "+money(plan.items[0].entry)+".";
  $("planStatus").textContent="РАССЧИТАНО";
 }
 
-/* Обновляем котировку и историю раздельно.
-   Карточка цены получает LAST, а торговая стратегия — закрытые 5-минутные свечи. */
+/* Котировка и свечи загружаются независимо для каждого тикера. */
 async function updateInstrument(symbol){
  const results=await Promise.allSettled([fetchQuote(symbol),fetchCandles(symbol,1,10)]);
- const quoteResult=results[0],candleResult=results[1];
+ const quote=results[0],candleResult=results[1];
  if(candleResult.status==="rejected")throw candleResult.reason;
  const minutes=candleResult.value;
- if(!minutes.length)throw Error("Нет минутных свечей "+symbol);
+ if(!minutes.length)throw Error("MOEX вернула пустую историю "+symbol);
  cacheMinuteData(symbol,minutes);
  const candles=aggregate(minutes,5);
  if(!candles.length)throw Error("Нет завершённых 5-минутных свечей "+symbol);
- const latest=candles[candles.length-1];
+ const latest=candles.at(-1),minuteLast=minutes.at(-1);
  state.candles[symbol]=candles.slice(-500);
-
- const minuteLast=minutes[minutes.length-1];
- const minutePrevious=minutes.length>1?minutes[minutes.length-2].close:minuteLast.close;
- let price=minuteLast.close,previous=minutePrevious,source="последняя минутная свеча";
- let quoteTime="";
- if(quoteResult.status==="fulfilled"&&quoteResult.value.last>0){
-  price=quoteResult.value.last;
-  previous=quoteResult.value.prev||minutePrevious;
-  quoteTime=quoteResult.value.time;
-  source="текущая котировка MOEX LAST";
+ let price=minuteLast.close,previous=0,source="последняя минутная свеча",quoteTime="";
+ if(quote.status==="fulfilled"&&quote.value.last>0){
+  price=quote.value.last;previous=quote.value.prev;quoteTime=quote.value.time;source=quote.value.source+" LAST";
+ }else{
+  state.dataStatus[symbol]="Котировка недоступна ("+quote.reason.message+"). Используется цена последней минутной свечи. ";
  }
  state.prices[symbol]=price;
- state.previous[symbol]=previous>0?previous:price;
- const age=Math.max(0,(Date.now()-moexTimeMs(latest.time))/60000);
- state.dataStatus[symbol]="Цена "+money(price)+" · "+source+
-  (quoteTime?" · время сделки "+quoteTime:"")+
-  " · 5-мин. свеча "+latest.time+" · задержка свечи около "+Math.round(age)+" мин.";
+ state.previous[symbol]=previous>0?previous:minuteLast.close;
+ const candleAge=Math.max(0,(Date.now()-moexTimeMs(latest.time))/60000);
+ const quoteAge=quoteTime?Math.max(0,(Date.now()-moexTimeMs(quoteTime))/60000):candleAge;
+ /* Для автоматической торговли разрешаем только свежие данные.
+    После закрытия рынка старые свечи остаются видимыми, но новые сделки блокируются. */
+ state.dataFresh[symbol]=candleAge<=35&&quoteAge<=35;
+ state.quoteTime[symbol]=quoteTime||minuteLast.time;
+ state.quoteSource[symbol]=source;
+ state.dataStatus[symbol]=(state.dataFresh[symbol]?"ДАННЫЕ СВЕЖИЕ":"ДАННЫЕ УСТАРЕЛИ")+
+  " · Цена "+money(price)+" · "+source+
+  (quoteTime?" · котировка "+quoteTime:" · время свечи "+minuteLast.time)+
+  " · 5-мин. свеча "+latest.time+" · возраст "+Math.round(candleAge)+" мин. · свечей "+candles.length+
+  (quote.status==="rejected"?" · резервная цена: "+quote.reason.message:"");
  const last=state.lastProcessed[symbol];
  if(!last)state.lastProcessed[symbol]=latest.time;
  else{
   const oldIndex=candles.findIndex(c=>c.time===last);
   if(oldIndex>=0){
    for(let i=oldIndex+1;i<candles.length;i++){state.lastProcessed[symbol]=candles[i].time;processCandle(symbol,candles[i],candles.slice(0,i+1));}
-  }else if(latest.time!==last){state.lastProcessed[symbol]=latest.time;log(symbol+": обновлена история, старые свечи пропущены.");}
+  }else if(latest.time!==last){state.lastProcessed[symbol]=latest.time;log(symbol+": история обновлена, старые свечи пропущены.");}
  }
  buildScenarios(symbol);save();
 }
 async function updateAll(){
- if(busy)return;busy=true;let success=0;const errors=[];
+ if(busy)return;busy=true;
  try{
   const results=await Promise.all(instruments.map(async s=>{
-   try{await updateInstrument(s);success++;return null;}
-   catch(e){state.dataStatus[s]="Ошибка обновления: "+e.message;return s+": "+e.message;}
+   try{await updateInstrument(s);return{symbol:s,ok:true};}
+   catch(e){state.dataFresh[s]=false;state.dataStatus[s]="ОШИБКА: "+e.message;return{symbol:s,ok:false,error:e.message};}
   }));
-  results.filter(Boolean).forEach(x=>errors.push(x));
-  if(success===2){$("connection").textContent="Данные получены";$("connection").className="tag green";}
-  else if(success===1){$("connection").textContent="Частично";$("connection").className="tag yellow";}
+  const good=results.filter(x=>x.ok).length;
+  if(good===2){$("connection").textContent="Данные получены";$("connection").className="tag green";}
+  else if(good===1){$("connection").textContent="Частично";$("connection").className="tag yellow";}
   else{$("connection").textContent="Нет связи";$("connection").className="tag red";}
-  if(errors.length)log("Ошибки: "+errors.join(" | "));else log("Котировки обновлены.");
+  const errors=results.filter(x=>!x.ok).map(x=>x.symbol+": "+x.error);
+  log(errors.length?"Ошибки загрузки: "+errors.join(" | "):"Котировки OZON и TGLD обновлены.");
   render();
  }finally{busy=false;}
 }
 function start(){
- if(state.running)return;state.running=true;
- instruments.forEach(s=>{const a=state.candles[s]||[];if(a.length)state.lastProcessed[s]=a[a.length-1].time;});
+ if(state.running)return;
+ state.running=true;
+ instruments.forEach(s=>{const a=state.candles[s]||[];if(a.length)state.lastProcessed[s]=a.at(-1).time;});
  $("botStatus").textContent="РАБОТАЕТ";$("botStatus").className="tag green";
- $("decision").textContent="Виртуальный трейдер запущен. Ожидание новых свечей.";
+ $("decision").textContent="Виртуальный трейдер запущен. Ожидание новых свежих свечей.";
  log("Автотрейдер запущен.");save();updateAll();
  if(timer)clearInterval(timer);timer=setInterval(updateAll,state.settings.refresh*1000);
 }
@@ -492,8 +519,8 @@ function drawChart(){
  trades.forEach(t=>{marker(t.entryTime||t.openedAt,t.entry,"buy");marker(t.exitTime,t.exit,t.net>0?"win":"loss");});
  if(p)marker(p.entryTime,p.entry,"buy");
  ctx.fillStyle="#8997aa";ctx.font="9px Arial";ctx.fillText(data[0].time.slice(5,16),pad.l,h-8);
- ctx.fillText(data[data.length-1].time.slice(5,16),Math.max(pad.l,w-pad.r-75),h-8);
- $("chartInfo").textContent="Интервал: "+({1:"1 минута",5:"5 минут",15:"15 минут",60:"1 час",24:"1 день"}[state.chartTf])+" · Свечей: "+data.length+" из "+all.length+" · Последняя: "+data[data.length-1].time;
+ ctx.fillText(data.at(-1).time.slice(5,16),Math.max(pad.l,w-pad.r-75),h-8);
+ $("chartInfo").textContent="Интервал: "+({1:"1 минута",5:"5 минут",15:"15 минут",60:"1 час",24:"1 день"}[state.chartTf])+" · Свечей: "+data.length+" из "+all.length+" · Последняя: "+data.at(-1).time;
 }
 function scheduleDraw(){
  if(drawPending)return;drawPending=true;
@@ -508,19 +535,12 @@ function chartLatest(){state.chartOffset=0;scheduleDraw();save();}
 async function selectTimeframe(tf,force=false){
  const request=++chartRequestId;state.chartTf=tf;state.chartOffset=0;save();render();
  const key=chartCacheKey(state.selected,tf),cached=state.chartCandles[key];
- if(cached?.length){
-  scheduleDraw();$("chartLoader").classList.remove("show");
-  $("chartInfo").textContent="Показан сохранённый график. Проверяю свежие данные...";
-  if(!force&&Date.now()-(state.chartLoadedAt[key]||0)<CACHE_TTL)return;
- }
+ if(cached?.length){scheduleDraw();$("chartLoader").classList.remove("show");$("chartInfo").textContent="Показан сохранённый график. Проверяю свежие данные...";if(!force&&Date.now()-(state.chartLoadedAt[key]||0)<CACHE_TTL)return;}
  $("chartLoader").classList.add("show");$("chartInfo").textContent="Обновление интервала...";
  const symbol=state.selected;
  try{
   let minutes=[];
-  if(tf===1||tf===5||tf===15){
-   minutes=await fetchCandles(symbol,1,10);if(request!==chartRequestId||symbol!==state.selected)return;
-   cacheMinuteData(symbol,minutes);
-  }
+  if(tf===1||tf===5||tf===15){minutes=await fetchCandles(symbol,1,10);if(request!==chartRequestId||symbol!==state.selected)return;cacheMinuteData(symbol,minutes);}
   const result=await loadChartData(symbol,tf,minutes,true);
   if(request!==chartRequestId||symbol!==state.selected)return;
   state.chartCandles[key]=result;state.chartLoadedAt[key]=Date.now();scheduleDraw();
@@ -545,8 +565,9 @@ function render(){
  $("history").innerHTML=list.length?list.map(t=>`<div class="trade"><b>${t.symbol}</b> · ${t.net>0?'<span class="green">ПРИБЫЛЬ</span>':'<span class="red">УБЫТОК</span>'}<br>Покупка: ${money(t.entry)} · Продажа: ${money(t.exit)}<br>Количество: ${t.qty} шт.<br>Вход: ${t.openedAt||"—"}<br>Выход: ${t.closedAt||"—"}<br>Комиссия: ${money(t.fees)} · Налог: ${money(t.tax)}<br>Причина: ${t.reason||"Сигнал"}<br>Чистый результат: <b class="${t.net>0?"green":"red"}">${money(t.net)}</b></div>`).join(""):"Нет сделок для выбранного фильтра.";
  const s=state.selected,p=state.prices[s],old=state.previous[s];
  $("price").textContent=p?money(p):"—";
- $("change").textContent=old&&p?(((p/old-1>=0?"+":"")+(p/old-1)*100).toFixed(2)+"%"):"—";
- $("change").className=p>=old?"green":"red";
+ const pct=old&&p?(p/old-1)*100:0;
+ $("change").textContent=old&&p?(pct>=0?"+":"")+pct.toFixed(2)+"%":"—";
+ $("change").className=pct>=0?"green":"red";
  $("position").textContent=state.positions[s]?state.positions[s].qty+" шт.":"Нет";
  $("instrumentProfit").textContent=money(floating(s));$("instrumentProfit").className=floating(s)>=0?"green":"red";
  $("instrumentStatus").textContent=state.dataStatus[s]||"Ожидание котировок.";
