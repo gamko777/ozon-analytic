@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>OZON SNIPER 10.0 PRO</title>
+<title>OZON SNIPER 10.1 PRO</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b1018;color:#e8edf5;font-family:Arial,sans-serif;padding:12px}
@@ -51,11 +51,13 @@ footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 .pulse.good{background:#4be0a0;box-shadow:0 0 8px #4be0a0}
 .pulse.bad{background:#ff6878}
 .pulse.warn{background:#ffd166}
+#chartWarning{display:none;background:#49351b;color:#ffd166;padding:9px;border-radius:8px;font-size:11px;line-height:1.5;margin:8px 0}
+#chartWarning.show{display:block}
 </style>
 </head>
 <body>
 <header>
-<div><h1>🎯 OZON SNIPER 10.0 PRO</h1><small>SMART ANALYSIS · PAPER TRADING</small></div>
+<div><h1>🎯 OZON SNIPER 10.1 PRO</h1><small>SMART ANALYSIS · PAPER TRADING</small></div>
 <span class="tag" id="connection">Загрузка...</span>
 </header>
 
@@ -85,7 +87,7 @@ footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 <div class="status" id="monitorState"><span class="pulse warn"></span>Проверка состояния...</div>
 <div class="monitor-grid">
 <div class="monitor-item"><span>Последняя проверка</span><b id="lastCheck">—</b></div>
-<div class="monitor-item"><span>Последние полученные данные</span><b id="lastData">—</b></div>
+<div class="monitor-item"><span>Ответ MOEX получен</span><b id="lastData">—</b></div>
 <div class="monitor-item"><span>Пропущено проверок</span><b id="missedChecks">0</b></div>
 <div class="monitor-item"><span>Последний перерыв</span><b id="lastPause">—</b></div>
 </div>
@@ -116,6 +118,7 @@ footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 <button data-tf="24" class="tfBtn">1 день</button>
 </div>
 <div id="chartLoader">⏳ Обновление графика...</div>
+<div id="chartWarning">⚠ ГРАФИК УСТАРЕЛ. Свечи оставлены для просмотра, но не являются подтверждением текущей цены.</div>
 <canvas id="chart"></canvas>
 <div class="row" style="margin-top:8px">
 <button id="chartBack">← Назад</button><button id="chartLatest">К последним</button><button id="chartForward">Вперёд →</button>
@@ -169,7 +172,7 @@ footer{text-align:center;color:#68778b;font-size:10px;padding:15px}
 <button id="resetBtn" class="danger" style="width:100%;margin-top:10px">Сбросить виртуальный счёт</button>
 <small>Сброс удаляет баланс, позиции и историю сделок.</small>
 </div>
-<footer>OZON SNIPER 10.0 PRO · PAPER TRADING · БЕЗ ПОДКЛЮЧЕНИЯ К БРОКЕРУ</footer>
+<footer>OZON SNIPER 10.1 PRO · PAPER TRADING · БЕЗ ПОДКЛЮЧЕНИЯ К БРОКЕРУ</footer>
 
 <script>
 "use strict";
@@ -224,9 +227,14 @@ const chartCacheKey=(s,tf)=>s+"_"+tf;
 
 function log(s){$("systemLog").textContent=stamp()+" — "+s;}
 
+/* Ключ сохранения не меняется. Графические кэши не записываем,
+   чтобы не переполнять хранилище телефона. Торговые данные сохраняются полностью. */
 function save(){
  try{
-  localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,schemaVersion:7}));
+  const data={...state,schemaVersion:8};
+  delete data.chartCandles;
+  delete data.chartLoadedAt;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
  }catch(e){log("Ошибка сохранения: "+e.message);}
 }
 
@@ -258,13 +266,15 @@ function load(){
   state.missedChecks=Math.max(0,Number(d.missedChecks)||0);
   state.lastPauseMs=Math.max(0,Number(d.lastPauseMs)||0);
 
-  /* Старые позиции сохраняются; недостающие уровни рассчитываются при выходе. */
+  /* Поддержка старого кэша, если он ещё был сохранён предыдущей версией. */
+  state.chartCandles=d.chartCandles||{};
+  state.chartLoadedAt=d.chartLoadedAt||{};
+
   instruments.forEach(s=>{
    const p=state.positions[s];
    if(p&&(!Number.isFinite(Number(p.entry))||Number(p.entry)<=0))state.positions[s]=null;
   });
 
-  /* Старый код до версии 2 уже учитывал налог иначе. */
   if(d.schemaVersion===undefined||Number(d.schemaVersion)<2){
    const oldTax=state.trades.reduce((sum,t)=>sum+(Number(t.tax)||0),0);
    state.cash=Math.max(0,state.cash-oldTax);
@@ -316,7 +326,7 @@ function announce(msg,type){
   }catch(e){}
  }
  if(state.notifications&&"Notification"in window&&Notification.permission==="granted"){
-  try{new Notification("OZON SNIPER 10.0",{body:msg});}catch(e){}
+  try{new Notification("OZON SNIPER 10.1",{body:msg});}catch(e){}
  }
 }
 
@@ -360,7 +370,6 @@ function currentEquity(){
  return v;
 }
 
-/* Полная дата MOEX разбирается как московское время. */
 function moexTimeMs(value){
  const s=String(value||"").trim();
  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
@@ -368,8 +377,8 @@ function moexTimeMs(value){
  return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4]-3,+m[5],+(m[6]||0));
 }
 
-/* Время HH:MM соединяется с датой последней биржевой свечи.
-   Никакого автоматического переноса на вчера или завтра здесь нет. */
+/* Время HH:MM привязывается к дате последней минутной свечи.
+   Дата не переносится автоматически на соседний день. */
 function quoteTimeOnCandleDate(clock,candleTime){
  const full=moexTimeMs(clock);
  if(full)return full;
@@ -400,8 +409,7 @@ function isWeekendMoscow(){
  return day===0||day===6;
 }
 
-/* Приблизительное окно торгов MOEX. Праздничные дни определяются по фактическим данным,
-   поэтому само по себе рабочее число календаря не разрешает торговлю. */
+/* Приблизительное торговое окно MOEX, не календарь биржевых праздников. */
 function isRegularSession(){
  const p=moscowParts();
  const day=new Date(Date.UTC(+p.year,+p.month-1,+p.day)).getUTCDay();
@@ -458,7 +466,6 @@ async function fetchJSON(url,timeout=12000){
  }
 }
 
-/* Загрузка минутных и старших свечей с постраничным чтением. */
 async function fetchCandles(symbol,interval,days){
  const roots=[
   "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/",
@@ -503,7 +510,6 @@ async function fetchCandles(symbol,interval,days){
  throw lastError||Error("Не удалось загрузить свечи "+symbol);
 }
 
-/* Получаем цену и время последней сделки. Дата времени будет взята из свечи. */
 async function fetchQuote(symbol){
  const roots=[
   "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/",
@@ -623,8 +629,8 @@ function buildScenarios(symbol){
  return state.scenarios[symbol];
 }
 
-/* График: 1/5/15 минут строится из минутной истории,
-   1 час и 1 день загружаются отдельным запросом. */
+/* График: короткие интервалы строятся из минутной истории,
+   час и день загружаются отдельным запросом. */
 async function loadChartData(symbol,tf,minutes,force=false){
  const key=chartCacheKey(symbol,tf);
  const age=Date.now()-(state.chartLoadedAt[key]||0);
@@ -668,7 +674,7 @@ function buy(symbol,price,time){
 }
 
 /* Налог рассчитывается с положительного результата после комиссий.
-   Для старых позиций недостающие уровни выхода рассчитываются от цены входа. */
+   Старые позиции сохраняют свои цены входа и количество. */
 function sell(symbol,price,time,reason){
  const p=state.positions[symbol];
  if(!p||price<=0||!Number.isFinite(price))return false;
@@ -695,8 +701,7 @@ function sell(symbol,price,time,reason){
  return true;
 }
 
-/* Выход по OHLC свечи. Если за одну свечу задеты и стоп, и цель,
-   используется консервативный вариант: сначала считается сработавшим стоп. */
+/* На одной свече стоп проверяется раньше цели. */
 function checkPositionExit(symbol,candle){
  const p=state.positions[symbol];
  if(!p)return false;
@@ -715,7 +720,7 @@ function checkPositionExit(symbol,candle){
  return false;
 }
 
-/* Обрабатываем только одну последнюю новую свечу и только при свежих данных. */
+/* Новая свеча обрабатывается только при свежих данных. */
 function processCandle(symbol,candle,history){
  if(!state.running||!state.dataFresh[symbol])return;
 
@@ -738,11 +743,25 @@ function processCandle(symbol,candle,history){
 }
  function updateScenarioUI(){
  const plan=state.scenarios[state.selected];
+ const fresh=!!state.dataFresh[state.selected];
+
+ if(!fresh){
+  $("planStatus").textContent="ПЛАН УСТАРЕЛ";
+  $("planStatus").className="tag red";
+  $("planComment").textContent=
+   "Свежесть данных не подтверждена. Старый расчёт не является актуальным торговым сигналом. Новые сделки заблокированы.";
+  $("scenarioTable").innerHTML=
+   '<div class="level"><span>Основной вход</span><b>НЕТ ДАННЫХ</b></div>'+
+   '<div class="level"><span>Покупка на снижении</span><b>НЕТ ДАННЫХ</b></div>'+
+   '<div class="level"><span>Покупка при пробое</span><b>НЕТ ДАННЫХ</b></div>';
+  return;
+ }
 
  if(!plan){
   $("scenarioTable").innerHTML="Недостаточно свечей для расчёта.";
   $("planComment").textContent="Для расчёта нужно не менее 25 завершённых свечей.";
   $("planStatus").textContent="ОЖИДАНИЕ";
+  $("planStatus").className="tag yellow";
   return;
  }
 
@@ -760,18 +779,18 @@ function processCandle(symbol,candle,history){
  <div class="level"><span>RSI</span><b>${plan.rsi.toFixed(1)}</b></div>`;
 
  $("planComment").textContent=
-  "Последняя цена закрытой свечи "+money(plan.price)+
+  "Свежий расчёт. Последняя цена закрытой свечи "+money(plan.price)+
   ". Основной расчётный вход "+money(plan.items[0].entry)+
-  ". Сценарий построен по свечам "+plan.created+".";
+  ". Свеча расчёта: "+plan.created+".";
 
- $("planStatus").textContent="РАССЧИТАНО";
+ $("planStatus").textContent="АКТУАЛЕН";
+ $("planStatus").className="tag green";
 }
 
-/* Проверка времени котировки и свечей.
-   HH:MM привязывается к дате последней свечи, а не к сегодняшнему дню. */
+/* Проверка времени котировки и обеих историй свечей. */
 function assessFreshness(symbol,quote,minutes,candles){
  const now=Date.now();
- const latest= candles.at(-1);
+ const latest=candles.at(-1);
  const minuteLast=minutes.at(-1);
 
  if(!latest||!minuteLast){
@@ -783,38 +802,49 @@ function assessFreshness(symbol,quote,minutes,candles){
  const minuteMs=moexTimeMs(minuteLast.time);
 
  if(!quoteMs||!candleMs||!minuteMs){
-  return{fresh:false,status:"STALE",message:"Не удалось надёжно определить время биржевых данных."};
+  return{fresh:false,status:"STALE",message:"Не удалось определить время биржевых данных."};
  }
 
  const quoteAge=(now-quoteMs)/60000;
  const candleAge=(now-candleMs)/60000;
  const minuteAge=(now-minuteMs)/60000;
 
+ /* Время котировки должно быть близко к времени последней минутной свечи.
+    Это защищает от старой котировки с новым временем получения ответа. */
+ const quoteCandleDiff=Math.abs(quoteMs-minuteMs)/60000;
+
  const quoteValid=quoteAge>=-2&&quoteAge<=15;
  const candleValid=candleAge>=-1&&candleAge<=10;
  const minuteValid=minuteAge>=-1&&minuteAge<=5;
+ const alignmentValid=quoteCandleDiff<=10;
  const session=isRegularSession();
 
  if(isWeekendMoscow()||!session){
   return{
    fresh:false,status:"CLOSED",
-   quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,
-   message:"Рынок сейчас вне основного торгового окна. Новые виртуальные сделки запрещены."
+   quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,quoteCandleDiff,
+   message:"Рынок вне основного торгового окна. Новые виртуальные сделки запрещены."
   };
  }
 
- if(!quoteValid||!candleValid||!minuteValid){
+ if(!quoteValid||!candleValid||!minuteValid||!alignmentValid){
+  let reason="Данные устарели или время котировки не совпадает с историей свечей.";
+  if(!alignmentValid)reason="Время котировки расходится с последней минутной свечой более чем на 10 минут.";
+  else if(!quoteValid)reason="Время котировки не прошло проверку актуальности.";
+  else if(!minuteValid)reason="Последняя минутная свеча устарела.";
+  else if(!candleValid)reason="Последняя 5-минутная свеча устарела.";
+
   return{
    fresh:false,status:"STALE",
-   quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,
-   message:"Данные устарели или время котировки не совпадает с историей свечей."
+   quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,quoteCandleDiff,
+   message:reason
   };
  }
 
  return{
   fresh:true,status:"FRESH",
-  quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,
-  message:"Котировка и свечи соответствуют условиям свежести."
+  quoteMs,candleMs,minuteMs,quoteAge,candleAge,minuteAge,quoteCandleDiff,
+  message:"Котировка и свечи прошли проверку свежести и времени."
  };
 }
 
@@ -828,7 +858,7 @@ function setInstrumentError(symbol,error){
  state.dataStatus[symbol]="ОШИБКА СВЯЗИ: "+error;
 }
 
-/* Котировка и свечи каждого инструмента проверяются отдельно. */
+/* Каждый инструмент проверяется независимо. */
 async function updateInstrument(symbol){
  const results=await Promise.allSettled([
   fetchQuote(symbol),
@@ -838,21 +868,15 @@ async function updateInstrument(symbol){
  const quoteResult=results[0];
  const candleResult=results[1];
 
- if(candleResult.status==="rejected"){
-  throw candleResult.reason;
- }
+ if(candleResult.status==="rejected")throw candleResult.reason;
 
  const minutes=candleResult.value;
- if(!minutes.length){
-  throw Error("MOEX вернула пустую историю "+symbol);
- }
+ if(!minutes.length)throw Error("MOEX вернула пустую историю "+symbol);
 
  cacheMinuteData(symbol,minutes);
 
  const candles=aggregate(minutes,5);
- if(!candles.length){
-  throw Error("Нет завершённых 5-минутных свечей "+symbol);
- }
+ if(!candles.length)throw Error("Нет завершённых 5-минутных свечей "+symbol);
 
  state.candles[symbol]=candles.slice(-500);
 
@@ -865,7 +889,6 @@ async function updateInstrument(symbol){
  const previous=quote.prev;
  const latest=candles.at(-1);
  const minuteLast=minutes.at(-1);
-
  const check=assessFreshness(symbol,quote,minutes,candles);
 
  state.prices[symbol]=price;
@@ -883,14 +906,15 @@ async function updateInstrument(symbol){
   " · "+quote.source+
   " · время котировки "+quote.time+
   " · возраст "+formatAge(check.quoteAge)+
+  " · расхождение времени "+formatAge(check.quoteCandleDiff)+
   " · последняя 5-минутная свеча "+latest.time+
   " · возраст "+formatAge(check.candleAge)+
   " · последняя минутная свеча "+minuteLast.time+
   " · возраст "+formatAge(check.minuteAge)+
   " · "+check.message;
 
- /* Если алгоритм запущен, новая свеча должна быть единственной
-    и идти сразу за предыдущей. Пропущенные свечи не исполняются. */
+ /* Первичная синхронизация не открывает и не закрывает сделки.
+    После пропуска свечей заднее исполнение запрещено. */
  const last=state.lastProcessed[symbol];
 
  if(!last){
@@ -910,7 +934,7 @@ async function updateInstrument(symbol){
    if(newCount>0&&state.running){
     state.missedChecks+=newCount;
     log(symbol+": пропущено "+newCount+
-     " свечей. Заднее исполнение сделок запрещено.");
+     " свечей. Сделки задним числом не исполняются.");
    }
    state.lastProcessed[symbol]=latest.time;
   }
@@ -926,6 +950,7 @@ async function updateInstrument(symbol){
  };
 }
 
+/* Мониторинг и торговый статус — разные состояния. */
 function updateMonitor(){
  const active=state.running;
  const visible=document.visibilityState!=="hidden";
@@ -940,31 +965,31 @@ function updateMonitor(){
  if(active&&busy){
   label="ПРОВЕРКА";
   cls="yellow";
-  msg="Получение и проверка данных MOEX выполняются.";
+  msg="Мониторинг включён. Идёт получение и проверка данных MOEX. Новые сделки до проверки запрещены.";
  }else if(active&&!visible){
-  label="ФОН";
+  label="ФОНОВЫЙ РЕЖИМ";
   cls="yellow";
   msg="Страница находится в фоне. Android может приостанавливать таймеры браузера.";
  }else if(active&&freshCount===2){
-  label="РАБОТАЕТ";
+  label="ТОРГОВЛЯ РАЗРЕШЕНА";
   cls="green";
-  msg="Оба инструмента имеют свежие данные. Виртуальная торговля разрешена.";
+  msg="Мониторинг включён. OZON и TGLD прошли проверку свежести. Виртуальная торговля разрешена.";
  }else if(active&&closedCount===2){
   label="РЫНОК ЗАКРЫТ";
   cls="yellow";
-  msg="Торговое окно закрыто. Новые виртуальные сделки не выполняются.";
+  msg="Мониторинг включён. Оба инструмента вне торгового окна. Новые виртуальные сделки не выполняются.";
  }else if(active&&errorCount===2){
   label="ОШИБКА СВЯЗИ";
   cls="red";
-  msg="Не удалось получить данные ни по одному инструменту. Торговля заблокирована.";
+  msg="Мониторинг включён, но получить данные не удалось. Торговля заблокирована.";
  }else if(active&&freshCount===1){
   label="ЧАСТИЧНО";
   cls="yellow";
-  msg="Свежие данные есть только по одному инструменту. Второй инструмент не торгует.";
+  msg="Мониторинг включён. Свежие данные есть только по одному инструменту. Второй инструмент заблокирован.";
  }else if(active){
-  label="НЕТ СВЕЖИХ ДАННЫХ";
+  label="ТОРГОВЛЯ ЗАБЛОКИРОВАНА";
   cls="red";
-  msg="Алгоритм включён, но данные не подтверждены. Торговля заблокирована.";
+  msg="Мониторинг включён, но свежесть данных не подтверждена. Новые виртуальные сделки запрещены.";
  }
 
  $("monitorBadge").textContent=label;
@@ -985,33 +1010,43 @@ function updateMonitor(){
   Math.round(state.lastPauseMs/1000)+" сек.":"—";
 
  $("monitorDetails").textContent=
-  "Последняя проверка: "+(state.lastCheckDuration?
+  "Длительность проверки: "+(state.lastCheckDuration?
    Math.round(state.lastCheckDuration/1000)+" сек.":"—")+
   ". Возвращение из фона: "+(state.lastResumeAt?
    new Date(state.lastResumeAt).toLocaleTimeString("ru-RU"):"ещё не было")+
   ". OZON: "+(state.marketState.OZON||"нет данных")+
   ". TGLD: "+(state.marketState.TGLD||"нет данных")+
-  ". Если Android выгрузил приложение, проверки до повторного открытия не выполняются.";
+  ". Браузер не может гарантировать проверки, пока Android выгрузил приложение.";
 }
 
 function setBotStatus(){
- if(state.running){
-  $("botStatus").textContent="РАБОТАЕТ";
-  $("botStatus").className="tag green";
- }else{
+ if(!state.running){
   $("botStatus").textContent="ОСТАНОВЛЕН";
   $("botStatus").className="tag yellow";
+ }else if(busy){
+  $("botStatus").textContent="МОНИТОРИНГ";
+  $("botStatus").className="tag yellow";
+ }else{
+  const count=instruments.filter(s=>state.dataFresh[s]).length;
+  if(count===2){
+   $("botStatus").textContent="ТОРГОВЛЯ РАЗРЕШЕНА";
+   $("botStatus").className="tag green";
+  }else{
+   $("botStatus").textContent="ТОРГОВЛЯ ЗАБЛОКИРОВАНА";
+   $("botStatus").className="tag red";
+  }
  }
  updateMonitor();
 }
 
-/* Общая проверка. Успешный ответ сервера и свежие биржевые данные — не одно и то же. */
+/* Успешный ответ MOEX не означает, что котировка свежая. */
 async function updateAll(reason="Плановая проверка"){
  if(busy)return;
 
  busy=true;
  const started=Date.now();
  updateMonitor();
+ setBotStatus();
 
  try{
   const results=await Promise.all(instruments.map(async s=>{
@@ -1030,7 +1065,6 @@ async function updateAll(reason="Плановая проверка"){
   state.lastCheckAt=Date.now();
   state.lastCheckDuration=Date.now()-started;
 
-  /* Это время успешного получения ответов, а не время последней биржевой сделки. */
   if(good>0)state.lastDataAt=Date.now();
 
   if(good===2){
@@ -1061,6 +1095,7 @@ async function updateAll(reason="Плановая проверка"){
   busy=false;
   state.lastCheckDuration=Date.now()-started;
   updateMonitor();
+  setBotStatus();
   save();
  }
 }
@@ -1095,12 +1130,14 @@ function start(){
 
  state.running=true;
 
+ /* При старте синхронизируемся с последними загруженными свечами.
+    Исторические свечи не должны создавать сделки задним числом. */
  instruments.forEach(s=>{
   const a=state.candles[s]||[];
   if(a.length)state.lastProcessed[s]=a.at(-1).time;
  });
 
- $("decision").textContent="Виртуальный трейдер запущен. Проверяю свежесть данных...";
+ $("decision").textContent="Мониторинг включён. Проверяю свежесть данных...";
  setBotStatus();
  log("Автотрейдер запущен. Проверяю актуальные данные.");
  save();
@@ -1121,7 +1158,6 @@ function stop(){
  save();
 }
 
-/* Возвращение после скрытия страницы или восстановления WebView. */
 async function recoverFromBackground(){
  if(!state.running||resumeBusy)return;
 
@@ -1223,7 +1259,8 @@ function drawChart(){
  const plan=state.scenarios[state.selected];
  const levels=[];
 
- if(plan){
+ /* Устаревшие сценарии не рисуются как действующие уровни. */
+ if(plan&&state.dataFresh[state.selected]){
   const x=plan.items[0];
   levels.push(
    {price:x.entry,color:"#39d99b",label:"ВХОД"},
@@ -1380,7 +1417,8 @@ function drawChart(){
   "Интервал: "+
   ({1:"1 минута",5:"5 минут",15:"15 минут",60:"1 час",24:"1 день"}[state.chartTf])+
   " · Свечей: "+data.length+" из "+all.length+
-  " · Последняя: "+data.at(-1).time;
+  " · Последняя: "+data.at(-1).time+
+  (state.dataFresh[state.selected]?" · данные свежие":" · ИСТОРИЧЕСКИЕ ДАННЫЕ");
 }
 
 function scheduleDraw(){
@@ -1564,8 +1602,11 @@ function render(){
   b.classList.toggle("active",Number(b.dataset.tf)===state.chartTf)
  );
 
+ $("chartWarning").classList.toggle("show",!state.dataFresh[s]);
+
  updateScenarioUI();
  updateMonitor();
+ setBotStatus();
  scheduleDraw();
 }
 
@@ -1686,7 +1727,7 @@ window.addEventListener("resize",()=>{
 });
 
 /* При запуске приложение загружает данные, но автотрейдер
-   всегда остаётся выключенным до ручного нажатия кнопки. */
+   остаётся выключенным до ручного нажатия кнопки. */
 async function init(){
  load();
  showSettings();
