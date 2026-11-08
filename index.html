@@ -3,19 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0b111b">
-<title>OZON SNIPER 10.4 PRO</title>
+<meta name="theme-color" content="#080e17">
+<title>OZON SNIPER 10.5 PRO</title>
 <style>
-:root{
- --bg:#080e17;--panel:#111b29;--panel2:#172437;--line:#26384e;
- --text:#eaf1fa;--muted:#8fa2b9;--green:#20d69a;--red:#ff6174;
- --yellow:#ffc45c;--blue:#55a9ff;--purple:#b68aff;
-}
+:root{--bg:#080e17;--panel:#111b29;--panel2:#172437;--line:#26384e;--text:#eaf1fa;--muted:#8fa2b9;--green:#20d69a;--red:#ff6174;--yellow:#ffc45c;--blue:#55a9ff;--purple:#b68aff}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:10px;padding-bottom:35px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:10px 10px 35px}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
-h1{font-size:20px;margin:0;font-weight:900;letter-spacing:.4px}
-.version{font-size:10px;color:var(--green);margin-top:4px}
+h1{font-size:20px;margin:0;font-weight:900}.version{font-size:10px;color:var(--green);margin-top:4px}
 .status{font-size:11px;padding:7px 9px;border-radius:8px;background:#172a35;color:var(--green)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:10px}
 .card h3{font-size:13px;margin:0 0 10px;color:#b9cce2}
@@ -24,73 +19,35 @@ h1{font-size:20px;margin:0;font-weight:900;letter-spacing:.4px}
 .metric{background:var(--panel2);border-radius:9px;padding:10px;min-width:0}
 .metric small{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}
 .metric strong{font-size:17px;overflow-wrap:anywhere}
-button,select,input{font:inherit}
-button{border:1px solid var(--line);background:#1b2b40;color:var(--text);padding:10px 12px;border-radius:9px;font-size:12px;font-weight:700}
-button:active{transform:scale(.98)}
-button.primary{background:#126b55;border-color:#16866b}
-button.danger{background:#562432;border-color:#803448}
-button.active{background:#155b86;border-color:#268bc9}
-button:disabled{opacity:.45}
+button,select,input{font:inherit}button{border:1px solid var(--line);background:#1b2b40;color:var(--text);padding:10px 12px;border-radius:9px;font-size:12px;font-weight:700}
+button:active{transform:scale(.98)}button.primary{background:#126b55;border-color:#16866b}button.danger{background:#562432;border-color:#803448}
+button.active{background:#155b86;border-color:#268bc9}button:disabled{opacity:.45}
 select,input{background:#0b1421;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;min-width:0}
-select{flex:1}
-input{width:100%}
-label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
-.muted{color:var(--muted)}
-.green{color:var(--green)!important}
-.red{color:var(--red)!important}
-.yellow{color:var(--yellow)!important}
-.blue{color:var(--blue)!important}
+select{flex:1}input{width:100%}label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
+.muted{color:var(--muted)}.green{color:var(--green)!important}.red{color:var(--red)!important}.yellow{color:var(--yellow)!important}.blue{color:var(--blue)!important}
 .bigSignal{font-size:25px;font-weight:900;text-align:center;padding:13px;border-radius:10px;background:#172437;margin-bottom:9px}
-.signal-buy{color:var(--green)}
-.signal-sell{color:var(--red)}
-.signal-wait{color:var(--yellow)}
+.signal-buy{color:var(--green)}.signal-sell{color:var(--red)}.signal-wait{color:var(--yellow)}
 #tvChart{width:100%;height:340px;border:0;border-radius:9px;background:#0b111b}
 #priceChart,#equityChart{width:100%;height:210px;display:block;background:#0b1420;border-radius:9px}
 #volumeChart{width:100%;height:85px;display:block;background:#0b1420;border-radius:9px}
-.tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:5px}
-.tabs button{white-space:nowrap}
 .planline{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #243247;font-size:12px}
-.planline:last-child{border:0}
-.log{font-size:11px;line-height:1.5;color:#a9bdd3;max-height:190px;overflow:auto;white-space:pre-wrap}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}
-th{color:var(--muted)}
-input[type=checkbox]{width:auto;accent-color:var(--green)}
-.footer{text-align:center;color:#657b95;font-size:10px;padding:15px}
+.planline:last-child{border:0}.log{font-size:11px;line-height:1.5;color:#a9bdd3;max-height:190px;overflow:auto;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+input[type=checkbox]{width:auto;accent-color:var(--green)}.footer{text-align:center;color:#657b95;font-size:10px;padding:15px}
 .hidden{display:none!important}
 @media(min-width:700px){body{max-width:900px;margin:auto}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
-
-<header>
- <div>
-  <h1>🎯 OZON SNIPER</h1>
-  <div class="version">10.4 PRO · VIRTUAL TRADING TERMINAL</div>
- </div>
- <div class="status" id="connectionStatus">ОЖИДАНИЕ</div>
-</header>
+<header><div><h1>🎯 OZON SNIPER</h1><div class="version">10.5 PRO · MOEX ISS · VIRTUAL TRADING</div></div><div class="status" id="connectionStatus">ОЖИДАНИЕ</div></header>
 
 <div class="card">
  <div class="row">
-  <select id="symbol">
-   <option value="OZON">OZON — Ozon</option>
-   <option value="TGLD">TGLD — Золото</option>
-  </select>
-  <select id="timeframe">
-   <option value="1">1 мин</option>
-   <option value="5" selected>5 мин</option>
-   <option value="15">15 мин</option>
-   <option value="60">1 час</option>
-   <option value="24">1 день</option>
-  </select>
+  <select id="symbol"><option value="OZON">OZON — Ozon</option><option value="TGLD">TGLD — Золото</option></select>
+  <select id="timeframe"><option value="1">1 мин</option><option value="5" selected>5 мин</option><option value="15">15 мин</option><option value="60">1 час</option><option value="24">1 день</option></select>
   <button class="primary" id="refreshBtn">↻ Обновить</button>
  </div>
- <div class="row" style="margin-top:9px">
-  <button id="startBtn" class="primary">▶ Запустить</button>
-  <button id="stopBtn" class="danger">■ Остановить</button>
-  <button id="soundBtn">🔔 Звук: выкл.</button>
- </div>
+ <div class="row" style="margin-top:9px"><button class="primary" id="startBtn">▶ Запустить</button><button class="danger" id="stopBtn">■ Остановить</button><button id="soundBtn">🔔 Звук: выкл.</button></div>
  <div class="muted" id="dataInfo" style="font-size:10px;margin-top:8px">Ожидание загрузки рыночных данных</div>
 </div>
 
@@ -102,8 +59,7 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
 </div>
 
 <div class="card">
- <h3>РЫНОЧНЫЙ СИГНАЛ</h3>
- <div class="bigSignal signal-wait" id="signal">ОЖИДАНИЕ ДАННЫХ</div>
+ <h3>РЫНОЧНЫЙ СИГНАЛ</h3><div class="bigSignal signal-wait" id="signal">ОЖИДАНИЕ ДАННЫХ</div>
  <div class="grid">
   <div class="metric"><small>RSI 14</small><strong id="rsi">—</strong></div>
   <div class="metric"><small>EMA 9 / EMA 21</small><strong id="ema">—</strong></div>
@@ -113,30 +69,22 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
  <div class="planline"><span>Краткосрочный тренд</span><strong id="trendShort">—</strong></div>
  <div class="planline"><span>Среднесрочный тренд</span><strong id="trendLong">—</strong></div>
  <div class="planline"><span>Объём</span><strong id="volumeRatio">—</strong></div>
- <div class="planline"><span>Надёжность сигнала</span><strong id="confidence">—</strong></div>
+ <div class="planline"><span>Оценка условий</span><strong id="confidence">—</strong></div>
 </div>
 
 <div class="card">
  <h3>ГРАФИК TRADINGVIEW</h3>
- <iframe id="tvChart" title="График TradingView"
-  src="https://s.tradingview.com/widgetembed/?symbol=MOEX%3AOZON&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b111b&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1&studies=[]"
-  allowfullscreen></iframe>
- <div class="muted" style="font-size:10px;margin-top:6px">График TradingView отображается отдельно от расчётов сигналов. Источник расчётных свечей — MOEX ISS.</div>
+ <iframe id="tvChart" title="График TradingView" src="https://s.tradingview.com/widgetembed/?symbol=MOEX%3AOZON&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b111b&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1" allowfullscreen></iframe>
+ <div class="muted" style="font-size:10px;margin-top:6px">График TradingView — отдельно. Расчётные свечи и сигналы поступают из MOEX ISS; бесплатный ISS может отдавать данные с задержкой.</div>
 </div>
 
 <div class="card">
- <h3>АНАЛИТИЧЕСКИЙ ГРАФИК</h3>
- <canvas id="priceChart"></canvas>
- <canvas id="volumeChart"></canvas>
- <div class="row" style="margin-top:7px">
-  <span class="muted" style="font-size:10px">EMA 9 / EMA 21 / цена</span>
-  <span class="muted" id="candleCount" style="font-size:10px;margin-left:auto">Свечей: 0</span>
- </div>
+ <h3>АНАЛИТИЧЕСКИЙ ГРАФИК</h3><canvas id="priceChart"></canvas><canvas id="volumeChart"></canvas>
+ <div class="row" style="margin-top:7px"><span class="muted" style="font-size:10px">EMA 9 / EMA 21 / цена</span><span class="muted" id="candleCount" style="font-size:10px;margin-left:auto">Свечей: 0</span></div>
 </div>
 
 <div class="card">
- <h3>ПЛАН ВИРТУАЛЬНОЙ СДЕЛКИ</h3>
- <div class="bigSignal signal-wait" id="planDirection">НЕТ СДЕЛКИ</div>
+ <h3>ПЛАН ВИРТУАЛЬНОЙ СДЕЛКИ</h3><div class="bigSignal signal-wait" id="planDirection">НЕТ СДЕЛКИ</div>
  <div class="planline"><span>Тип действия</span><strong id="planType">Ожидание</strong></div>
  <div class="planline"><span>Цена входа</span><strong id="planEntry">—</strong></div>
  <div class="planline"><span>Количество</span><strong id="planQty">—</strong></div>
@@ -146,11 +94,8 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
  <div class="planline"><span>Цель 2</span><strong id="planTP2">—</strong></div>
  <div class="planline"><span>Риск с комиссиями</span><strong id="planRisk">—</strong></div>
  <div class="planline"><span>Ожидаемая чистая прибыль</span><strong id="planProfit">—</strong></div>
- <div class="muted" id="planComment" style="font-size:11px;margin-top:9px">План появится после анализа достаточного количества свечей.</div>
- <div class="row" style="margin-top:10px">
-  <button class="primary" id="copyPlanBtn">Копировать план</button>
-  <button id="manualBuyBtn">Виртуальная покупка</button>
- </div>
+ <div class="muted" id="planComment" style="font-size:11px;margin-top:9px">План появится после анализа свечей.</div>
+ <div class="row" style="margin-top:10px"><button class="primary" id="copyPlanBtn">Копировать план</button><button id="manualBuyBtn">Виртуальная покупка</button></div>
 </div>
 
 <div class="card">
@@ -162,10 +107,7 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
  <div class="planline"><span>Текущий стоп</span><strong id="positionStop">—</strong></div>
  <div class="planline"><span>Перенос в безубыток</span><strong id="beStatus">Включён</strong></div>
  <div class="planline"><span>Трейлинг-стоп</span><strong id="trailingStatus">Включён</strong></div>
- <div class="row" style="margin-top:10px">
-  <button class="primary" id="closePositionBtn">Закрыть позицию</button>
-  <button id="partialCloseBtn">Зафиксировать 50%</button>
- </div>
+ <div class="row" style="margin-top:10px"><button class="primary" id="closePositionBtn">Закрыть позицию</button><button id="partialCloseBtn">Зафиксировать 50%</button></div>
 </div>
 
 <div class="card">
@@ -182,9 +124,7 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
   <label><input id="trailing" type="checkbox" checked> Использовать трейлинг-стоп</label>
   <label><input id="partialTP" type="checkbox" checked> Частично фиксировать прибыль на первой цели</label>
  </div>
- <div class="row" style="margin-top:10px">
-  <button class="primary" id="saveSettingsBtn">Сохранить настройки</button>
- </div>
+ <div class="row" style="margin-top:10px"><button class="primary" id="saveSettingsBtn">Сохранить настройки</button></div>
 </div>
 
 <div class="card">
@@ -193,7 +133,7 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
  <div class="planline"><span>Последний анализ</span><strong id="lastAnalysis">—</strong></div>
  <div class="planline"><span>Качество данных</span><strong id="dataQuality">Нет данных</strong></div>
  <div class="planline"><span>Следующее обновление</span><strong id="nextRefresh">—</strong></div>
- <div class="muted" style="font-size:10px;margin-top:8px">Работа в фоне зависит от Android и браузера. При сворачивании приложения обновления могут приостанавливаться.</div>
+ <div class="muted" style="font-size:10px;margin-top:8px">Фоновая работа зависит от Android и браузера. При сворачивании обновления могут приостанавливаться.</div>
 </div>
 
 <div class="card">
@@ -209,647 +149,270 @@ input[type=checkbox]{width:auto;accent-color:var(--green)}
 
 <div class="card">
  <h3>ИСТОРИЯ СДЕЛОК</h3>
- <div style="overflow-x:auto">
-  <table>
-   <thead><tr><th>Дата</th><th>Инструмент</th><th>Вход</th><th>Выход</th><th>Результат</th></tr></thead>
-   <tbody id="tradeHistory"><tr><td colspan="5" class="muted">Пока нет сделок</td></tr></tbody>
-  </table>
- </div>
- <div class="row" style="margin-top:10px">
-  <button id="exportBtn">Экспорт CSV</button>
-  <button id="backupBtn">Резервная копия</button>
-  <button id="restoreBtn">Восстановить</button>
-  <input id="restoreFile" type="file" accept=".json,application/json" class="hidden">
- </div>
+ <div style="overflow-x:auto"><table><thead><tr><th>Дата</th><th>Инструмент</th><th>Вход</th><th>Выход</th><th>Результат</th></tr></thead><tbody id="tradeHistory"><tr><td colspan="5" class="muted">Пока нет сделок</td></tr></tbody></table></div>
+ <div class="row" style="margin-top:10px"><button id="exportBtn">Экспорт CSV</button><button id="backupBtn">Резервная копия</button><button id="restoreBtn">Восстановить</button><input id="restoreFile" type="file" accept=".json,application/json" class="hidden"></div>
 </div>
 
 <div class="card">
- <h3>ЖУРНАЛ РАБОТЫ</h3>
- <div class="log" id="log">OZON SNIPER 10.4 PRO готов к запуску.</div>
- <div class="row" style="margin-top:8px">
-  <button id="clearLogBtn">Очистить журнал</button>
-  <button id="resetBtn" class="danger">Сбросить виртуальный счёт</button>
- </div>
+ <h3>ЖУРНАЛ РАБОТЫ</h3><div class="log" id="log">OZON SNIPER 10.5 PRO готов к запуску.</div>
+ <div class="row" style="margin-top:8px"><button id="clearLogBtn">Очистить журнал</button><button id="resetBtn" class="danger">Сбросить виртуальный счёт</button></div>
 </div>
-
-<div class="footer">
- OZON SNIPER 10.4 PRO · Только аналитика и виртуальные сделки<br>
- Не является инвестиционной рекомендацией. Реальные заявки не отправляются.
-</div>
+<div class="footer">OZON SNIPER 10.5 PRO · Только аналитика и виртуальные сделки<br>Не является инвестиционной рекомендацией. Реальные заявки не отправляются.</div>
 
 <script>
 "use strict";
-
-/* =====================================================
-   OZON SNIPER 10.4 PRO
-   ЧАСТЬ 1: интерфейс, состояние, индикаторы, MOEX ISS
-   Продолжение JavaScript находится в части 2.
-===================================================== */
-
 const $=id=>document.getElementById(id);
 const STORE_KEY="ozon_sniper_80_autotrader";
-const VERSION=104;
+const VERSION=105;
+const DEFAULTS={schema:VERSION,cash:100000,initialCapital:100000,positions:[],trades:[],equity:[],candles:{},settings:{riskPct:1,fee:10.07,tax:13,autoTrade:false,breakEven:true,trailing:true,partialTP:true},lastPrice:{},lastUpdate:{},lastAutoTradeBar:{}};
 
-const DEFAULTS={
- schema:VERSION,
- cash:100000,
- initialCapital:100000,
- positions:[],
- trades:[],
- equity:[],
- candles:{OZON:[],TGLD:[]},
- settings:{
-  riskPct:1,
-  fee:10.07,
-  tax:13,
-  autoTrade:false,
-  breakEven:true,
-  trailing:true,
-  partialTP:true
- },
- lastPrice:{},
- lastUpdate:{}
-};
+let state=loadState(),currentCandles=[],currentPlan=null,currentAnalysis=null;
+let running=false,busy=false,pendingRefresh=false,refreshTimer=null,requestId=0;
+let soundEnabled=false,audioContext=null,lastSignal="",nextRefreshAt=0;
+let lastProcessedBar="",marketIsOpen=false;
 
-let state=loadState();
-let currentCandles=[];
-let currentPlan=null;
-let currentAnalysis=null;
-let running=false;
-let busy=false;
-let pendingRefresh=false;
-let refreshTimer=null;
-let requestId=0;
-let lastRefresh=0;
-let soundEnabled=false;
-let audioContext=null;
-let lastSignal="";
-let lastAutoTradeBar="";
-let nextRefreshAt=0;
-
-function clone(obj){return JSON.parse(JSON.stringify(obj));}
-
+function clone(o){return JSON.parse(JSON.stringify(o))}
 function loadState(){
  try{
-  const raw=localStorage.getItem(STORE_KEY);
-  if(!raw)return clone(DEFAULTS);
-  const old=JSON.parse(raw);
+  const old=JSON.parse(localStorage.getItem(STORE_KEY)||"null");
+  if(!old)return clone(DEFAULTS);
   const s={...clone(DEFAULTS),...old};
   s.settings={...clone(DEFAULTS.settings),...(old.settings||{})};
-  s.candles={...clone(DEFAULTS.candles),...(old.candles||{})};
   s.positions=Array.isArray(old.positions)?old.positions:[];
   s.trades=Array.isArray(old.trades)?old.trades:[];
   s.equity=Array.isArray(old.equity)?old.equity:[];
-  s.cash=Number.isFinite(Number(old.cash))?Number(old.cash):DEFAULTS.cash;
+  s.cash=Number.isFinite(Number(old.cash))?Number(old.cash):100000;
   s.initialCapital=Number(old.initialCapital)||100000;
-
-  if(Number(old.schema||0)<VERSION){
-   s.settings.autoTrade=false;
-   s.schema=VERSION;
-  }
-
-  s.trades=s.trades.map(t=>{
-   const rawTime=t.time??t.timestamp??t.entryTime??t.date??Date.now();
-   const time=normalizeTime(rawTime);
-   return {...t,time};
-  }).filter(t=>Number.isFinite(t.time));
-
-  s.positions=s.positions.filter(p=>
-   p&&Number(p.qty)>0&&Number(p.entry)>0
-  );
+  s.lastPrice=old.lastPrice||{};s.lastUpdate=old.lastUpdate||{};
+  s.lastAutoTradeBar=old.lastAutoTradeBar||{};
+  // Старый кэш 10.4 смешивал интервалы. Сохраняем сделки и деньги, но пересоздаём только свечной кэш.
+  if(Number(old.schema||0)<105){s.candles={};s.settings.autoTrade=false;s.schema=105;}
+  else s.candles=old.candles||{};
+  s.trades=s.trades.map(t=>({...t,time:normalizeTime(t.time??t.timestamp??t.entryTime??t.date??Date.now())})).filter(t=>Number.isFinite(t.time));
+  s.positions=s.positions.filter(p=>p&&Number(p.qty)>0&&Number(p.entry)>0);
   return s;
- }catch(e){
-  console.warn("Ошибка чтения сохранения",e);
-  return clone(DEFAULTS);
- }
+ }catch(e){console.warn(e);return clone(DEFAULTS)}
 }
-
 function saveState(){
  try{
-  for(const sym of ["OZON","TGLD"]){
-   state.candles[sym]=(state.candles[sym]||[]).slice(-1500);
-  }
-  state.trades=state.trades.slice(-1000);
-  state.equity=state.equity.slice(-1500);
-  state.schema=VERSION;
+  for(const sym of ["OZON","TGLD"])if(state.candles[sym])for(const tf of Object.keys(state.candles[sym]))state.candles[sym][tf]=(state.candles[sym][tf]||[]).slice(-1800);
+  state.trades=state.trades.slice(-1000);state.equity=state.equity.slice(-1500);state.schema=VERSION;
   localStorage.setItem(STORE_KEY,JSON.stringify(state));
- }catch(e){
-  log("Не удалось сохранить состояние: "+e.message);
- }
+ }catch(e){log("Ошибка сохранения: "+e.message)}
 }
-
-function normalizeTime(value){
- if(typeof value==="number"){
-  return value<100000000000?value*1000:value;
- }
- if(typeof value==="string"){
-  let n=Date.parse(value.replace(" ","T"));
-  return Number.isFinite(n)?n:NaN;
- }
- return NaN;
+function normalizeTime(v){
+ if(typeof v==="number")return v<1e12?v*1000:v;
+ if(typeof v!=="string")return NaN;
+ const m=v.match(/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)(?::(\d\d))?/);
+ if(m)return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4]-3,+m[5],+(m[6]||0));
+ const n=Date.parse(v);return Number.isFinite(n)?n:NaN;
 }
-
-function fmt(value,digits=2){
- const n=Number(value);
- return Number.isFinite(n)?n.toLocaleString("ru-RU",{minimumFractionDigits:digits,maximumFractionDigits:digits}):"—";
+function fmt(v,d=2){v=Number(v);return Number.isFinite(v)?v.toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d}):"—"}
+function rub(v,d=2){return Number.isFinite(Number(v))?fmt(v,d)+" ₽":"—"}
+function pct(v){return Number.isFinite(Number(v))?fmt(v,2)+"%":"—"}
+function currentSymbol(){return $("symbol").value}
+function currentTf(){return Number($("timeframe").value)}
+function cacheKey(sym,tf){return sym+"_"+tf}
+function getCache(sym,tf){return state.candles[sym]?.[String(tf)]||[]}
+function setCache(sym,tf,data){state.candles[sym]=state.candles[sym]||{};state.candles[sym][String(tf)]=data}
+function log(msg){
+ const el=$("log"),t=new Date().toLocaleTimeString("ru-RU");
+ el.textContent=`[${t}] ${msg}\n`+el.textContent;el.textContent=el.textContent.slice(0,12000);
 }
-function rub(value,digits=2){
- return Number.isFinite(Number(value))?fmt(value,digits)+" ₽":"—";
-}
-function pct(value){
- return Number.isFinite(Number(value))?fmt(value,2)+"%":"—";
-}
-function currentSymbol(){return $("symbol").value;}
-function currentTf(){return Number($("timeframe").value);}
-function symbolCode(sym){
- return sym==="TGLD"?"TGLD":"OZON";
-}
-function log(message){
- const el=$("log");
- const time=new Date().toLocaleTimeString("ru-RU");
- el.textContent=`[${time}] ${message}\n`+el.textContent;
- el.textContent=el.textContent.slice(0,12000);
-}
-
-function setStatus(message,color){
- $("connectionStatus").textContent=message;
- $("connectionStatus").style.color=color||"var(--green)";
-}
-
+function setStatus(msg,color){$("connectionStatus").textContent=msg;$("connectionStatus").style.color=color||"var(--green)"}
 function updateBalanceUI(){
  $("balance").textContent=rub(state.cash);
- const reserved=state.positions.reduce((sum,p)=>sum+(p.entry*p.qty),0);
- $("freeCash").textContent=rub(Math.max(0,state.cash-reserved));
+ // Покупка уже списана из cash. Не вычитаем стоимость позиции повторно.
+ $("freeCash").textContent=rub(Math.max(0,state.cash));
 }
-
 function updateTradingView(){
  const sym=currentSymbol()==="TGLD"?"MOEX:TGLD":"MOEX:OZON";
  const tf=currentTf()===24?"D":String(currentTf());
- const url="https://s.tradingview.com/widgetembed/?symbol="+
-  encodeURIComponent(sym)+"&interval="+encodeURIComponent(tf)+
-  "&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b111b"+
-  "&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1";
- $("tvChart").src=url;
+ $("tvChart").src="https://s.tradingview.com/widgetembed/?symbol="+encodeURIComponent(sym)+"&interval="+encodeURIComponent(tf)+"&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b111b&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1";
 }
-
-function getISSInterval(tf){
- if(tf===1)return 1;
- if(tf===60)return 60;
- if(tf===24)return 24;
- return 1;
-}
-
 function getFromDate(tf){
- const now=new Date();
- const days=tf===1?12:tf===5?20:tf===15?45:tf===60?180:900;
- now.setDate(now.getDate()-days);
- return now.toISOString().slice(0,10);
+ const days=tf===1?12:tf===5?30:tf===15?60:tf===60?240:1000;
+ const d=new Date();d.setDate(d.getDate()-days);
+ return d.toISOString().slice(0,10);
 }
-
 function parseCandles(json){
- if(!json||!json.candles||!Array.isArray(json.candles.columns)||!Array.isArray(json.candles.data)){
-  return [];
- }
- const cols=json.candles.columns;
- const idx={
-  time:cols.indexOf("begin"),
-  open:cols.indexOf("open"),
-  close:cols.indexOf("close"),
-  high:cols.indexOf("high"),
-  low:cols.indexOf("low"),
-  volume:cols.indexOf("volume")
- };
- if(Object.values(idx).some(v=>v<0))return [];
-
- return json.candles.data.map(row=>{
-  const time=normalizeTime(row[idx.time]);
-  const open=Number(row[idx.open]);
-  const close=Number(row[idx.close]);
-  const high=Number(row[idx.high]);
-  const low=Number(row[idx.low]);
-  const volume=Number(row[idx.volume]||0);
-  if(!Number.isFinite(time)||![open,close,high,low].every(Number.isFinite))return null;
-  if(open<=0||close<=0||high<=0||low<=0)return null;
-  return {time,open,close,high,low,volume};
+ const c=json?.candles;if(!c||!Array.isArray(c.columns)||!Array.isArray(c.data))return [];
+ const ix={time:c.columns.indexOf("begin"),open:c.columns.indexOf("open"),close:c.columns.indexOf("close"),high:c.columns.indexOf("high"),low:c.columns.indexOf("low"),volume:c.columns.indexOf("volume")};
+ if(Object.values(ix).some(x=>x<0))return [];
+ return c.data.map(r=>{
+  const x={time:normalizeTime(r[ix.time]),open:+r[ix.open],close:+r[ix.close],high:+r[ix.high],low:+r[ix.low],volume:+(r[ix.volume]||0)};
+  return Number.isFinite(x.time)&&[x.open,x.close,x.high,x.low].every(Number.isFinite)&&x.open>0&&x.close>0&&x.high>0&&x.low>0?x:null;
  }).filter(Boolean).sort((a,b)=>a.time-b.time);
 }
-
-function aggregateCandles(source,minutes){
- if(minutes===1)return source.slice();
+function mergeCandles(a,b){
+ const m=new Map();for(const c of [...(a||[]),...(b||[])])if(c&&Number.isFinite(c.time))m.set(c.time,c);
+ return [...m.values()].sort((x,y)=>x.time-y.time).slice(-2500);
+}
+function aggregateCandles(src,minutes){
+ if(minutes===1)return src.slice();
  const groups=new Map();
- for(const c of source){
-  const d=new Date(c.time);
-  const bucket=new Date(
-   d.getFullYear(),d.getMonth(),d.getDate(),
-   d.getHours(),Math.floor(d.getMinutes()/minutes)*minutes
-  ).getTime();
+ for(const c of src){
+  const d=new Date(c.time),utc=d.getTime()+3*3600000;
+  const bucket=Math.floor(utc/(minutes*60000))*minutes*60000-3*3600000;
   let g=groups.get(bucket);
-  if(!g){
-   g={time:bucket,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
-   groups.set(bucket,g);
-  }else{
-   g.high=Math.max(g.high,c.high);
-   g.low=Math.min(g.low,c.low);
-   g.close=c.close;
-   g.volume+=c.volume;
-  }
+  if(!g)groups.set(bucket,{time:bucket,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume});
+  else{g.high=Math.max(g.high,c.high);g.low=Math.min(g.low,c.low);g.close=c.close;g.volume+=c.volume}
  }
  return [...groups.values()].sort((a,b)=>a.time-b.time);
 }
-
-function mergeCandles(oldList,newList){
- const map=new Map();
- for(const c of oldList||[])if(c&&Number.isFinite(c.time))map.set(c.time,c);
- for(const c of newList||[])if(c&&Number.isFinite(c.time))map.set(c.time,c);
- return [...map.values()].sort((a,b)=>a.time-b.time).slice(-2000);
-}
-
 async function fetchJSON(url){
- const response=await fetch(url,{cache:"no-store"});
- if(!response.ok)throw new Error("HTTP "+response.status);
- return await response.json();
+ const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);return r.json();
 }
-
-async function fetchISSPage(sym,interval,from,till,start){
- const base="https://iss.moex.com/iss/engines/stock/markets/shares/securities/";
- const path=base+encodeURIComponent(sym)+"/candles.json";
- const params=new URLSearchParams({
-  from,till,
-  interval:String(interval),
-  start:String(start),
-  limit:"500",
-  "iss.meta":"off"
- });
- return fetchJSON(path+"?"+params.toString());
-}
-
-async function fetchMarket(sym,tf){
- const interval=getISSInterval(tf);
- const from=getFromDate(tf);
- const till=new Date().toISOString().slice(0,10);
- let all=[];
- let start=0;
- let previousFirst="";
- let pageCount=0;
- const maxPages=tf===1?30:tf===5||tf===15?30:20;
-
- while(pageCount<maxPages){
-  pageCount++;
-  let json;
+async function fetchISSPage(sym,board,from,till,start){
+ const root="https://iss.moex.com/iss/engines/stock/markets/shares/";
+ const paths=[
+  root+"boards/"+board+"/securities/"+encodeURIComponent(sym)+"/candles.json",
+  root+"securities/"+encodeURIComponent(sym)+"/candles.json"
+ ];
+ let lastError;
+ for(const path of paths){
   try{
-   json=await fetchISSPage(sym,interval,from,till,start);
-  }catch(firstError){
-   const board=sym==="OZON"?"TQBR":"TQTF";
-   const url="https://iss.moex.com/iss/engines/stock/markets/shares/"+
-    "boards/"+board+"/securities/"+encodeURIComponent(sym)+
-    "/candles.json?"+new URLSearchParams({
-     from,till,interval:String(interval),start:String(start),
-     limit:"500","iss.meta":"off"
-    }).toString();
-   json=await fetchJSON(url);
-  }
-
-  const page=parseCandles(json);
-  if(!page.length)break;
-
-  const firstKey=page[0].time+"";
-  if(firstKey===previousFirst)break;
-  previousFirst=firstKey;
-
-  all=all.concat(page);
-  start+=page.length;
-  if(page.length<500)break;
+   const q=new URLSearchParams({from,till,interval:"1",start:String(start),limit:"500","iss.meta":"off"});
+   const data=await fetchJSON(path+"?"+q);const rows=parseCandles(data);
+   if(rows.length)return {rows,data};
+  }catch(e){lastError=e}
  }
-
- all=mergeCandles([],all);
- if(tf===5||tf===15)all=aggregateCandles(all,tf);
- return all;
+ if(lastError)throw lastError;
+ return {rows:[],data:null};
 }
-
-function ema(values,period){
+async function fetchMarket(sym,tf){
+ const board=sym==="TGLD"?"TQTF":"TQBR",from=getFromDate(tf),till=new Date().toISOString().slice(0,10);
+ let raw=[],start=0,pages=0,prev="";
+ const maxPages=tf===1?45:tf===5?45:tf===15?45:tf===60?30:15;
+ while(pages++<maxPages){
+  const page=await fetchISSPage(sym,board,from,till,start);
+  if(!page.rows.length)break;
+  const first=String(page.rows[0].time);
+  if(first===prev)break;prev=first;
+  raw=raw.concat(page.rows);start+=page.rows.length;
+  if(page.rows.length<500)break;
+ }
+ raw=mergeCandles([],raw);
+ if(tf===1)return raw;
+ if(tf===5||tf===15)return aggregateCandles(raw,tf);
+ if(tf===60)return aggregateCandles(raw,60);
+ return aggregateCandles(raw,1440);
+}
+function ema(values,p){
  if(!values.length)return [];
- const k=2/(period+1);
- const result=[];
- let prev=values[0];
- result.push(prev);
- for(let i=1;i<values.length;i++){
-  prev=values[i]*k+prev*(1-k);
-  result.push(prev);
- }
- return result;
+ const k=2/(p+1),out=[values[0]];let v=values[0];
+ for(let i=1;i<values.length;i++){v=values[i]*k+v*(1-k);out.push(v)}
+ return out;
 }
-
-function calcRSI(values,period=14){
- if(values.length<period+1)return null;
- let gain=0,loss=0;
- for(let i=1;i<=period;i++){
-  const diff=values[i]-values[i-1];
-  if(diff>0)gain+=diff;else loss-=diff;
- }
- let avgGain=gain/period;
- let avgLoss=loss/period;
- for(let i=period+1;i<values.length;i++){
-  const diff=values[i]-values[i-1];
-  avgGain=(avgGain*(period-1)+Math.max(0,diff))/period;
-  avgLoss=(avgLoss*(period-1)+Math.max(0,-diff))/period;
- }
- if(avgLoss===0)return 100;
- const rs=avgGain/avgLoss;
- return 100-(100/(1+rs));
+function calcRSI(v,p=14){
+ if(v.length<p+1)return null;
+ let g=0,l=0;for(let i=1;i<=p;i++){const d=v[i]-v[i-1];if(d>0)g+=d;else l-=d}
+ let ag=g/p,al=l/p;
+ for(let i=p+1;i<v.length;i++){const d=v[i]-v[i-1];ag=(ag*(p-1)+Math.max(0,d))/p;al=(al*(p-1)+Math.max(0,-d))/p}
+ return al===0?100:100-100/(1+ag/al);
 }
-
-function calcATR(candles,period=14){
- if(candles.length<period+1)return null;
- const trs=[];
- for(let i=1;i<candles.length;i++){
-  const c=candles[i],p=candles[i-1];
-  trs.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)));
- }
- if(trs.length<period)return null;
- let value=trs.slice(0,period).reduce((a,b)=>a+b,0)/period;
- for(let i=period;i<trs.length;i++)value=(value*(period-1)+trs[i])/period;
- return value;
+function calcATR(cs,p=14){
+ if(cs.length<p+1)return null;const tr=[];
+ for(let i=1;i<cs.length;i++){const c=cs[i],b=cs[i-1];tr.push(Math.max(c.high-c.low,Math.abs(c.high-b.close),Math.abs(c.low-b.close)))}
+ let v=tr.slice(0,p).reduce((a,b)=>a+b,0)/p;
+ for(let i=p;i<tr.length;i++)v=(v*(p-1)+tr[i])/p;return v;
 }
-
-function calcMACD(values){
- if(values.length<35)return null;
- const e12=ema(values,12),e26=ema(values,26);
- const line=values.map((_,i)=>e12[i]-e26[i]);
- const signal=ema(line,9);
- return {value:line.at(-1),signal:signal.at(-1),hist:line.at(-1)-signal.at(-1)};
+function calcMACD(v){
+ if(v.length<35)return null;const a=ema(v,12),b=ema(v,26),line=v.map((_,i)=>a[i]-b[i]),sig=ema(line,9);
+ return {value:line.at(-1),signal:sig.at(-1),hist:line.at(-1)-sig.at(-1)};
 }
-
-function calcIndicators(candles){
- if(candles.length<35)return null;
- const closes=candles.map(c=>c.close);
- const volumes=candles.map(c=>c.volume||0);
- const e9=ema(closes,9),e21=ema(closes,21);
- const rsiValue=calcRSI(closes,14);
- const macdValue=calcMACD(closes);
- const atrValue=calcATR(candles,14);
- const avgVolume=volumes.slice(-21,-1).reduce((a,b)=>a+b,0)/20;
- const currentVolume=volumes.at(-1);
- return {
-  price:closes.at(-1),
-  previous:closes.at(-2),
-  e9:e9.at(-1),
-  e21:e21.at(-1),
-  rsi:rsiValue,
-  macd:macdValue,
-  atr:atrValue,
-  volumeRatio:avgVolume>0?currentVolume/avgVolume:0,
-  candles
- };
+function calcIndicators(cs){
+ if(cs.length<35)return null;
+ const v=cs.map(c=>c.close),vol=cs.map(c=>c.volume||0),e9=ema(v,9),e21=ema(v,21);
+ const avg=vol.slice(-21,-1).reduce((a,b)=>a+b,0)/20;
+ return {price:v.at(-1),previous:v.at(-2),e9:e9.at(-1),e21:e21.at(-1),rsi:calcRSI(v),macd:calcMACD(v),atr:calcATR(cs),volumeRatio:avg>0?vol.at(-1)/avg:0,candles:cs};
 }
-
-function trendFromCandles(candles){
- if(!candles||candles.length<25)return "Недостаточно данных";
- const closes=candles.map(c=>c.close);
- const e9=ema(closes,9).at(-1);
- const e21=ema(closes,21).at(-1);
- const price=closes.at(-1);
- if(price>e9&&e9>e21)return "Восходящий";
- if(price<e9&&e9<e21)return "Нисходящий";
- return "Боковой";
+function trendFromCandles(cs){
+ if(cs.length<25)return "Недостаточно данных";
+ const v=cs.map(c=>c.close),a=ema(v,9).at(-1),b=ema(v,21).at(-1),p=v.at(-1);
+ return p>a&&a>b?"Восходящий":p<a&&a<b?"Нисходящий":"Боковой";
 }
-
-function buildAnalysis(candles){
- const ind=calcIndicators(candles);
- if(!ind)return null;
+function buildAnalysis(cs){
+ const x=calcIndicators(cs);if(!x)return null;
  let score=0;
- const reasons=[];
- if(ind.e9>ind.e21){score+=2;reasons.push("EMA 9 выше EMA 21");}
- else{score-=2;reasons.push("EMA 9 ниже EMA 21");}
- if(ind.price>ind.e9){score++;reasons.push("Цена выше EMA 9");}
- else{score--;reasons.push("Цена ниже EMA 9");}
- if(ind.rsi>50&&ind.rsi<70){score++;reasons.push("RSI поддерживает рост");}
- if(ind.rsi<50&&ind.rsi>30){score--;reasons.push("RSI указывает на слабость");}
- if(ind.macd&&ind.macd.hist>0)score++;
- else if(ind.macd&&ind.macd.hist<0)score--;
- if(ind.volumeRatio>1.2&&score>0)score++;
+ if(x.e9>x.e21)score+=2;else score-=2;
+ if(x.price>x.e9)score++;else score--;
+ if(x.rsi>50&&x.rsi<70)score++;else if(x.rsi<50&&x.rsi>30)score--;
+ if(x.macd?.hist>0)score++;else if(x.macd?.hist<0)score--;
+ if(x.volumeRatio>1.2&&score>0)score++;
  const signal=score>=3?"BUY":score<=-3?"SELL":"WAIT";
- const confidence=Math.min(95,Math.max(35,50+Math.abs(score)*8));
- return {...ind,score,signal,confidence,reasons};
+ const quality=Math.min(95,Math.max(25,50+score*9+(x.volumeRatio>=.7?5:-10)));
+ return {...x,score,signal,quality};
 }
-
-function calculatePlan(analysis){
- if(!analysis||!analysis.atr||analysis.atr<=0)return null;
- const price=analysis.price;
- const atr=analysis.atr;
- const stopDistance=Math.max(atr*1.5,price*0.004);
- const stop=price-stopDistance;
- const tp1=price+stopDistance*1.5;
- const tp2=price+stopDistance*2.5;
- const capital=Number(state.cash);
- const riskPct=Math.max(.1,Math.min(5,Number(state.settings.riskPct)||1));
- const fee=Math.max(0,Number(state.settings.fee)||0);
- const riskBudget=capital*riskPct/100;
- const perShareRisk=stopDistance;
- const qtyByRisk=Math.floor(Math.max(0,riskBudget-2*fee)/perShareRisk);
- const qtyByCash=Math.floor(Math.max(0,capital-fee)/price);
- const qty=Math.max(0,Math.min(qtyByRisk,qtyByCash));
- const amount=qty*price;
- const risk=qty*stopDistance+fee*2;
- const grossProfit=qty*(tp1-price);
- const netProfit=Math.max(0,grossProfit-fee*2)* (1-Number(state.settings.tax)/100);
- return {
-  direction:analysis.signal,
-  entry:price,stop,tp1,tp2,qty,amount,risk,netProfit,
-  riskBudget,atr,confidence:analysis.confidence
- };
+function calculatePlan(a){
+ if(!a||!a.atr||a.atr<=0)return null;
+ const entry=a.price,dist=Math.max(a.atr*1.5,entry*.004),stop=entry-dist;
+ const fee=Math.max(0,Number(state.settings.fee)||0),tax=Math.max(0,Math.min(100,Number(state.settings.tax)||0));
+ const capital=Math.max(0,state.cash),riskPct=Math.max(.1,Math.min(5,Number(state.settings.riskPct)||1));
+ const budget=capital*riskPct/100;
+ const qty=Math.max(0,Math.min(Math.floor(Math.max(0,budget-2*fee)/dist),Math.floor(Math.max(0,capital-fee)/entry)));
+ const gross=qty*dist*1.5,net=Math.max(0,gross-2*fee)*(1-tax/100);
+ return {direction:a.signal,entry,stop,tp1:entry+dist*1.5,tp2:entry+dist*2.5,qty,amount:qty*entry,risk:qty*dist+2*fee,netProfit:net,atr:a.atr,quality:a.quality};
 }
-
 function updateAnalysisUI(a,plan){
- if(!a){
-  $("signal").textContent="НЕДОСТАТОЧНО ДАННЫХ";
-  $("signal").className="bigSignal signal-wait";
-  $("dataQuality").textContent="Мало свечей";
-  return;
- }
- $("price").textContent=rub(a.price);
- const delta=(a.price/a.previous-1)*100;
- $("change").textContent=pct(delta);
- $("change").className=delta>=0?"green":"red";
- $("rsi").textContent=fmt(a.rsi,1);
- $("ema").textContent=fmt(a.e9,2)+" / "+fmt(a.e21,2);
- $("macd").textContent=a.macd?fmt(a.macd.hist,3):"—";
- $("atr").textContent=fmt(a.atr,3);
- $("volumeRatio").textContent=fmt(a.volumeRatio,2)+"×";
- $("confidence").textContent=fmt(a.confidence,0)+"%";
- $("trendShort").textContent=trendFromCandles(a.candles);
- $("trendLong").textContent="Расчёт по доступным свечам";
+ if(!a){$("signal").textContent="НЕДОСТАТОЧНО ДАННЫХ";$("signal").className="bigSignal signal-wait";return}
+ $("price").textContent=rub(a.price);const delta=(a.price/a.previous-1)*100;
+ $("change").textContent=pct(delta);$("change").className=delta>=0?"green":"red";
+ $("rsi").textContent=fmt(a.rsi,1);$("ema").textContent=fmt(a.e9)+" / "+fmt(a.e21);
+ $("macd").textContent=a.macd?fmt(a.macd.hist,3):"—";$("atr").textContent=fmt(a.atr,3);
+ $("volumeRatio").textContent=fmt(a.volumeRatio,2)+"×";$("confidence").textContent=fmt(a.quality,0)+"/100";
+ $("trendShort").textContent=trendFromCandles(a.candles);$("trendLong").textContent=a.candles.length>=200?"Длинная история доступна":"Ограниченная история";
  $("signal").textContent=a.signal==="BUY"?"ПОКУПКА":a.signal==="SELL"?"ПРОДАЖА":"ОЖИДАНИЕ";
  $("signal").className="bigSignal "+(a.signal==="BUY"?"signal-buy":a.signal==="SELL"?"signal-sell":"signal-wait");
- $("dataQuality").textContent=a.candles.length>=50?"Достаточно свечей":"Ограниченная история";
- $("candleCount").textContent="Свечей: "+a.candles.length;
- $("lastAnalysis").textContent=new Date().toLocaleTimeString("ru-RU");
-
+ $("candleCount").textContent="Свечей: "+a.candles.length;$("lastAnalysis").textContent=new Date().toLocaleTimeString("ru-RU");
  if(plan){
   $("planDirection").textContent=plan.direction==="BUY"?"ПЛАН ПОКУПКИ":plan.direction==="SELL"?"СИГНАЛ ПРОДАЖИ":"ОЖИДАНИЕ";
   $("planDirection").className="bigSignal "+(plan.direction==="BUY"?"signal-buy":plan.direction==="SELL"?"signal-sell":"signal-wait");
-  $("planType").textContent=plan.direction==="BUY"?"Виртуальная покупка":plan.direction==="SELL"?"Закрытие длинной позиции":"Нет входа";
-  $("planEntry").textContent=rub(plan.entry);
-  $("planQty").textContent=plan.qty+" шт.";
-  $("planAmount").textContent=rub(plan.amount);
-  $("planStop").textContent=rub(plan.stop);
-  $("planTP1").textContent=rub(plan.tp1);
-  $("planTP2").textContent=rub(plan.tp2);
-  $("planRisk").textContent=rub(plan.risk);
-  $("planProfit").textContent=rub(plan.netProfit);
-  $("planComment").textContent=plan.direction==="BUY"&&plan.qty>0?
-   "Виртуальный план готов. Проверь котировку и условия перед ручным действием.":
-   plan.direction==="SELL"?
-   "Сигнал на снижение. Короткая позиция не открывается; при наличии виртуальной позиции оцени её закрытие.":
-   "Преимущество недостаточно выражено. Новая виртуальная покупка не рекомендуется.";
- }else{
-  $("planDirection").textContent="НЕТ ПЛАНА";
+  $("planType").textContent=plan.direction==="BUY"?"Виртуальная покупка":plan.direction==="SELL"?"Сигнал на снижение":"Нет входа";
+  $("planEntry").textContent=rub(plan.entry);$("planQty").textContent=plan.qty+" шт.";
+  $("planAmount").textContent=rub(plan.amount);$("planStop").textContent=rub(plan.stop);
+  $("planTP1").textContent=rub(plan.tp1);$("planTP2").textContent=rub(plan.tp2);
+  $("planRisk").textContent=rub(plan.risk);$("planProfit").textContent=rub(plan.netProfit);
  }
 }
-
-function updateChart(){
- drawCandles($("priceChart"),currentCandles);
- drawVolumes($("volumeChart"),currentCandles);
+function updateChart(){drawCandles($("priceChart"),currentCandles);drawVolumes($("volumeChart"),currentCandles)}
+function drawCandles(canvas,cs){
+ const ctx=canvas.getContext("2d"),w=canvas.clientWidth||320,h=canvas.clientHeight||210,dpr=devicePixelRatio||1;
+ canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const list=cs.slice(-90);if(!list.length)return;
+ const min=Math.min(...list.map(c=>c.low)),max=Math.max(...list.map(c=>c.high)),range=max-min||1,pad=12;
+ const y=v=>h-pad-(v-min)/range*(h-pad*2),step=(w-12)/list.length;
+ ctx.strokeStyle="#26384e";for(let i=0;i<4;i++){const yy=pad+i*(h-pad*2)/3;ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke()}
+ list.forEach((c,i)=>{const x=6+i*step+step/2;ctx.strokeStyle=c.close>=c.open?"#20d69a":"#ff6174";ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.moveTo(x,y(c.high));ctx.lineTo(x,y(c.low));ctx.stroke();ctx.fillRect(x-Math.max(1,step*.28),y(Math.max(c.open,c.close)),Math.max(2,step*.56),Math.max(1,y(Math.min(c.open,c.close))-y(Math.max(c.open,c.close))))});
+ const v=list.map(c=>c.close),e9=ema(v,9),e21=ema(v,21);
+ function line(a,color){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;a.forEach((n,i)=>{const x=6+i*step+step/2;if(!i)ctx.moveTo(x,y(n));else ctx.lineTo(x,y(n))});ctx.stroke()}
+ line(e9,"#55a9ff");line(e21,"#b68aff");ctx.fillStyle="#8fa2b9";ctx.font="10px Arial";ctx.fillText(fmt(max),5,10);ctx.fillText(fmt(min),5,h-3);
 }
-
-function drawCandles(canvas,candles){
- const ctx=canvas.getContext("2d");
- const w=canvas.clientWidth||320,h=canvas.clientHeight||210;
- const dpr=window.devicePixelRatio||1;
- canvas.width=w*dpr;canvas.height=h*dpr;
- ctx.setTransform(dpr,0,0,dpr,0,0);
- ctx.clearRect(0,0,w,h);
- if(!candles.length)return;
- const list=candles.slice(-90);
- const min=Math.min(...list.map(c=>c.low));
- const max=Math.max(...list.map(c=>c.high));
- const range=max-min||1;
- const pad=12;
- const y=v=>h-pad-(v-min)/range*(h-pad*2);
- const step=(w-12)/list.length;
- ctx.strokeStyle="#26384e";ctx.lineWidth=1;
- for(let i=0;i<4;i++){
-  const yy=pad+i*(h-pad*2)/3;
-  ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();
- }
- const closes=list.map(c=>c.close);
- const e9=ema(closes,9),e21=ema(closes,21);
- list.forEach((c,i)=>{
-  const x=6+i*step+step/2;
-  const up=c.close>=c.open;
-  ctx.strokeStyle=up?"#20d69a":"#ff6174";
-  ctx.fillStyle=ctx.strokeStyle;
-  ctx.beginPath();ctx.moveTo(x,y(c.high));ctx.lineTo(x,y(c.low));ctx.stroke();
-  const top=y(Math.max(c.open,c.close));
-  const bottom=y(Math.min(c.open,c.close));
-  ctx.fillRect(x-Math.max(1,step*.28),top,Math.max(2,step*.56),Math.max(1,bottom-top));
- });
- function line(values,color){
-  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;
-  values.forEach((v,i)=>{
-   const x=6+i*step+step/2;
-   if(i===0)ctx.moveTo(x,y(v));else ctx.lineTo(x,y(v));
-  });
-  ctx.stroke();
- }
- line(e9,"#55a9ff");line(e21,"#b68aff");
- ctx.fillStyle="#8fa2b9";ctx.font="10px Arial";
- ctx.fillText(fmt(max,2),5,10);
- ctx.fillText(fmt(min,2),5,h-3);
+function drawVolumes(canvas,cs){
+ const ctx=canvas.getContext("2d"),w=canvas.clientWidth||320,h=canvas.clientHeight||85,dpr=devicePixelRatio||1;
+ canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const a=cs.slice(-90);if(!a.length)return;const max=Math.max(1,...a.map(c=>c.volume||0)),step=w/a.length;
+ a.forEach((c,i)=>{const bh=(c.volume||0)/max*(h-8);ctx.fillStyle=c.close>=c.open?"#20a77e":"#b54d60";ctx.fillRect(i*step+1,h-bh,Math.max(1,step-2),bh)});
 }
-
-function drawVolumes(canvas,candles){
- const ctx=canvas.getContext("2d");
- const w=canvas.clientWidth||320,h=canvas.clientHeight||85;
- const dpr=window.devicePixelRatio||1;
- canvas.width=w*dpr;canvas.height=h*dpr;
- ctx.setTransform(dpr,0,0,dpr,0,0);
- ctx.clearRect(0,0,w,h);
- const list=candles.slice(-90);
- if(!list.length)return;
- const max=Math.max(1,...list.map(c=>c.volume||0));
- const step=w/list.length;
- list.forEach((c,i)=>{
-  const bh=(c.volume||0)/max*(h-8);
-  ctx.fillStyle=c.close>=c.open?"#20a77e":"#b54d60";
-  ctx.fillRect(i*step+1,h-bh,Math.max(1,step-2),bh);
- });
-}
-
-function updatePositionUI(){
- const sym=currentSymbol();
- const p=state.positions.find(x=>x.symbol===sym);
- if(!p){
-  $("positionStatus").textContent="Нет открытой позиции";
-  $("positionEntry").textContent="—";
-  $("positionQty").textContent="—";
-  $("positionPnL").textContent="—";
-  $("positionStop").textContent="—";
-  return;
- }
- const price=Number(state.lastPrice[sym]||p.entry);
- const pnl=(price-p.entry)*p.qty-Number(state.settings.fee)*2;
- $("positionStatus").textContent="ОТКРЫТА";
- $("positionEntry").textContent=rub(p.entry);
- $("positionQty").textContent=p.qty+" шт.";
- $("positionPnL").textContent=rub(pnl);
- $("positionPnL").className=pnl>=0?"green":"red";
- $("positionStop").textContent=rub(p.stop);
-}
-
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function updateStats(){
- const trades=state.trades;
- const wins=trades.filter(t=>Number(t.net)>=0);
- const losses=trades.filter(t=>Number(t.net)<0);
- const net=trades.reduce((s,t)=>s+Number(t.net||0),0);
- $("totalTrades").textContent=trades.length;
- $("winTrades").textContent=wins.length;
- $("lossTrades").textContent=losses.length;
- $("netProfit").textContent=rub(net);
- $("tradeHistory").innerHTML=trades.slice(-30).reverse().map(t=>{
-  const d=new Date(normalizeTime(t.time));
-  const date=Number.isFinite(d.getTime())?d.toLocaleString("ru-RU"):"—";
-  return `<tr>
-   <td>${date}</td>
-   <td>${escapeHTML(t.symbol||"OZON")}</td>
-   <td>${fmt(t.entry,2)}</td>
-   <td>${fmt(t.exit,2)}</td>
-   <td class="${Number(t.net)>=0?"green":"red"}">${rub(Number(t.net)||0)}</td>
-  </tr>`;
- }).join("")||'<tr><td colspan="5" class="muted">Пока нет сделок</td></tr>';
+ const t=state.trades,w=t.filter(x=>Number(x.net)>=0),l=t.filter(x=>Number(x.net)<0);
+ $("totalTrades").textContent=t.length;$("winTrades").textContent=w.length;$("lossTrades").textContent=l.length;
+ $("netProfit").textContent=rub(t.reduce((s,x)=>s+Number(x.net||0),0));
+ $("tradeHistory").innerHTML=t.slice(-30).reverse().map(x=>`<tr><td>${new Date(x.time).toLocaleString("ru-RU")}</td><td>${escapeHTML(x.symbol||"OZON")}</td><td>${fmt(x.entry)}</td><td>${fmt(x.exit)}</td><td class="${Number(x.net)>=0?"green":"red"}">${rub(x.net)}</td></tr>`).join("")||'<tr><td colspan="5" class="muted">Пока нет сделок</td></tr>';
  drawEquity();
 }
-
-function escapeHTML(s){
- return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-
 function drawEquity(){
- const canvas=$("equityChart"),ctx=canvas.getContext("2d");
- const w=canvas.clientWidth||320,h=canvas.clientHeight||210;
- const dpr=window.devicePixelRatio||1;
- canvas.width=w*dpr;canvas.height=h*dpr;
- ctx.setTransform(dpr,0,0,dpr,0,0);
- ctx.clearRect(0,0,w,h);
- const points=[state.initialCapital,...state.equity.map(e=>Number(e.value)||0)];
- if(points.length<2)return;
- const min=Math.min(...points),max=Math.max(...points),range=max-min||1;
- ctx.strokeStyle="#20d69a";ctx.lineWidth=2;ctx.beginPath();
- points.forEach((v,i)=>{
-  const x=8+i*(w-16)/(points.length-1);
-  const y=h-12-(v-min)/range*(h-24);
-  if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
- });
- ctx.stroke();
- ctx.fillStyle="#8fa2b9";ctx.font="10px Arial";
- ctx.fillText(rub(max,0),5,10);
- ctx.fillText(rub(min,0),5,h-2);
+ const c=$("equityChart"),ctx=c.getContext("2d"),w=c.clientWidth||320,h=c.clientHeight||210,dpr=devicePixelRatio||1;
+ c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const a=[state.initialCapital,...state.equity.map(x=>Number(x.value)||0)];if(a.length<2)return;
+ const min=Math.min(...a),max=Math.max(...a),r=max-min||1;ctx.strokeStyle="#20d69a";ctx.lineWidth=2;ctx.beginPath();
+ a.forEach((v,i)=>{const x=8+i*(w-16)/(a.length-1),y=h-12-(v-min)/r*(h-24);if(!i)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();
+ ctx.fillStyle="#8fa2b9";ctx.font="10px Arial";ctx.fillText(rub(max,0),5,10);ctx.fillText(rub(min,0),5,h-2);
 }
-
-function syncSettingsUI(){
- $("capitalInput").value=state.initialCapital;
- $("riskInput").value=state.settings.riskPct;
- $("feeInput").value=state.settings.fee;
- $("taxInput").value=state.settings.tax;
+ function syncSettingsUI(){
+ $("capitalInput").value=state.initialCapital;$("riskInput").value=state.settings.riskPct;
+ $("feeInput").value=state.settings.fee;$("taxInput").value=state.settings.tax;
  $("autoTrade").checked=!!state.settings.autoTrade;
  $("breakEven").checked=state.settings.breakEven!==false;
  $("trailing").checked=state.settings.trailing!==false;
@@ -858,7 +421,6 @@ function syncSettingsUI(){
  $("trailingStatus").textContent=state.settings.trailing!==false?"Включён":"Выключен";
  $("autoStatus").textContent=state.settings.autoTrade?"Включён":"Выключен";
 }
-
 function saveSettings(){
  state.initialCapital=Math.max(1000,Number($("capitalInput").value)||100000);
  state.settings.riskPct=Math.max(.1,Math.min(5,Number($("riskInput").value)||1));
@@ -871,589 +433,392 @@ function saveSettings(){
  saveState();syncSettingsUI();log("Настройки сохранены.");
 }
 
-/* ЧАСТЬ 2 ПРОДОЛЖАЕТ ЭТОТ ЖЕ SCRIPT */
- /* =====================================================
-   ЧАСТЬ 2: виртуальная торговля, сопровождение,
-   автоматическое обновление, резервные копии и запуск
-===================================================== */
-
-function hasFreshData(candles,tf){
- if(!candles||candles.length<50)return false;
- const last=candles.at(-1);
- if(!last||!Number.isFinite(last.time))return false;
-
- const age=Date.now()-last.time;
- const maxAge=tf===1?15*60*1000:
-  tf===5?30*60*1000:
-  tf===15?60*60*1000:
-  tf===60?3*60*60*1000:
-  48*60*60*1000;
-
- // Вне торговой сессии старые последние свечи сами по себе
- // не означают поломку источника.
- return age<=maxAge||!isTradingTime();
+function getMoscowParts(date=new Date()){
+ const parts=new Intl.DateTimeFormat("en-GB",{
+  timeZone:"Europe/Moscow",weekday:"short",year:"numeric",month:"2-digit",
+  day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"
+ }).formatToParts(date);
+ const o={};parts.forEach(p=>o[p.type]=p.value);
+ return {weekday:o.weekday,year:+o.year,month:+o.month,day:+o.day,hour:+o.hour,minute:+o.minute};
 }
-
+function dateKeyMoscow(p){return p.year+"-"+String(p.month).padStart(2,"0")+"-"+String(p.day).padStart(2,"0")}
+const NO_WEEKEND_2026=new Set([
+ "2026-01-03","2026-01-04","2026-01-10","2026-01-11",
+ "2026-02-14","2026-02-15","2026-03-07","2026-03-08",
+ "2026-03-21","2026-03-22","2026-05-09","2026-05-10",
+ "2026-06-20","2026-06-21","2026-08-01","2026-08-02",
+ "2026-08-15","2026-08-16","2026-09-12","2026-09-13",
+ "2026-10-24","2026-10-25","2026-12-05","2026-12-06"
+]);
+function isTradingDay(p){
+ const day=p.weekday;
+ if(day!=="Sat"&&day!=="Sun")return true;
+ if(p.year===2026&&NO_WEEKEND_2026.has(dateKeyMoscow(p)))return false;
+ return true;
+}
 function isTradingTime(){
- const d=new Date();
- const day=d.getDay();
- const minutes=d.getHours()*60+d.getMinutes();
- return day>=1&&day<=5&&minutes>=10*60&&minutes<=19*60+10;
+ const p=getMoscowParts();
+ if(!isTradingDay(p))return false;
+ const mins=p.hour*60+p.minute;
+ return mins>=9*60+50&&mins<19*60;
+}
+function hasFreshData(cs,tf){
+ if(!cs||cs.length<35)return false;
+ const last=cs.at(-1);
+ if(!last||!Number.isFinite(last.time))return false;
+ // Историческая свеча в выходной не считается свежей для новых входов.
+ if(!isTradingTime())return false;
+ const age=Date.now()-last.time;
+ // ISS может запаздывать; запас по времени не означает реальную котировку онлайн.
+ const maxAge=tf===1?28*60000:tf===5?35*60000:tf===15?50*60000:tf===60?100*60000:26*3600000;
+ return age>=-60000&&age<=maxAge;
+}
+function marketStatusText(){
+ const p=getMoscowParts();
+ if(!isTradingDay(p))return "РЫНОК ЗАКРЫТ · НЕТ ТОРГОВ";
+ const m=p.hour*60+p.minute;
+ if(m<590)return "РЫНОК ЗАКРЫТ · ДО ОТКРЫТИЯ";
+ if(m>=1140)return "РЫНОК ЗАКРЫТ · СЕССИЯ ЗАВЕРШЕНА";
+ return "ТОРГОВАЯ СЕССИЯ MOEX";
 }
 
 function beep(){
  if(!soundEnabled)return;
  try{
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC)return;
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   audioContext=audioContext||new AC();
   if(audioContext.state==="suspended")audioContext.resume();
-  const oscillator=audioContext.createOscillator();
-  const gain=audioContext.createGain();
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-  oscillator.frequency.value=880;
+  const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+  osc.connect(gain);gain.connect(audioContext.destination);osc.frequency.value=880;
   gain.gain.setValueAtTime(.08,audioContext.currentTime);
   gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.35);
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime+.36);
+  osc.start();osc.stop(audioContext.currentTime+.36);
  }catch(e){}
 }
-
 function showSignalAlert(signal){
  if(signal===lastSignal)return;
  if(signal==="BUY"||signal==="SELL"){
-  beep();
-  if(navigator.vibrate)navigator.vibrate([120,70,120]);
+  beep();if(navigator.vibrate)navigator.vibrate([120,70,120]);
   log("Изменение сигнала: "+signal);
  }
  lastSignal=signal;
 }
+function getPosition(sym){return state.positions.find(p=>p.symbol===sym)||null}
 
-function getPosition(sym){
- return state.positions.find(p=>p.symbol===sym)||null;
+function updatePositionUI(){
+ const p=getPosition(currentSymbol());
+ if(!p){
+  $("positionStatus").textContent="Нет открытой позиции";
+  $("positionEntry").textContent="—";$("positionQty").textContent="—";
+  $("positionPnL").textContent="—";$("positionStop").textContent="—";return;
+ }
+ const price=Number(state.lastPrice[p.symbol]||p.entry);
+ const estimated=(price-p.entry)*p.qty-(Number(state.settings.fee)||0);
+ $("positionStatus").textContent="ОТКРЫТА";
+ $("positionEntry").textContent=rub(p.entry);$("positionQty").textContent=p.qty+" шт.";
+ $("positionPnL").textContent=rub(estimated);
+ $("positionPnL").className=estimated>=0?"green":"red";
+ $("positionStop").textContent=rub(p.stop);
 }
 
 function openVirtualPosition(plan,sym){
- if(!plan||plan.direction!=="BUY"||plan.qty<=0){
-  log("Покупка не выполнена: план не готов.");
-  return false;
- }
- if(getPosition(sym)){
-  log("Покупка отменена: позиция по "+sym+" уже открыта.");
-  return false;
- }
- const fee=Number(state.settings.fee)||0;
- const cost=plan.entry*plan.qty+fee;
- if(cost>state.cash){
-  log("Недостаточно виртуальных средств.");
-  return false;
- }
-
+ if(!plan||plan.direction!=="BUY"||plan.qty<=0){log("Покупка не выполнена: план не готов.");return false}
+ if(getPosition(sym)){log("Покупка отменена: позиция уже открыта.");return false}
+ if(!hasFreshData(currentCandles,currentTf())){log("Вход заблокирован: данные устарели или рынок закрыт.");return false}
+ const fee=Number(state.settings.fee)||0,cost=plan.entry*plan.qty+fee;
+ if(cost>state.cash){log("Недостаточно виртуальных средств.");return false}
  state.cash-=cost;
  const p={
   id:Date.now()+"_"+Math.random().toString(16).slice(2,7),
-  symbol:sym,
-  entry:plan.entry,
-  qty:plan.qty,
-  originalQty:plan.qty,
-  stop:plan.stop,
-  initialStop:plan.stop,
-  tp1:plan.tp1,
-  tp2:plan.tp2,
-  openedAt:Date.now(),
-  feePaid:fee,
-  partialDone:false,
-  breakEvenDone:false,
-  trailingActive:false,
-  highWater:plan.entry
+  symbol:sym,entry:plan.entry,qty:plan.qty,originalQty:plan.qty,
+  stop:plan.stop,initialStop:plan.stop,tp1:plan.tp1,tp2:plan.tp2,
+  openedAt:Date.now(),feePaid:fee,partialDone:false,
+  breakEvenDone:false,trailingActive:false,highWater:plan.entry,
+  riskDistance:Math.max(.000001,plan.entry-plan.stop)
  };
  state.positions.push(p);
- saveState();
- log("Виртуальная покупка "+sym+": "+p.qty+" шт. по "+fmt(p.entry));
- updateBalanceUI();
- updatePositionUI();
- return true;
+ saveState();log("Виртуальная покупка "+sym+": "+p.qty+" шт. по "+fmt(p.entry));
+ updateBalanceUI();updatePositionUI();return true;
 }
-
 function closeVirtualPosition(sym,price,qtyToClose,reason){
- const p=getPosition(sym);
- if(!p)return false;
+ const p=getPosition(sym);if(!p)return false;
  const qty=Math.min(p.qty,Math.max(0,Math.floor(qtyToClose||p.qty)));
  if(qty<=0)return false;
-
  const fee=Number(state.settings.fee)||0;
  const gross=(price-p.entry)*qty;
+ const allocatedEntryFee=p.feePaid*(qty/p.qty);
  const exitFee=fee;
- const allocatedEntryFee=p.feePaid*(qty/p.originalQty);
  const taxable=Math.max(0,gross-allocatedEntryFee-exitFee);
  const tax=taxable*(Number(state.settings.tax)||0)/100;
  const net=gross-allocatedEntryFee-exitFee-tax;
-
  state.cash+=price*qty-exitFee;
  p.feePaid=Math.max(0,p.feePaid-allocatedEntryFee);
  p.qty-=qty;
-
  state.trades.push({
-  time:Date.now(),
-  symbol:sym,
-  entry:p.entry,
-  exit:price,
-  qty,
-  gross,
-  fees:allocatedEntryFee+exitFee,
-  tax,
-  net,
-  reason:reason||"Ручное закрытие"
+  time:Date.now(),symbol:sym,entry:p.entry,exit:price,qty,gross,
+  fees:allocatedEntryFee+exitFee,tax,net,reason:reason||"Ручное закрытие"
  });
-
- if(p.qty<=0){
-  state.positions=state.positions.filter(x=>x.id!==p.id);
- }
- state.equity.push({time:Date.now(),value:state.cash+
-  state.positions.reduce((s,x)=>s+x.entry*x.qty,0)});
- saveState();
- updateBalanceUI();
- updatePositionUI();
- updateStats();
- log("Закрыто "+qty+" шт. "+sym+". Результат: "+rub(net));
+ if(p.qty<=0)state.positions=state.positions.filter(x=>x.id!==p.id);
+ const marketValue=state.positions.reduce((s,x)=>s+x.qty*(Number(state.lastPrice[x.symbol])||x.entry),0);
+ state.equity.push({time:Date.now(),value:state.cash+marketValue});
+ saveState();updateBalanceUI();updatePositionUI();updateStats();
+ log("Закрыто "+qty+" шт. "+sym+". Чистый результат: "+rub(net));
  return true;
 }
-
 function managePosition(sym,price,candle){
- const p=getPosition(sym);
- if(!p||!Number.isFinite(price))return;
-
+ const p=getPosition(sym);if(!p||!Number.isFinite(price))return;
  p.highWater=Math.max(p.highWater||p.entry,price);
- const fee=Number(state.settings.fee)||0;
+ const risk=p.riskDistance||Math.max(.000001,p.entry-p.initialStop);
 
+ // Первая цель: фиксируем половину один раз.
  if(state.settings.partialTP!==false&&!p.partialDone&&price>=p.tp1){
   const qty=Math.max(1,Math.floor(p.qty/2));
   closeVirtualPosition(sym,price,qty,"Частичная фиксация TP1");
-  const still=getPosition(sym);
-  if(!still)return;
-  still.partialDone=true;
-  log("Первая цель достигнута. Частичная фиксация выполнена.");
-  saveState();
+  const still=getPosition(sym);if(!still)return;
+  still.partialDone=true;log("TP1 достигнута: часть позиции зафиксирована.");saveState();
  }
+ const active=getPosition(sym);if(!active)return;
 
- const active=getPosition(sym);
- if(!active)return;
-
- if(state.settings.breakEven!==false&&!active.breakEvenDone&&
-    price>=active.entry+(fee*2/Math.max(1,active.qty))){
-  active.stop=Math.max(active.stop,active.entry);
-  active.breakEvenDone=true;
-  log("Стоп перенесён в безубыток.");
+ // Безубыток включается после движения на 1R, а не сразу после открытия.
+ if(state.settings.breakEven!==false&&!active.breakEvenDone&&price>=active.entry+risk){
+  const feePerShare=(Number(state.settings.fee)||0)*2/Math.max(1,active.qty);
+  const be=active.entry+feePerShare;
+  active.stop=Math.max(active.stop,be);active.breakEvenDone=true;
+  log("Стоп перенесён в безубыток с учётом комиссии.");
  }
-
- if(state.settings.trailing!==false&&price>=active.entry+active.initialStop*0.8){
-  const trailDistance=Math.max(
-   active.initialStop*.75,
-   (currentAnalysis&&currentAnalysis.atr||active.entry*.01)*1.2
-  );
-  const newStop=active.highWater-trailDistance;
-  if(newStop>active.stop){
-   active.stop=newStop;
-   active.trailingActive=true;
-  }
+ // Трейлинг также начинает работать только после движения на 1R.
+ if(state.settings.trailing!==false&&price>=active.entry+risk){
+  const atr=(currentAnalysis&&currentAnalysis.atr)||risk;
+  const trailDistance=Math.max(risk*.75,atr*1.2);
+  const nextStop=active.highWater-trailDistance;
+  if(nextStop>active.stop){active.stop=nextStop;active.trailingActive=true}
  }
-
  if(price<=active.stop){
-  closeVirtualPosition(sym,price,active.qty,
-   active.trailingActive?"Трейлинг-стоп":"Стоп-лосс");
-  return;
+  closeVirtualPosition(sym,price,active.qty,active.trailingActive?"Трейлинг-стоп":"Стоп-лосс");return;
  }
- if(price>=active.tp2){
-  closeVirtualPosition(sym,price,active.qty,"Цель TP2");
-  return;
- }
- saveState();
- updatePositionUI();
+ if(price>=active.tp2){closeVirtualPosition(sym,price,active.qty,"Цель TP2");return}
+ saveState();updatePositionUI();
 }
 
 function buildPlanText(plan,sym){
  if(!plan)return "План пока не сформирован.";
  return [
-  "OZON SNIPER 10.4 PRO",
-  "Инструмент: "+sym,
-  "Сигнал: "+plan.direction,
-  "Вход: "+fmt(plan.entry,2)+" ₽",
-  "Количество: "+plan.qty,
-  "Сумма: "+fmt(plan.amount,2)+" ₽",
-  "Стоп: "+fmt(plan.stop,2)+" ₽",
-  "Цель 1: "+fmt(plan.tp1,2)+" ₽",
-  "Цель 2: "+fmt(plan.tp2,2)+" ₽",
-  "Риск с комиссиями: "+fmt(plan.risk,2)+" ₽",
-  "Ожидаемая чистая прибыль TP1: "+fmt(plan.netProfit,2)+" ₽",
-  "ВИРТУАЛЬНЫЙ ПЛАН. Реальные заявки не отправляются."
+  "OZON SNIPER 10.5 PRO","Инструмент: "+sym,"Сигнал: "+plan.direction,
+  "Вход: "+fmt(plan.entry)+" ₽","Количество: "+plan.qty,
+  "Сумма: "+fmt(plan.amount)+" ₽","Стоп: "+fmt(plan.stop)+" ₽",
+  "Цель 1: "+fmt(plan.tp1)+" ₽","Цель 2: "+fmt(plan.tp2)+" ₽",
+  "Риск с комиссиями: "+fmt(plan.risk)+" ₽",
+  "Ожидаемая чистая прибыль TP1: "+fmt(plan.netProfit)+" ₽",
+  "Только виртуальная торговля. Реальные заявки не отправляются."
  ].join("\n");
 }
-
 async function copyText(text){
  try{
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-   await navigator.clipboard.writeText(text);
-  }else{
-   const area=document.createElement("textarea");
-   area.value=text;
-   area.style.position="fixed";
-   area.style.opacity="0";
-   document.body.appendChild(area);
-   area.select();
-   document.execCommand("copy");
-   area.remove();
-  }
+  if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);
+  else{const a=document.createElement("textarea");a.value=text;a.style.position="fixed";document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
   log("План скопирован.");
- }catch(e){
-  log("Не удалось скопировать: "+e.message);
-  alert(text);
- }
+ }catch(e){log("Не удалось скопировать: "+e.message);alert(text)}
 }
-
-function updateLastPrice(sym,price){
- state.lastPrice[sym]=price;
- saveState();
-}
-
-function autoTradeCheck(sym,analysis,plan,candle){
- if(!state.settings.autoTrade)return;
- if(!analysis||!plan||analysis.signal!=="BUY"||plan.qty<=0)return;
- if(getPosition(sym))return;
+function autoTradeCheck(sym,a,plan,candle){
+ if(!state.settings.autoTrade||!a||!plan||a.signal!=="BUY"||plan.qty<=0||getPosition(sym))return;
  if(!hasFreshData(currentCandles,currentTf()))return;
-
- const barKey=sym+"_"+candle.time;
- if(lastAutoTradeBar===barKey)return;
- lastAutoTradeBar=barKey;
+ const key=cacheKey(sym,currentTf())+"_"+candle.time;
+ if(state.lastAutoTradeBar[key])return;
+ // Запоминаем свечу до открытия, чтобы повторное обновление не создало дубль.
+ state.lastAutoTradeBar[key]=true;saveState();
  openVirtualPosition(plan,sym);
 }
 
-function updateCurrentMarket(sym,candles,tf){
- currentCandles=candles;
- state.candles[sym]=mergeCandles(state.candles[sym],candles);
- const analysis=buildAnalysis(candles);
- currentAnalysis=analysis;
-
- if(!analysis){
-  currentPlan=null;
-  updateAnalysisUI(null,null);
-  updateChart();
-  return;
+function updateCurrentMarket(sym,cs,tf,allowTrading=false){
+ currentCandles=cs;
+ const a=buildAnalysis(cs);currentAnalysis=a;
+ if(!a){
+  currentPlan=null;updateAnalysisUI(null,null);updateChart();return;
  }
-
- const fresh=hasFreshData(candles,tf);
- updateLastPrice(sym,analysis.price);
- currentPlan=calculatePlan(analysis);
-
- if(!fresh){
-  $("dataQuality").textContent="УСТАРЕВШИЕ ДАННЫЕ";
-  $("planComment").textContent="Данные устарели. Новые виртуальные входы заблокированы.";
-  if(currentPlan)currentPlan.qty=0;
- }else{
-  $("dataQuality").textContent="Данные доступны";
+ const fresh=hasFreshData(cs,tf);
+ state.lastPrice[sym]=a.price;
+ currentPlan=calculatePlan(a);
+ if(!fresh&&currentPlan)currentPlan.qty=0;
+ updateAnalysisUI(a,currentPlan);updateChart();
+ $("dataQuality").textContent=fresh?"Свежесть в пределах допуска":marketStatusText()+" / нет свежей свечи";
+ $("planComment").textContent=fresh?
+  "Данные прошли проверку времени. Оценка условий — алгоритмическая, не вероятность успеха.":
+  "Свечи устарели или биржа закрыта. Новые виртуальные входы заблокированы.";
+ showSignalAlert(a.signal);
+ const last=cs.at(-1),key=cacheKey(sym,tf)+"_"+last.time;
+ // Сопровождение позиции и авто-вход только при подтверждённой свежести
+ // и только один раз на новую свечу.
+ if(allowTrading&&fresh&&key!==lastProcessedBar){
+  lastProcessedBar=key;
+  managePosition(sym,a.price,last);
+  autoTradeCheck(sym,a,currentPlan,last);
  }
-
- updateAnalysisUI(analysis,currentPlan);
- updateChart();
- showSignalAlert(analysis.signal);
-
- const last=candles.at(-1);
- managePosition(sym,analysis.price,last);
- autoTradeCheck(sym,analysis,currentPlan,last);
-
- state.lastUpdate[sym]=Date.now();
- saveState();
- updateBalanceUI();
- updatePositionUI();
+ state.lastUpdate[sym]=Date.now();saveState();
+ updateBalanceUI();updatePositionUI();
 }
 
 async function refreshAll(){
- if(busy){
-  pendingRefresh=true;
-  return;
- }
- busy=true;
- pendingRefresh=false;
- const myRequest=++requestId;
- const sym=currentSymbol();
- const tf=currentTf();
+ if(busy){pendingRefresh=true;return}
+ busy=true;pendingRefresh=false;
+ const id=++requestId,sym=currentSymbol(),tf=currentTf();
  setStatus("ЗАГРУЗКА","var(--yellow)");
  $("dataInfo").textContent="Получение свечей MOEX ISS…";
-
  try{
-  let candles=await fetchMarket(sym,tf);
-  if(myRequest!==requestId)return;
-
-  if(candles.length<35){
-   throw new Error("Получено мало свечей: "+candles.length+
-    ". Проверь инструмент, биржевой режим и доступность MOEX ISS.");
-  }
-
-  state.candles[sym]=mergeCandles(state.candles[sym],candles);
-  candles=state.candles[sym];
-  currentCandles=candles;
-
-  updateCurrentMarket(sym,candles,tf);
-  const last=candles.at(-1);
-  const fresh=hasFreshData(candles,tf);
-
-  setStatus(fresh?"ДАННЫЕ ПОЛУЧЕНЫ":"ДАННЫЕ УСТАРЕЛИ",
-   fresh?"var(--green)":"var(--yellow)");
-  $("dataInfo").textContent=
-   "Свечей: "+candles.length+
-   " · Последняя свеча: "+new Date(last.time).toLocaleString("ru-RU")+
-   " · "+(fresh?"Актуальность подтверждена":"Возможна задержка");
-  lastRefresh=Date.now();
-  nextRefreshAt=Date.now()+60000;
-  saveState();
-  log("Анализ "+sym+" завершён. Свечей: "+candles.length+
-   ". Сигнал: "+(currentAnalysis?currentAnalysis.signal:"нет"));
+  const fetched=await fetchMarket(sym,tf);
+  if(id!==requestId)return;
+  if(fetched.length<35)throw Error("Получено мало свечей ("+fetched.length+"). Проверь инструмент и доступность MOEX ISS.");
+  const merged=mergeCandles(getCache(sym,tf),fetched);
+  setCache(sym,tf,merged);
+  const fresh=hasFreshData(merged,tf);
+  updateCurrentMarket(sym,merged,tf,true);
+  const last=merged.at(-1);
+  setStatus(fresh?"ДАННЫЕ ПОЛУЧЕНЫ":"ДАННЫЕ УСТАРЕЛИ",fresh?"var(--green)":"var(--yellow)");
+  $("dataInfo").textContent="MOEX ISS · "+sym+" · "+tf+" мин · Свечей: "+merged.length+
+   " · Последняя: "+new Date(last.time).toLocaleString("ru-RU")+
+   " · "+(fresh?"Временной допуск пройден":"Входы заблокированы")+
+   " · "+marketStatusText();
+  nextRefreshAt=Date.now()+20000;saveState();
+  log("Обновление "+sym+"/"+tf+" мин. Свечей: "+merged.length+
+   ". Сигнал: "+(currentAnalysis?currentAnalysis.signal:"нет")+
+   ". "+(fresh?"Свежесть подтверждена":"Нет допуска для торговли"));
  }catch(e){
-  setStatus("ОШИБКА","var(--red)");
-  $("dataInfo").textContent=e.message;
-  $("dataQuality").textContent="Ошибка получения данных";
-  log("Ошибка обновления: "+e.message);
+  if(id===requestId){
+   setStatus("ОШИБКА","var(--red)");$("dataInfo").textContent=e.message;
+   $("dataQuality").textContent="Ошибка получения данных";log("Ошибка MOEX ISS: "+e.message);
+  }
  }finally{
   busy=false;
-  if(pendingRefresh){
-   pendingRefresh=false;
-   setTimeout(()=>refreshAll(),700);
-  }
+  if(pendingRefresh){pendingRefresh=false;setTimeout(()=>refreshAll(),700)}
  }
 }
-
 function startTerminal(){
- if(running)return;
- running=true;
+ if(running)return;running=true;
  $("autoStatus").textContent=state.settings.autoTrade?"Автоторговля включена":"Мониторинг включён";
- $("autoStatus").className="green";
- $("startBtn").disabled=true;
- $("stopBtn").disabled=false;
- log("Мониторинг запущен.");
- refreshAll();
+ $("autoStatus").className="green";$("startBtn").disabled=true;$("stopBtn").disabled=false;
+ log("Мониторинг запущен. Интервал опроса — 20 секунд.");refreshAll();
  clearInterval(refreshTimer);
- refreshTimer=setInterval(()=>{
-  if(running){
-   refreshAll();
-   updateCountdown();
-  }
- },60000);
+ refreshTimer=setInterval(()=>{if(running){refreshAll();updateCountdown()}},20000);
 }
-
 function stopTerminal(){
- running=false;
- clearInterval(refreshTimer);
- refreshTimer=null;
- $("autoStatus").textContent="Остановлено";
- $("autoStatus").className="";
- $("startBtn").disabled=false;
- $("stopBtn").disabled=true;
- $("nextRefresh").textContent="—";
+ running=false;clearInterval(refreshTimer);refreshTimer=null;
+ $("autoStatus").textContent="Остановлено";$("autoStatus").className="";
+ $("startBtn").disabled=false;$("stopBtn").disabled=true;$("nextRefresh").textContent="—";
  log("Мониторинг остановлен.");
 }
-
 function updateCountdown(){
  if(!running||!nextRefreshAt)return;
- const left=Math.max(0,Math.ceil((nextRefreshAt-Date.now())/1000));
- $("nextRefresh").textContent=left+" сек.";
+ $("nextRefresh").textContent=Math.max(0,Math.ceil((nextRefreshAt-Date.now())/1000))+" сек.";
 }
-
 function changeInstrument(){
- requestId++;
- updateTradingView();
- currentCandles=state.candles[currentSymbol()]||[];
- const cached=currentCandles;
- if(cached.length>=35){
-  updateCurrentMarket(currentSymbol(),cached,currentTf());
- }else{
-  $("signal").textContent="ЗАГРУЗКА ДАННЫХ";
-  $("signal").className="bigSignal signal-wait";
- }
+ requestId++;updateTradingView();
+ const sym=currentSymbol(),tf=currentTf(),cache=getCache(sym,tf);
+ currentCandles=cache;
+ if(cache.length>=35)updateCurrentMarket(sym,cache,tf,false);
+ else{$("signal").textContent="ЗАГРУЗКА ДАННЫХ";$("signal").className="bigSignal signal-wait"}
+ updatePositionUI();if(running)refreshAll();
+}
+function changeTimeframe(){
+ requestId++;updateTradingView();
+ const sym=currentSymbol(),tf=currentTf(),cache=getCache(sym,tf);
+ currentCandles=cache;
+ if(cache.length>=35)updateCurrentMarket(sym,cache,tf,false);
+ else{$("signal").textContent="ЗАГРУЗКА ДАННЫХ";$("signal").className="bigSignal signal-wait"}
  if(running)refreshAll();
 }
-
 function manualBuy(){
- if(!currentAnalysis||!currentPlan){
-  alert("Сначала дождись загрузки рыночных данных.");
-  return;
- }
- if(!hasFreshData(currentCandles,currentTf())){
-  alert("Данные устарели. Покупка заблокирована.");
-  return;
- }
- if(currentPlan.direction!=="BUY"){
-  alert("Сейчас нет сигнала на покупку.");
-  return;
- }
- if(!confirm("Открыть виртуальную позицию "+currentPlan.qty+
-  " шт. по цене "+fmt(currentPlan.entry,2)+" ₽? Реальная заявка не отправляется."))return;
+ if(!currentAnalysis||!currentPlan){alert("Сначала дождись загрузки рыночных данных.");return}
+ if(!hasFreshData(currentCandles,currentTf())){alert("Данные устарели или рынок закрыт. Покупка заблокирована.");return}
+ if(currentPlan.direction!=="BUY"||currentPlan.qty<=0){alert("Сейчас нет готового плана покупки.");return}
+ if(!confirm("Открыть виртуальную позицию "+currentPlan.qty+" шт. по "+fmt(currentPlan.entry)+" ₽? Реальная заявка не отправляется."))return;
  openVirtualPosition(currentPlan,currentSymbol());
 }
-
 function manualClose(){
- const p=getPosition(currentSymbol());
- if(!p){
-  alert("Нет открытой виртуальной позиции.");
-  return;
- }
+ const p=getPosition(currentSymbol());if(!p){alert("Нет открытой виртуальной позиции.");return}
  const price=Number(state.lastPrice[p.symbol]||p.entry);
- if(confirm("Закрыть виртуальную позицию по цене "+fmt(price,2)+" ₽?")){
-  closeVirtualPosition(p.symbol,price,p.qty,"Ручное закрытие");
- }
+ if(confirm("Закрыть виртуальную позицию по "+fmt(price)+" ₽?"))closeVirtualPosition(p.symbol,price,p.qty,"Ручное закрытие");
 }
-
 function partialClose(){
- const p=getPosition(currentSymbol());
- if(!p){
-  alert("Нет открытой виртуальной позиции.");
-  return;
- }
- const qty=Math.max(1,Math.floor(p.qty/2));
- const price=Number(state.lastPrice[p.symbol]||p.entry);
- if(confirm("Зафиксировать половину позиции: "+qty+" шт.?")){
-  closeVirtualPosition(p.symbol,price,qty,"Ручная частичная фиксация");
- }
+ const p=getPosition(currentSymbol());if(!p){alert("Нет открытой виртуальной позиции.");return}
+ const qty=Math.max(1,Math.floor(p.qty/2)),price=Number(state.lastPrice[p.symbol]||p.entry);
+ if(confirm("Зафиксировать "+qty+" шт. по "+fmt(price)+" ₽?"))closeVirtualPosition(p.symbol,price,qty,"Ручная частичная фиксация");
 }
-
 function exportCSV(){
  const rows=[["Дата","Инструмент","Вход","Выход","Количество","Валовая прибыль","Комиссии","Налог","Чистый результат","Причина"]];
- state.trades.forEach(t=>{
-  rows.push([
-   new Date(t.time).toLocaleString("ru-RU"),t.symbol,t.entry,t.exit,
-   t.qty,t.gross,t.fees,t.tax,t.net,t.reason
-  ]);
- });
- const csv="\uFEFF"+rows.map(r=>r.map(v=>
-  '"'+String(v??"").replace(/"/g,'""')+'"'
- ).join(";")).join("\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;a.download="ozon-sniper-trades.csv";a.click();
- URL.revokeObjectURL(url);
+ state.trades.forEach(t=>rows.push([new Date(t.time).toLocaleString("ru-RU"),t.symbol,t.entry,t.exit,t.qty,t.gross,t.fees,t.tax,t.net,t.reason]));
+ const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="ozon-sniper-trades.csv";a.click();URL.revokeObjectURL(url);
 }
-
 function backupState(){
- const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;a.download="ozon-sniper-backup.json";a.click();
- URL.revokeObjectURL(url);
- log("Резервная копия подготовлена.");
+ const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="ozon-sniper-backup.json";a.click();URL.revokeObjectURL(url);log("Резервная копия подготовлена.");
 }
-
 function restoreState(file){
  const reader=new FileReader();
  reader.onload=()=>{
   try{
    const incoming=JSON.parse(reader.result);
-   if(!incoming||typeof incoming!=="object")throw new Error("Неверный файл");
+   if(!incoming||typeof incoming!=="object")throw Error("Неверный файл");
    if(!confirm("Заменить текущие виртуальные данные резервной копией?"))return;
    const merged={...clone(DEFAULTS),...incoming};
    merged.settings={...clone(DEFAULTS.settings),...(incoming.settings||{})};
    merged.positions=Array.isArray(incoming.positions)?incoming.positions:[];
    merged.trades=Array.isArray(incoming.trades)?incoming.trades:[];
    merged.equity=Array.isArray(incoming.equity)?incoming.equity:[];
-   merged.candles={...clone(DEFAULTS.candles),...(incoming.candles||{})};
-   state=merged;
-   saveState();
-   syncSettingsUI();
-   updateBalanceUI();
-   updateStats();
-   changeInstrument();
+   merged.candles=incoming.candles||{};
+   merged.lastAutoTradeBar=incoming.lastAutoTradeBar||{};
+   state=merged;saveState();syncSettingsUI();updateBalanceUI();updateStats();changeInstrument();
    log("Резервная копия восстановлена.");
-  }catch(e){
-   alert("Ошибка резервной копии: "+e.message);
-  }
+  }catch(e){alert("Ошибка резервной копии: "+e.message)}
  };
  reader.readAsText(file);
 }
-
 function resetVirtual(){
  if(!confirm("Сбросить виртуальный счёт, позиции и историю? Это действие нельзя отменить."))return;
- const keepCandles=state.candles;
- const keepSettings=state.settings;
- state=clone(DEFAULTS);
- state.candles=keepCandles;
- state.settings=keepSettings;
- state.cash=state.initialCapital;
- saveState();
- updateBalanceUI();
- updateStats();
- updatePositionUI();
- log("Виртуальный счёт сброшен.");
+ const candles=state.candles,settings=state.settings,capital=state.initialCapital;
+ state=clone(DEFAULTS);state.candles=candles;state.settings=settings;
+ state.cash=capital;state.initialCapital=capital;saveState();
+ updateBalanceUI();updateStats();updatePositionUI();log("Виртуальный счёт сброшен.");
 }
-
 function bindEvents(){
  $("refreshBtn").addEventListener("click",refreshAll);
  $("startBtn").addEventListener("click",startTerminal);
  $("stopBtn").addEventListener("click",stopTerminal);
  $("symbol").addEventListener("change",changeInstrument);
- $("timeframe").addEventListener("change",()=>{
-  requestId++;
-  updateTradingView();
-  if(running)refreshAll();
- });
+ $("timeframe").addEventListener("change",changeTimeframe);
  $("soundBtn").addEventListener("click",()=>{
-  soundEnabled=!soundEnabled;
-  $("soundBtn").textContent=soundEnabled?"🔔 Звук: вкл.":"🔔 Звук: выкл.";
+  soundEnabled=!soundEnabled;$("soundBtn").textContent=soundEnabled?"🔔 Звук: вкл.":"🔔 Звук: выкл.";
   if(soundEnabled)beep();
  });
  $("saveSettingsBtn").addEventListener("click",saveSettings);
  $("manualBuyBtn").addEventListener("click",manualBuy);
  $("closePositionBtn").addEventListener("click",manualClose);
  $("partialCloseBtn").addEventListener("click",partialClose);
- $("copyPlanBtn").addEventListener("click",()=>{
-  copyText(buildPlanText(currentPlan,currentSymbol()));
- });
+ $("copyPlanBtn").addEventListener("click",()=>copyText(buildPlanText(currentPlan,currentSymbol())));
  $("exportBtn").addEventListener("click",exportCSV);
  $("backupBtn").addEventListener("click",backupState);
  $("restoreBtn").addEventListener("click",()=>$("restoreFile").click());
- $("restoreFile").addEventListener("change",e=>{
-  if(e.target.files&&e.target.files[0])restoreState(e.target.files[0]);
-  e.target.value="";
- });
+ $("restoreFile").addEventListener("change",e=>{if(e.target.files?.[0])restoreState(e.target.files[0]);e.target.value=""});
  $("clearLogBtn").addEventListener("click",()=>$("log").textContent="Журнал очищен.");
  $("resetBtn").addEventListener("click",resetVirtual);
- window.addEventListener("resize",()=>{
-  if(currentCandles.length)updateChart();
-  drawEquity();
- });
- document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden&&running){
-   log("Приложение снова активно. Проверяю данные.");
-   refreshAll();
-  }
- });
+ window.addEventListener("resize",()=>{if(currentCandles.length)updateChart();drawEquity()});
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running){log("Приложение снова активно. Проверяю данные.");refreshAll()}});
 }
-
 function init(){
- syncSettingsUI();
- updateBalanceUI();
- updateStats();
- updatePositionUI();
- bindEvents();
- updateTradingView();
+ syncSettingsUI();updateBalanceUI();updateStats();updatePositionUI();bindEvents();updateTradingView();
  $("stopBtn").disabled=true;
- $("autoStatus").textContent=state.settings.autoTrade?"Включён":"Выключен";
-
- const sym=currentSymbol();
- const cached=state.candles[sym]||[];
+ const sym=currentSymbol(),tf=currentTf(),cached=getCache(sym,tf);
  if(cached.length>=35){
-  currentCandles=cached;
-  updateCurrentMarket(sym,cached,currentTf());
-  $("dataInfo").textContent="Показаны сохранённые свечи. Нажми «Обновить» для проверки.";
+  currentCandles=cached;updateCurrentMarket(sym,cached,tf,false);
+  $("dataInfo").textContent="Показаны сохранённые свечи. Нажми «Обновить» для проверки свежести.";
   setStatus("СОХРАНЁННЫЕ ДАННЫЕ","var(--yellow)");
- }else{
-  setStatus("ГОТОВ К ЗАПУСКУ","var(--green)");
- }
- log("OZON SNIPER 10.4 PRO запущен.");
- log("Режим: только аналитика и виртуальные сделки.");
+ }else setStatus("ГОТОВ К ЗАПУСКУ","var(--green)");
+ log("OZON SNIPER 10.5 PRO запущен.");
+ log("Баланс, позиции и история перенесены из предыдущей версии.");
+ log("Старый смешанный кэш свечей очищен; интервалы теперь хранятся отдельно.");
  log("Автоматическое открытие сделок по умолчанию выключено.");
 }
-
 init();
-
 </script>
 </body>
 </html>
