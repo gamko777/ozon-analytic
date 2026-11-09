@@ -1,666 +1,92 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#08111e">
-<title>SNIPER PRO 2.1</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#08111f">
+<title>SNIPER PRO 3.0</title>
 <style>
-:root{--bg:#08111e;--panel:#101d2d;--panel2:#14243a;--line:#263950;--text:#e8f0fa;--muted:#8ea2ba;--green:#20d69a;--red:#ff6375;--yellow:#ffc857;--blue:#57a6ff}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
-header{padding:15px 14px 12px;background:#0d1928;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.brand{font-size:20px;font-weight:800;letter-spacing:1px}
-.sub{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px}
-.status{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12px;color:var(--muted)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);display:inline-block}
-main{padding:10px;max-width:850px;margin:auto}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:10px}
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.between{justify-content:space-between}
-h3{font-size:13px;margin:0 0 10px;color:#c7d7e9}
-button,select{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 11px;font-size:12px}
-button:active{transform:scale(.98)}
-button.active{border-color:var(--blue);color:var(--blue);background:#17304c}
-button.good{background:#123c35;border-color:#1d8068;color:var(--green)}
-button.bad{background:#421f2b;border-color:#91404d;color:#ff8794}
-button:disabled{opacity:.4}
-select{min-width:105px}
-.small{font-size:11px;color:var(--muted)}
-.big{font-size:22px;font-weight:800}
-.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}.blue{color:var(--blue)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.metric{background:#0b1725;border:1px solid #1d3047;border-radius:9px;padding:10px;min-width:0}
-.metric .v{font-size:17px;font-weight:700;margin-top:5px;overflow-wrap:anywhere}
-.metric .k{font-size:10px;color:var(--muted)}
-.tabs{display:flex;gap:5px;overflow:auto;padding-bottom:2px}
-.tabs button{white-space:nowrap;padding:8px 10px}
-#chart{width:100%;height:310px;display:block;background:#0a1523;border-radius:9px;touch-action:pan-y}
-.chartinfo{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:8px 0;font-size:11px;color:var(--muted)}
-.signal{font-size:18px;font-weight:800}
-.note{font-size:11px;line-height:1.5;color:var(--muted)}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.actions button{padding:12px}
-table{width:100%;border-collapse:collapse;font-size:11px}
-td,th{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}
-th{color:var(--muted);font-weight:500}
-.scroll{overflow:auto}
-.tag{display:inline-block;border-radius:5px;padding:4px 6px;background:#1a2b40;font-size:10px}
-.tag.good{color:var(--green)}.tag.bad{color:var(--red)}
-input[type=checkbox]{accent-color:var(--green);width:17px;height:17px;vertical-align:middle}
-label{font-size:12px;color:var(--muted)}
-footer{text-align:center;padding:12px;color:var(--muted);font-size:10px}
-hr{border:0;border-top:1px solid var(--line);margin:11px 0}
-@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}#chart{height:390px}}
+:root{--bg:#08111f;--panel:#101d2e;--panel2:#14243a;--line:#263951;--txt:#e8f0fa;--muted:#8fa4bc;--green:#35d49a;--red:#ff667a;--yellow:#ffc857;--blue:#65a9ff;--purple:#b69aff}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#08111f,#0a1423 45%,#08111f);color:var(--txt);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}button,select{font:inherit}button{border:1px solid var(--line);background:#172941;color:var(--txt);border-radius:10px;padding:9px 12px;font-weight:700}button:active{transform:scale(.98)}button.primary{background:#145c49;border-color:#1c936f}button.warn{background:#572a37;border-color:#8b3c50}.wrap{max-width:1100px;margin:auto;padding:12px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.brand{font-weight:900;font-size:19px;letter-spacing:.6px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px}.status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);display:inline-block}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.toolbar select{background:#14243a;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px}.tabs{display:flex;gap:6px;overflow:auto;padding-bottom:4px}.tab{white-space:nowrap;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:#101d2e;color:var(--muted)}.tab.active{background:#1b3551;color:#fff;border-color:#4678a8}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:10px 0}.metric,.panel{background:linear-gradient(145deg,#122238,#0e1a2b);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}.metric .k{color:var(--muted);font-size:11px}.metric .v{font-size:19px;font-weight:850;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric .s{font-size:10px;color:var(--muted);margin-top:2px}.green{color:var(--green)!important}.red{color:var(--red)!important}.yellow{color:var(--yellow)!important}.muted{color:var(--muted)}.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;margin:0 0 10px}.section-title small{font-weight:500;color:var(--muted)}.panel{margin:10px 0}.signal{border-left:4px solid var(--yellow)}.signal.buy{border-left-color:var(--green)}.signal.wait{border-left-color:var(--yellow)}.signal.sell{border-left-color:var(--red)}.signal-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.signal-name{font-size:22px;font-weight:900}.pill{border-radius:20px;padding:4px 9px;background:#263951;color:#c8d8ea;font-size:11px}.chartbox{height:300px;position:relative;background:#0b1727;border:1px solid #22364d;border-radius:12px;overflow:hidden}.chartbox canvas{width:100%;height:100%;display:block}.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin:8px 0}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;background:currentColor}.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.level{background:#0c1929;border:1px solid #263951;border-radius:9px;padding:8px}.level small{display:block;color:var(--muted);font-size:10px}.level b{font-size:14px}.plantext{font-size:12px;color:#b7c7d9;margin-top:10px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tv{height:390px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b1727}.tv iframe{width:100%;height:100%;border:0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px;min-width:540px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #263951}th{color:var(--muted);font-weight:600}.trade{background:#0d1a2b;border:1px solid #263951;border-radius:10px;padding:10px;margin:8px 0}.trade .head{display:flex;justify-content:space-between;gap:8px}.trade .details{font-size:11px;color:var(--muted);margin:6px 0}.trade button{padding:6px 9px;font-size:11px}.small{font-size:11px}.copyrow{display:flex;gap:6px;flex-wrap:wrap}.notice{background:#2b2518;border:1px solid #6c5626;color:#f2d99b;padding:10px;border-radius:10px;font-size:11px;margin:10px 0}.danger{background:#301d27;border-color:#754052;color:#ffc1cc}.good{background:#122c27;border-color:#28644f;color:#b2f2d9}.footer{font-size:10px;color:#7389a3;text-align:center;padding:18px 4px}.hidden{display:none!important}.bar{height:7px;background:#263951;border-radius:9px;overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:var(--green)}@media(max-width:650px){.wrap{padding:9px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.metric{padding:10px}.metric .v{font-size:17px}.twocol{grid-template-columns:1fr}.chartbox{height:280px}.tv{height:340px}.levels{grid-template-columns:repeat(2,1fr)}.brand{font-size:17px}}
 </style>
 </head>
-<body>
-<header>
- <div class="brand">SNIPER <span class="blue">PRO</span> 2.1</div>
- <div class="sub">MOEX ISS · REAL MARKET DATA · VIRTUAL TRADING</div>
- <div class="status"><i class="dot" id="statusDot"></i><span id="statusText">ОЖИДАНИЕ ДАННЫХ</span><span id="ageText"></span></div>
-</header>
-<main>
- <section class="panel">
-  <div class="row between">
-   <div>
-    <div class="small">ИНСТРУМЕНТ</div>
-    <div class="row" style="margin-top:5px">
-     <button id="ozonBtn" class="active" onclick="selectSymbol('OZON')">OZON</button>
-     <button id="tgldBtn" onclick="selectSymbol('TGLD')">TGLD · ЗОЛОТО</button>
-    </div>
-   </div>
-   <div style="text-align:right">
-    <div class="small">ПОСЛЕДНЯЯ ЦЕНА</div>
-    <div class="big" id="lastPrice">—</div>
-   </div>
-  </div>
-  <hr>
-  <div class="row between">
-   <div class="tabs" id="timeTabs">
-    <button data-tf="1" onclick="setTf(1)">1 мин</button>
-    <button data-tf="5" class="active" onclick="setTf(5)">5 мин</button>
-    <button data-tf="15" onclick="setTf(15)">15 мин</button>
-    <button data-tf="60" onclick="setTf(60)">1 час</button>
-    <button data-tf="24" onclick="setTf(24)">1 день</button>
-   </div>
-   <button onclick="refreshAll()">↻ Обновить</button>
-  </div>
- </section>
-
- <section class="panel">
-  <div class="row between">
-   <h3>ГРАФИК И ТОРГОВЫЕ УРОВНИ</h3>
-   <span class="tag" id="barCount">0 свечей</span>
-  </div>
-  <div class="chartinfo">
-   <span id="ohlcInfo">Ожидание свечей MOEX…</span>
-   <span id="chartSource">Источник: MOEX ISS</span>
-  </div>
-  <canvas id="chart"></canvas>
-  <div class="chartinfo">
-   <span>Линии: вход · стоп · TP1 · TP2</span>
-   <span id="chartLegend">EMA 9 / EMA 21</span>
-  </div>
- </section>
-
- <section class="panel">
-  <h3>АНАЛИТИКА И СИГНАЛ</h3>
-  <div class="grid">
-   <div class="metric"><div class="k">СИГНАЛ</div><div class="v signal" id="signal">—</div></div>
-   <div class="metric"><div class="k">RSI 14</div><div class="v" id="rsiVal">—</div></div>
-   <div class="metric"><div class="k">EMA 9 / EMA 21</div><div class="v" id="emaVal">—</div></div>
-   <div class="metric"><div class="k">ОБЪЁМ / СРЕДНИЙ</div><div class="v" id="volumeVal">—</div></div>
-  </div>
-  <p class="note" id="signalReason" style="margin-bottom:0">Сигнал появится после получения достаточной истории закрытых свечей.</p>
- </section>
-
- <section class="panel">
-  <h3>ВИРТУАЛЬНЫЙ ПОРТФЕЛЬ</h3>
-  <div class="grid">
-   <div class="metric"><div class="k">СТАРТОВЫЙ КАПИТАЛ</div><div class="v" id="startCapital">100 000 ₽</div></div>
-   <div class="metric"><div class="k">СВОБОДНЫЕ СРЕДСТВА</div><div class="v" id="cashValue">100 000 ₽</div></div>
-   <div class="metric"><div class="k">СТОИМОСТЬ ПОЗИЦИЙ</div><div class="v" id="positionValue">0 ₽</div></div>
-   <div class="metric"><div class="k">ОБЩИЙ РЕЗУЛЬТАТ</div><div class="v" id="totalPnl">0 ₽</div></div>
-  </div>
-  <div class="row between" style="margin-top:10px">
-   <span class="small">Комиссия: 10,07 ₽ за операцию · налог: 13% с положительного результата</span>
-   <span class="tag">ТОЛЬКО ВИРТУАЛЬНО</span>
-  </div>
- </section>
-
- <section class="panel">
-  <div class="row between"><h3>ПОЗИЦИЯ · <span id="positionSymbol">OZON</span></h3><span id="positionState" class="tag">НЕТ ПОЗИЦИИ</span></div>
-  <div class="grid">
-   <div class="metric"><div class="k">ЦЕНА ВХОДА</div><div class="v" id="entryPrice">—</div></div>
-   <div class="metric"><div class="k">ТЕКУЩАЯ ЦЕНА</div><div class="v" id="currentPositionPrice">—</div></div>
-   <div class="metric"><div class="k">СТОП / БЕЗУБЫТОК</div><div class="v" id="stopPrice">—</div></div>
-   <div class="metric"><div class="k">TP1 / TP2</div><div class="v" id="targets">—</div></div>
-   <div class="metric"><div class="k">КОЛИЧЕСТВО</div><div class="v" id="positionQty">—</div></div>
-   <div class="metric"><div class="k">ПЛАВАЮЩИЙ РЕЗУЛЬТАТ</div><div class="v" id="floatingPnl">—</div></div>
-  </div>
-  <div class="actions" style="margin-top:10px">
-   <button class="good" id="buyBtn" onclick="manualBuy()">ВИРТУАЛЬНО КУПИТЬ</button>
-   <button class="bad" id="closeBtn" onclick="manualClose()" disabled>ЗАКРЫТЬ ПОЗИЦИЮ</button>
-  </div>
-  <p class="note">План сопровождения: начальный стоп −1,5%; перенос в безубыток после роста на 1%; трейлинг 1,2%; частичная фиксация на TP1 и закрытие остатка на TP2. Если стоп и цель попали в одну свечу, симулятор использует консервативный сценарий — сначала стоп.</p>
- </section>
-
- <section class="panel">
-  <h3>АВТОМАТИЧЕСКИЙ РЕЖИМ</h3>
-  <div class="row between">
-   <label><input type="checkbox" id="autoMode"> Автовход по сигналу BUY</label>
-   <label><input type="checkbox" id="soundMode"> Звуковые сигналы</label>
-  </div>
-  <div class="row" style="margin-top:10px">
-   <button class="good" onclick="startEngine()">▶ Запустить</button>
-   <button class="bad" onclick="stopEngine()">■ Остановить</button>
-   <span class="tag" id="engineState">ОСТАНОВЛЕН</span>
-  </div>
-  <p class="note" style="margin-bottom:0">Автовход разрешён только при актуальных данных и подтверждённом сигнале на закрытой свече. При устаревших котировках новые сделки блокируются. Брокерские счета и реальные заявки не используются.</p>
- </section>
-
- <section class="panel">
-  <div class="row between"><h3>ИСТОРИЯ ВИРТУАЛЬНЫХ СДЕЛОК</h3><button onclick="clearHistory()">Очистить историю</button></div>
-  <div class="scroll">
-   <table>
-    <thead><tr><th>Время</th><th>Инструмент</th><th>Операция</th><th>Цена</th><th>Результат</th></tr></thead>
-    <tbody id="historyBody"><tr><td colspan="5" class="small">Сделок пока нет</td></tr></tbody>
-   </table>
-  </div>
- </section>
- <section class="panel">
-  <h3>СОСТОЯНИЕ ДАННЫХ</h3>
-  <div class="row between"><span class="small">Последнее обновление</span><b id="updateTime">—</b></div>
-  <div class="row between" style="margin-top:7px"><span class="small">Последняя закрытая свеча</span><b id="lastCandleTime">—</b></div>
-  <div class="row between" style="margin-top:7px"><span class="small">Статус котировок</span><b id="dataState">Нет данных</b></div>
-  <p class="note">MOEX ISS может предоставлять данные с задержкой. Терминал показывает время биржевой свечи, а не подменяет его текущим временем телефона. Если данные старше 30 минут, новые виртуальные входы блокируются.</p>
- </section>
-</main>
-<footer>SNIPER PRO 2.1 · Данные MOEX ISS · Виртуальная торговля · Не является инвестиционной рекомендацией</footer>
+<body><div class="wrap">
+<header class="top"><div class="brand">SNIPER PRO 3.0<small>MOEX · АВТОАНАЛИЗ · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</small></div><div class="status"><i id="dot" class="dot"></i><span id="statusText">Загрузка данных…</span></div></header>
+<div class="toolbar"><select id="symbol"><option value="OZON">OZON · Озон</option><option value="TGLD">TGLD · Золото</option></select><select id="tf"><option value="1">1 мин</option><option value="5" selected>5 мин</option><option value="15">15 мин</option><option value="60">1 час</option><option value="D">1 день</option></select><button id="refresh">↻ Обновить</button><button id="autoBtn" class="primary">Автоторговля: ВКЛ</button></div>
+<div class="tabs"><button class="tab active" data-tab="terminal">Терминал</button><button class="tab" data-tab="trades">Сделки и журнал</button><button class="tab" data-tab="stats">Статистика</button><button class="tab" data-tab="settings">Настройки</button></div>
+<section id="terminal">
+<div class="grid"><div class="metric"><div class="k">Последняя цена MOEX</div><div class="v" id="price">—</div><div class="s" id="priceTime">Ожидание котировки</div></div><div class="metric"><div class="k">Состояние сигнала</div><div class="v" id="signalMetric">—</div><div class="s" id="scoreText">Анализ 5-минутных свечей</div></div><div class="metric"><div class="k">Виртуальный капитал</div><div class="v" id="equity">100 000 ₽</div><div class="s" id="equityChange">Результат: 0 ₽</div></div><div class="metric"><div class="k">Свободные средства</div><div class="v" id="cash">100 000 ₽</div><div class="s" id="openCount">Открытых позиций: 0</div></div></div>
+<div class="panel signal wait" id="signalPanel"><div class="signal-head"><div><div class="muted small">АВТОМАТИЧЕСКИЙ АНАЛИЗ</div><div class="signal-name" id="signalTitle">ОЖИДАНИЕ ДАННЫХ</div></div><span class="pill" id="confidence">—</span></div><div class="plantext" id="signalWhy">Загружаю биржевые свечи и рассчитываю индикаторы.</div><div class="levels"><div class="level"><small>Плановый вход</small><b id="planEntry">—</b></div><div class="level"><small>Стоп-лосс</small><b id="planStop" class="red">—</b></div><div class="level"><small>Цель 1</small><b id="planTp1" class="green">—</b></div><div class="level"><small>Цель 2</small><b id="planTp2" class="green">—</b></div></div><div class="copyrow" style="margin-top:10px"><button id="copyPlan" class="primary">Копировать план сделки</button><button id="copySignal">Копировать анализ</button></div></div>
+<div class="panel"><div class="section-title"><span>График анализа SNIPER</span><small id="chartLabel">OZON · 5 минут</small></div><div class="chartbox"><canvas id="chart"></canvas></div><div class="legend"><span style="color:#e8f0fa">Свечи</span><span style="color:#65a9ff">EMA 9</span><span style="color:#ffc857">EMA 21</span><span style="color:#35d49a">Цели</span><span style="color:#ff667a">Стоп</span></div><div class="small muted" id="chartFoot">Уровни плана отображаются пунктиром; исполненные сделки отмечаются на графике.</div></div>
+<div class="twocol"><div class="panel"><div class="section-title">Индикаторы <small>5-минутная стратегия</small></div><div class="row small"><span>RSI (14)</span><b id="rsi">—</b></div><div class="bar"><i id="rsiBar" style="width:0%"></i></div><div class="row small" style="margin-top:9px"><span>EMA 9 / EMA 21</span><b id="emas">—</b></div><div class="row small" style="margin-top:9px"><span>MACD</span><b id="macd">—</b></div><div class="row small" style="margin-top:9px"><span>Объём к среднему</span><b id="volratio">—</b></div><div class="row small" style="margin-top:9px"><span>ATR (14)</span><b id="atr">—</b></div></div><div class="panel"><div class="section-title">Виртуальная позиция <small id="positionState">Нет позиции</small></div><div id="positionInfo" class="small muted">Автоматическая система откроет позицию при подтверждённом сигнале и наличии свежих котировок.</div><div class="plantext" id="positionManage"></div></div></div>
+<div class="panel"><div class="section-title">График TradingView <small>отдельный рыночный график</small></div><div class="tv"><iframe id="tvFrame" title="TradingView chart" loading="lazy" allowfullscreen></iframe></div><div class="small muted" style="margin-top:7px">Котировки TradingView могут отличаться по задержке и источнику. Виртуальные сделки SNIPER рассчитываются только по данным MOEX ISS.</div></div>
+<div class="notice">Автовход: после сигнала система покупает на открытии следующей 5-минутной свечи, если котировки свежие и цена не ушла выше плана более чем на 1%. Условные уровни на графике — сценарий, не уже исполненная сделка. Важно: это автономный виртуальный симулятор, а не гарант доходности. MOEX ISS без подписки предоставляет данные с задержкой около 15 минут. Приложение не отправляет реальные заявки брокеру. Для автономной работы страницы её нужно держать открытой; браузер может приостанавливать фоновые вкладки.</div>
+</section>
+<section id="trades" class="hidden"><div class="panel"><div class="section-title">Открытые виртуальные позиции <small id="openLabel">0</small></div><div id="openTrades"><div class="muted small">Открытых позиций нет.</div></div></div><div class="panel"><div class="section-title">История сделок <small id="historyCount">0 записей</small></div><div class="copyrow" style="margin-bottom:9px"><button id="copyAll">Копировать журнал</button><button id="exportCsv">Экспорт CSV</button></div><div id="history"><div class="muted small">Сделок пока нет.</div></div></div></section>
+<section id="stats" class="hidden"><div class="grid"><div class="metric"><div class="k">Закрытых сделок</div><div class="v" id="statN">0</div></div><div class="metric"><div class="k">Прибыльных</div><div class="v" id="statWin">0%</div></div><div class="metric"><div class="k">Чистый результат</div><div class="v" id="statPnl">0 ₽</div></div><div class="metric"><div class="k">Средняя сделка</div><div class="v" id="statAvg">0 ₽</div></div></div><div class="panel"><div class="section-title">Результаты виртуальной стратегии</div><div id="statsText" class="small muted">Статистика появится после закрытия виртуальных сделок. Прошлая прибыль не гарантирует будущую.</div></div></section>
+<section id="settings" class="hidden"><div class="panel"><div class="section-title">Параметры виртуальной торговли</div><div class="row small"><span>Начальный капитал</span><b>100 000 ₽</b></div><div class="row small" style="margin-top:8px"><span>Комиссия за каждую сторону</span><b>10,07 ₽</b></div><div class="row small" style="margin-top:8px"><span>Налог с положительной прибыли</span><b>13%</b></div><div class="row small" style="margin-top:8px"><span>Риск на сделку</span><b>1% капитала</b></div><div class="row small" style="margin-top:8px"><span>Лимит позиции</span><b>до 45% капитала</b></div><div class="row small" style="margin-top:8px"><span>Максимум одновременных позиций</span><b>2</b></div><div class="row small" style="margin-top:8px"><span>Таймфрейм стратегии</span><b>5 минут</b></div><div class="notice">Сигналы и виртуальные сделки рассчитываются по 5-минутным свечам независимо от выбранного таймфрейма графика. Покупки только LONG: вход покупкой, выход продажей. Шорт не используется.</div><div class="copyrow"><button id="backup">Скачать резервную копию</button><button id="restoreBtn">Восстановить копию</button><input id="restoreFile" type="file" accept="application/json" class="hidden"><button id="reset" class="warn">Сбросить виртуальный счёт</button></div><div class="small muted" style="margin-top:8px">Сброс удаляет историю и позиции на этом устройстве. Резервную копию рекомендуется сохранять регулярно.</div></div></section>
+<div class="footer">SNIPER PRO 3.0 · данные MOEX ISS · виртуальная торговля · реальных заявок нет</div>
+</div>
 <script>
- "use strict";
-
-const $=id=>document.getElementById(id);
-const FEE=10.07,TAX=.13,START=100000,MAX_AGE=30*60*1000;
-const SYMBOLS=["OZON","TGLD"];
-const STORE="sniper_pro_21_state";
-let symbol="OZON",tf=5,bars=[],cache={},busy=false,timer=null;
-let state=loadState();
-
-function initialState(){
- return {cash:START,positions:{},history:[],realized:0,autoBars:{},startedAt:Date.now()};
-}
-function loadState(){
- try{
-  const x=JSON.parse(localStorage.getItem(STORE));
-  if(x&&typeof x.cash==="number")return {...initialState(),...x};
- }catch(e){}
- return initialState();
-}
-function save(){
- try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){}
-}
-function rub(v){
- return Number(v||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
-}
-function price(v){
- return Number.isFinite(v)?Number(v).toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
-}
-function timeText(ms){
- if(!ms)return "—";
- return new Date(ms).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-}
-function parseDate(s){
- if(!s)return NaN;
- if(typeof s==="number")return s;
- let v=String(s).trim();
- if(/Z$|[+-]\d\d:\d\d$/.test(v))return Date.parse(v);
- v=v.replace(" ","T");
- return Date.parse(v+"+03:00");
-}
-function dateFromDays(days){
- return new Date(Date.now()-days*86400000).toISOString().slice(0,10);
-}
-function setStatus(ok,msg,age){
- $("statusDot").style.background=ok?"var(--green)":"var(--yellow)";
- $("statusText").textContent=msg;
- $("ageText").textContent=age||"";
-}
-function selectSymbol(s){
- symbol=s;
- $("ozonBtn").classList.toggle("active",s==="OZON");
- $("tgldBtn").classList.toggle("active",s==="TGLD");
- renderAll();
- refreshAll();
-}
-function setTf(v){
- tf=Number(v);
- document.querySelectorAll("#timeTabs button").forEach(b=>b.classList.toggle("active",Number(b.dataset.tf)===tf));
- refreshAll();
-}
-async function fetchMOEX(sec,interval,days){
- const from=dateFromDays(days);
- const base=`https://iss.moex.com/iss/engines/stock/markets/shares/securities/${encodeURIComponent(sec)}/candles.json`;
- let all=[],columns=[];
- for(let page=0;page<25;page++){
-  const url=base+"?from="+from+"&interval="+interval+
-   "&iss.meta=off&iss.only=candles&candles.columns=begin,end,open,close,high,low,volume&limit=500&start="+(page*500);
-  const response=await fetch(url,{cache:"no-store"});
-  if(!response.ok)throw new Error("MOEX HTTP "+response.status);
-  const json=await response.json();
-  const block=json.candles;
-  if(!block||!Array.isArray(block.data))throw new Error("Нет блока candles в ответе MOEX");
-  columns=block.columns||columns;
-  const rows=block.data;
-  if(!rows.length)break;
-  const ix={};
-  columns.forEach((c,i)=>ix[c]=i);
-  for(const r of rows){
-   const begin=parseDate(r[ix.begin]);
-   if(!Number.isFinite(begin))continue;
-   const end=ix.end!==undefined?parseDate(r[ix.end]):begin+interval*60000-1000;
-   const c={
-    time:Math.floor(begin/1000),
-    beginMs:begin,
-    endMs:Number.isFinite(end)?end:begin+interval*60000-1000,
-    open:Number(r[ix.open]),high:Number(r[ix.high]),
-    low:Number(r[ix.low]),close:Number(r[ix.close]),
-    volume:Number(r[ix.volume]||0)
-   };
-   if([c.open,c.high,c.low,c.close].every(Number.isFinite))all.push(c);
-  }
-  if(rows.length<500)break;
- }
- const unique=new Map();
- all.forEach(c=>unique.set(c.beginMs,c));
- return [...unique.values()].sort((a,b)=>a.beginMs-b.beginMs);
-}
-function aggregate(source,minutes){
- const size=minutes*60000,groups=new Map(),now=Date.now();
- for(const c of source){
-  if(c.endMs>now)continue;
-  const key=Math.floor(c.beginMs/size)*size;
-  let a=groups.get(key);
-  if(!a){
-   a={time:Math.floor(key/1000),beginMs:key,endMs:key+size-1000,
-    open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
-   groups.set(key,a);
-  }else{
-   a.high=Math.max(a.high,c.high);
-   a.low=Math.min(a.low,c.low);
-   a.close=c.close;
-   a.volume+=c.volume;
-  }
- }
- return [...groups.values()].filter(c=>c.endMs<=now).sort((a,b)=>a.beginMs-b.beginMs);
-}
-async function getBars(sec,frame){
- let raw;
- if(frame===1||frame===5||frame===15){
-  raw=await fetchMOEX(sec,1,frame===1?3:7);
-  return frame===1?raw.filter(c=>c.endMs<=Date.now()):aggregate(raw,frame);
- }
- if(frame===60)return (await fetchMOEX(sec,60,60)).filter(c=>c.endMs<=Date.now());
- return (await fetchMOEX(sec,24,400)).filter(c=>c.endMs<=Date.now());
-}
-function ema(values,period){
- if(values.length<period)return [];
- const k=2/(period+1),out=[];
- let prev=values.slice(0,period).reduce((a,b)=>a+b,0)/period;
- for(let i=0;i<period-1;i++)out.push(null);
- out.push(prev);
- for(let i=period;i<values.length;i++){
-  prev=values[i]*k+prev*(1-k);
-  out.push(prev);
- }
- return out;
-}
-function rsi(values,period=14){
- if(values.length<=period)return null;
- let gain=0,loss=0;
- for(let i=1;i<=period;i++){
-  const d=values[i]-values[i-1];
-  if(d>0)gain+=d;else loss-=d;
- }
- let ag=gain/period,al=loss/period;
- for(let i=period+1;i<values.length;i++){
-  const d=values[i]-values[i-1];
-  ag=(ag*(period-1)+Math.max(0,d))/period;
-  al=(al*(period-1)+Math.max(0,-d))/period;
- }
- if(al===0)return 100;
- return 100-100/(1+ag/al);
-}
-function analyse(data){
- if(data.length<25)return {signal:"WAIT",reason:"Недостаточно закрытых свечей для расчёта индикаторов."};
- const closes=data.map(c=>c.close),vol=data.map(c=>c.volume);
- const e9=ema(closes,9),e21=ema(closes,21),r=rsi(closes);
- const last=data.length-1,avgVol=vol.slice(-21,-1).reduce((a,b)=>a+b,0)/20;
- const vr=avgVol>0?vol[last]/avgVol:0;
- const up=e9[last]>e21[last]&&closes[last]>e9[last];
- const down=e9[last]<e21[last]&&closes[last]<e9[last];
- let signal="WAIT",reason="Нет достаточного совпадения условий для входа.";
- if(up&&r>=50&&r<=72&&vr>=.65){
-  signal="BUY";reason="EMA 9 выше EMA 21, цена выше EMA 9, RSI подтверждает восходящий импульс.";
- }else if(down&&r<48){
-  signal="SELL";reason="EMA 9 ниже EMA 21, цена ниже EMA 9, RSI подтверждает слабость.";
- }else{
-  reason="Условия тренда или RSI не подтверждены. Ожидание.";
- }
- return {signal,reason,rsi:r,e9:e9[last],e21:e21[last],volumeRatio:vr,ema9:e9,ema21:e21};
-}
-function isFresh(data){
- if(!data.length)return false;
- return Date.now()-data[data.length-1].endMs<=MAX_AGE;
-}
-function addHistory(sec,action,p,qty,result,reason){
- state.history.unshift({time:Date.now(),symbol:sec,action,price:p,qty,result,reason});
- state.history=state.history.slice(0,250);
- save();
-}
-function openPosition(sec,p,source){
- if(state.positions[sec])return false;
- const available=state.cash-FEE;
- const qty=Math.floor(available/p);
- if(qty<1){alert("Недостаточно свободных средств для покупки.");return false;}
- const cost=qty*p,fee=FEE;
- if(cost+fee>state.cash)return false;
- state.cash-=cost+fee;
- state.positions[sec]={
-  symbol:sec,entry:p,qty,initialQty:qty,initialCost:cost,
-  entryFee:fee,exitFees:0,proceeds:0,
-  stop:p*.985,tp1:p*1.015,tp2:p*1.03,
-  high:p,tp1Done:false,breakEven:false,
-  lastBarTs:cache[sec]?.length?cache[sec][cache[sec].length-1].beginMs:0,
-  openedAt:Date.now()
- };
- addHistory(sec,"ПОКУПКА",p,qty,0,source||"Виртуальный вход");
- save();renderAll();return true;
-}
-function closePart(sec,p,qty,reason,final){
- const pos=state.positions[sec];
- if(!pos||qty<=0)return;
- qty=Math.min(qty,pos.qty);
- const proceeds=qty*p,fee=FEE;
- state.cash+=proceeds-fee;
- pos.proceeds+=proceeds;
- pos.exitFees+=fee;
- pos.qty-=qty;
- addHistory(sec,final?"ЗАКРЫТИЕ":"ЧАСТИЧНАЯ ФИКСАЦИЯ",p,qty,proceeds-qty*pos.entry-fee,reason);
- if(final||pos.qty<=0){
-  const gross=pos.proceeds-pos.initialCost-pos.entryFee-pos.exitFees;
-  const tax=Math.max(0,gross)*TAX;
-  state.cash-=tax;
-  const net=gross-tax;
-  state.realized+=net;
-  const last=state.history[0];
-  if(last)last.result=net;
-  delete state.positions[sec];
- }
- save();renderAll();
-}
-function processBar(sec,c){
- const pos=state.positions[sec];
- if(!pos||c.beginMs<=pos.lastBarTs)return;
- pos.lastBarTs=c.beginMs;
-
- // Консервативное исполнение: если внутри свечи задет старый стоп,
- // считаем, что стоп сработал раньше потенциальной цели.
- if(c.low<=pos.stop){
-  closePart(sec,pos.stop,pos.qty,"Срабатывание стопа",true);
-  return;
- }
- pos.high=Math.max(pos.high,c.high);
- if(!pos.breakEven&&pos.high>=pos.entry*1.01){
-  pos.stop=Math.max(pos.stop,pos.entry);
-  pos.breakEven=true;
- }
- if(pos.breakEven){
-  pos.stop=Math.max(pos.stop,pos.high*.988);
- }
- if(c.low<=pos.stop){
-  closePart(sec,pos.stop,pos.qty,pos.breakEven?"Безубыток / трейлинг-стоп":"Стоп",true);
-  return;
- }
- if(!pos.tp1Done&&c.high>=pos.tp1){
-  if(pos.qty>1){
-   const part=Math.max(1,Math.floor(pos.initialQty*.5));
-   closePart(sec,pos.tp1,Math.min(part,pos.qty),"TP1 · фиксация части",false);
-  }
-  const current=state.positions[sec];
-  if(!current)return;
-  current.tp1Done=true;
-  current.stop=Math.max(current.stop,current.entry);
-  current.breakEven=true;
-  save();
- }
- const current=state.positions[sec];
- if(current&&c.high>=current.tp2){
-  closePart(sec,current.tp2,current.qty,"TP2 · цель достигнута",true);
- }
-}
-function processNewBars(sec,data){
- if(!data.length)return;
- const old=cache[sec]||[];
- const pos=state.positions[sec];
- if(pos){
-  data.filter(c=>c.beginMs>pos.lastBarTs).forEach(c=>{
-   if(state.positions[sec])processBar(sec,c);
-  });
- }
- const latest=data[data.length-1];
- const a=analyse(data);
- if(sec===symbol&&latest){
-  const key=sec+"_"+latest.beginMs;
-  if($("autoMode").checked&&timer&&a.signal==="BUY"&&isFresh(data)&&!state.positions[sec]&&state.autoBars[sec]!==key){
-   state.autoBars[sec]=key;
-   openPosition(sec,latest.close,"Автовход по сигналу BUY");
-  }
-  if(a.signal!=="WAIT"&&state.lastSignal!==a.signal+"_"+key){
-   state.lastSignal=a.signal+"_"+key;
-   if($("soundMode").checked)beep();
-  }
- }
-}
-function beep(){
- try{
-  const C=window.AudioContext||window.webkitAudioContext;
-  const ctx=new C(),osc=ctx.createOscillator(),gain=ctx.createGain();
-  osc.frequency.value=880;gain.gain.value=.07;
-  osc.connect(gain);gain.connect(ctx.destination);
-  osc.start();osc.stop(ctx.currentTime+.18);
-  osc.onended=()=>ctx.close();
- }catch(e){}
-}
-async function refreshAll(){
- if(busy)return;
- busy=true;
- $("dataState").textContent="Загрузка…";
- try{
-  for(const sec of SYMBOLS){
-   const data=await getBars(sec,tf);
-   if(!data.length)throw new Error(sec+": MOEX не вернула закрытые свечи.");
-   processNewBars(sec,data);
-   cache[sec]=data;
-  }
-  bars=cache[symbol]||[];
-  const fresh=isFresh(bars);
-  const age=bars.length?Math.max(0,Math.round((Date.now()-bars[bars.length-1].endMs)/60000)):0;
-  setStatus(fresh,"ДАННЫЕ ПОЛУЧЕНЫ",age+" мин");
-  $("dataState").textContent=fresh?"Актуальные по порогу 30 мин":"УСТАРЕЛИ — новые входы запрещены";
-  $("ageText").textContent="· "+age+" мин";
-  $("updateTime").textContent=timeText(Date.now());
-  $("lastCandleTime").textContent=bars.length?timeText(bars[bars.length-1].endMs):"—";
-  $("chartSource").textContent="MOEX ISS · "+(fresh?"в пределах порога":"задержка выше порога");
-  renderAll();
- }catch(e){
-  setStatus(false,"ОШИБКА ПОЛУЧЕНИЯ ДАННЫХ");
-  $("dataState").textContent=e.message;
-  $("signalReason").textContent=e.message+" Проверь подключение к интернету и доступность MOEX ISS.";
-  $("chartSource").textContent="Нет подтверждённых данных";
-  console.error(e);
- }finally{busy=false;}
-}
-function manualBuy(){
- const data=cache[symbol]||[];
- if(!isFresh(data)){alert("Нельзя открыть виртуальную позицию: котировки устарели или отсутствуют.");return;}
- if(state.positions[symbol]){alert("По этому инструменту уже есть открытая позиция.");return;}
- openPosition(symbol,data[data.length-1].close,"Ручной виртуальный вход");
-}
-function manualClose(){
- const data=cache[symbol]||[],pos=state.positions[symbol];
- if(!pos||!data.length)return;
- closePart(symbol,data[data.length-1].close,pos.qty,"Ручное закрытие",true);
-}
-function startEngine(){
- if(timer)return;
- $("engineState").textContent="РАБОТАЕТ";
- timer=setInterval(refreshAll,60000);
- refreshAll();
-}
-function stopEngine(){
- if(timer)clearInterval(timer);
- timer=null;
- $("engineState").textContent="ОСТАНОВЛЕН";
-}
-function clearHistory(){
- if(!confirm("Удалить историю виртуальных сделок? Открытые позиции и баланс останутся."))return;
- state.history=[];save();renderHistory();
-}
-function renderPortfolio(){
- let value=0;
- SYMBOLS.forEach(s=>{
-  const p=state.positions[s],d=cache[s]||[];
-  if(p&&d.length)value+=p.qty*d[d.length-1].close;
- });
- const total=state.cash+value;
- const pnl=total-START;
- $("cashValue").textContent=rub(state.cash);
- $("positionValue").textContent=rub(value);
- $("totalPnl").textContent=rub(pnl);
- $("totalPnl").className="v "+(pnl>=0?"green":"red");
-}
-function renderPosition(){
- const p=state.positions[symbol],d=cache[symbol]||[];
- $("positionSymbol").textContent=symbol;
- $("buyBtn").disabled=!!p||!isFresh(d);
- $("closeBtn").disabled=!p;
- if(!p){
-  ["entryPrice","currentPositionPrice","stopPrice","targets","positionQty","floatingPnl"].forEach(id=>$(id).textContent="—");
-  $("positionState").textContent="НЕТ ПОЗИЦИИ";
-  return;
- }
- const now=d.length?d[d.length-1].close:p.entry;
- const floating=(now-p.entry)*p.qty-p.entryFee;
- $("entryPrice").textContent=price(p.entry);
- $("currentPositionPrice").textContent=price(now);
- $("stopPrice").textContent=price(p.stop);
- $("targets").textContent=price(p.tp1)+" / "+price(p.tp2);
- $("positionQty").textContent=p.qty+" шт.";
- $("floatingPnl").textContent=rub(floating);
- $("floatingPnl").className="v "+(floating>=0?"green":"red");
- $("positionState").textContent=p.breakEven?"БЕЗУБЫТОК / TRAILING": "ОТКРЫТА";
-}
-function renderAnalysis(){
- const a=analyse(bars),d=bars[bars.length-1];
- $("signal").textContent=a.signal==="BUY"?"ПОКУПКА":a.signal==="SELL"?"ПРОДАЖА":"ОЖИДАНИЕ";
- $("signal").className="v signal "+(a.signal==="BUY"?"green":a.signal==="SELL"?"red":"yellow");
- $("signalReason").textContent=a.reason;
- $("rsiVal").textContent=a.rsi==null?"—":a.rsi.toFixed(1);
- $("emaVal").textContent=a.e9?price(a.e9)+" / "+price(a.e21):"—";
- $("volumeVal").textContent=a.volumeRatio?a.volumeRatio.toFixed(2)+"x":"—";
- $("lastPrice").textContent=d?price(d.close):"—";
- $("barCount").textContent=bars.length+" свечей";
- $("ohlcInfo").textContent=d?"О "+price(d.open)+" · В "+price(d.high)+" · Н "+price(d.low)+" · З "+price(d.close):"Нет свечей";
-}
-function renderHistory(){
- const body=$("historyBody");
- if(!state.history.length){body.innerHTML='<tr><td colspan="5" class="small">Сделок пока нет</td></tr>';return;}
- body.innerHTML=state.history.slice(0,80).map(x=>
-  `<tr><td>${timeText(x.time)}</td><td>${x.symbol}</td><td>${x.action}</td><td>${price(x.price)}</td><td class="${x.result>=0?"green":"red"}">${rub(x.result)}</td></tr>`
- ).join("");
-}
-function renderAll(){
- if(!cache[symbol])bars=[];
- else bars=cache[symbol];
- renderAnalysis();renderPortfolio();renderPosition();renderHistory();drawChart();
-}
-function drawChart(){
- const canvas=$("chart"),ctx=canvas.getContext("2d");
- const w=canvas.clientWidth,h=canvas.clientHeight,dpr=window.devicePixelRatio||1;
- canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
- ctx.setTransform(dpr,0,0,dpr,0,0);
- ctx.clearRect(0,0,w,h);
- ctx.fillStyle="#0a1523";ctx.fillRect(0,0,w,h);
- if(!bars.length){ctx.fillStyle="#8ea2ba";ctx.font="13px Arial";ctx.fillText("Нет загруженных свечей",15,30);return;}
- const data=bars.slice(-100),padL=10,padR=55,top=14,bottom=h-48;
- let min=Math.min(...data.map(x=>x.low)),max=Math.max(...data.map(x=>x.high));
- const p=state.positions[symbol];
- if(p){min=Math.min(min,p.stop);max=Math.max(max,p.tp2);}
- const span=(max-min)||1;min-=span*.07;max+=span*.07;
- const y=v=>bottom-(v-min)/(max-min)*(bottom-top);
- const xStep=(w-padL-padR)/data.length;
- ctx.strokeStyle="#1d3047";ctx.lineWidth=1;
- for(let i=0;i<5;i++){
-  const yy=top+(bottom-top)*i/4;
-  ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(w-padR,yy);ctx.stroke();
-  ctx.fillStyle="#8ea2ba";ctx.font="10px Arial";
-  ctx.fillText(price(max-(max-min)*i/4),w-padR+4,yy+3);
- }
- const volumes=data.map(c=>c.volume),vmax=Math.max(...volumes,1);
- data.forEach((c,i)=>{
-  const x=padL+i*xStep+xStep/2,up=c.close>=c.open;
-  const color=up?"#20d69a":"#ff6375";
-  const bodyTop=y(Math.max(c.open,c.close)),bodyBottom=y(Math.min(c.open,c.close));
-  ctx.strokeStyle=color;ctx.fillStyle=color;
-  ctx.beginPath();ctx.moveTo(x,y(c.high));ctx.lineTo(x,y(c.low));ctx.stroke();
-  ctx.fillRect(x-Math.max(1,xStep*.28),bodyTop,Math.max(2,xStep*.56),Math.max(1,bodyBottom-bodyTop));
-  const vh=25*c.volume/vmax;
-  ctx.globalAlpha=.35;ctx.fillRect(x-xStep*.28,h-30-vh,xStep*.56,vh);ctx.globalAlpha=1;
- });
- const a=analyse(bars);
- function line(val,color,label,dash){
-  if(!Number.isFinite(val))return;
-  const yy=y(val);ctx.strokeStyle=color;ctx.setLineDash(dash||[]);
-  ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(w-padR,yy);ctx.stroke();
-  ctx.setLineDash([]);ctx.fillStyle=color;ctx.font="10px Arial";
-  ctx.fillText(label+" "+price(val),padL+4,Math.max(10,yy-4));
- }
- if(p){
-  line(p.entry,"#57a6ff","ВХОД",[4,3]);
-  line(p.stop,"#ff6375","СТОП",[4,3]);
-  line(p.tp1,"#ffc857","TP1",[3,3]);
-  line(p.tp2,"#20d69a","TP2",[3,3]);
- }
- if(a.ema9?.length){
-  ctx.strokeStyle="#57a6ff";ctx.lineWidth=1.5;ctx.beginPath();
-  let started=false;
-  data.forEach((c,i)=>{
-   const idx=bars.length-data.length+i,val=a.ema9[idx];
-   if(!Number.isFinite(val))return;
-   const xx=padL+i*xStep+xStep/2;
-   if(!started){ctx.moveTo(xx,y(val));started=true;}else ctx.lineTo(xx,y(val));
-  });ctx.stroke();
- }
- if(a.ema21?.length){
-  ctx.strokeStyle="#ffc857";ctx.lineWidth=1.5;ctx.beginPath();
-  let started=false;
-  data.forEach((c,i)=>{
-   const idx=bars.length-data.length+i,val=a.ema21[idx];
-   if(!Number.isFinite(val))return;
-   const xx=padL+i*xStep+xStep/2;
-   if(!started){ctx.moveTo(xx,y(val));started=true;}else ctx.lineTo(xx,y(val));
-  });ctx.stroke();
- }
- ctx.fillStyle="#8ea2ba";ctx.font="10px Arial";
- ctx.fillText(timeText(data[0].beginMs),padL,h-8);
- ctx.fillText(timeText(data[data.length-1].beginMs),Math.max(padL,w-padR-100),h-8);
-}
-window.addEventListener("resize",drawChart);
-$("autoMode").addEventListener("change",()=>{if($("autoMode").checked&&!timer)startEngine();});
-renderAll();
-refreshAll();
-</script>
-</body>
-</html>
+'use strict';
+const $=id=>document.getElementById(id), FEE=10.07,TAX=.13,START=100000,RISK=.01,MAXPOS=.45,MAXOPEN=2,STORE='sniper_pro_30_state';
+const CFG={OZON:{name:'OZON',tv:'MOEX:OZON'},TGLD:{name:'TGLD',tv:'MOEX:TGLD'}};
+let state=loadState(),data={},analysis={},active='OZON',chartTf='5',auto=true,refreshBusy=false,refreshTimer=null;
+function freshState(){return {cash:START,realized:0,positions:{},history:[],lastProcessed:{},pending:{},auto:true,created:new Date().toISOString()}}
+function loadState(){try{let x=JSON.parse(localStorage.getItem(STORE));if(x&&Number.isFinite(x.cash)&&x.positions&&Array.isArray(x.history))return x}catch(e){}return freshState()}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){setStatus('Не удалось сохранить данные на устройстве',false)}}
+function num(v,d=2){return Number(v).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function rub(v){return num(v,2)+' ₽'}
+function pct(v){return num(v,1)+'%'}
+function moscowDate(daysBack=0){let d=new Date(Date.now()-daysBack*86400000);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
+function parseTime(s){if(!s)return 0;let z=s.includes('T')?s.replace(' ','T'):s.replace(' ','T');let t=Date.parse(z+(z.endsWith('Z')?'':'+03:00'));return Number.isFinite(t)?t:0}
+function setStatus(s,ok=null){$('statusText').textContent=s;$('dot').className='dot'+(ok===true?' ok':ok===false?' bad':'')}
+function apiUrl(sym,interval,days){return `https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/${sym}/candles.json?interval=${interval}&from=${moscowDate(days)}&limit=500&iss.meta=off`}
+async function fetchCandles(sym,interval,days,maxPages=1){let all=[];for(let p=0;p<maxPages;p++){let u=apiUrl(sym,interval,days)+`&start=${p*500}`;let r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('MOEX HTTP '+r.status);let j=await r.json();let c=j.candles;if(!c||!Array.isArray(c.data)||!c.data.length)break;let ix=Object.fromEntries(c.columns.map((x,i)=>[x,i]));for(let row of c.data){let o={begin:row[ix.begin],end:row[ix.end],open:+row[ix.open],close:+row[ix.close],high:+row[ix.high],low:+row[ix.low],volume:+(row[ix.volume]||0),value:+(row[ix.value]||0)};if(o.begin&&[o.open,o.close,o.high,o.low].every(Number.isFinite))all.push(o)}if(c.data.length<500)break}let map=new Map();all.forEach(x=>map.set(x.begin,x));return [...map.values()].sort((a,b)=>parseTime(a.begin)-parseTime(b.begin))}
+function aggregate(mins,period){let groups=new Map();for(let c of mins){let t=parseTime(c.begin);if(!t)continue;let dt=new Date(t),m=dt.getUTCHours()*60+dt.getUTCMinutes(),bucket=Math.floor(m/period),key=dt.toISOString().slice(0,10)+'-'+bucket;let x=groups.get(key);if(!x)groups.set(key,{begin:c.begin,end:c.end,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume,value:c.value});else{x.end=c.end;x.high=Math.max(x.high,c.high);x.low=Math.min(x.low,c.low);x.close=c.close;x.volume+=c.volume;x.value+=c.value}}return [...groups.values()].sort((a,b)=>parseTime(a.begin)-parseTime(b.begin))}
+async function loadSymbol(sym,initial=false){let old=data[sym]||{};let mins=await fetchCandles(sym,1,initial?5:2,initial?5:3);let refreshSlow=initial||!old.hourly?.length||Date.now()-(old.slowUpdated||0)>900000;let hourly=refreshSlow?await fetchCandles(sym,60,35,1):(old.hourly||[]);let daily=refreshSlow?await fetchCandles(sym,24,500,1):(old.daily||[]);data[sym]={mins,hourly,daily,updated:Date.now(),slowUpdated:refreshSlow?Date.now():(old.slowUpdated||0)};let five=aggregate(mins,5);analysis[sym]=analyze(five);return true}
+function barsFor(sym,tf){let d=data[sym];if(!d)return[];if(tf==='1')return d.mins;if(tf==='5')return aggregate(d.mins,5);if(tf==='15')return aggregate(d.mins,15);if(tf==='60')return d.hourly||[];return d.daily||[]}
+function ema(arr,n){let out=Array(arr.length).fill(null);if(arr.length<n)return out;let k=2/(n+1),s=arr.slice(0,n).reduce((a,b)=>a+b,0)/n;out[n-1]=s;for(let i=n;i<arr.length;i++)out[i]=arr[i]*k+out[i-1]*(1-k);return out}
+function rsiCalc(closes,n=14){let out=Array(closes.length).fill(null);if(closes.length<=n)return out;let g=0,l=0;for(let i=1;i<=n;i++){let z=closes[i]-closes[i-1];if(z>0)g+=z;else l-=z}g/=n;l/=n;out[n]=l===0?100:100-100/(1+g/l);for(let i=n+1;i<closes.length;i++){let z=closes[i]-closes[i-1];g=(g*(n-1)+Math.max(0,z))/n;l=(l*(n-1)+Math.max(0,-z))/n;out[i]=l===0?100:100-100/(1+g/l)}return out}
+function atrCalc(bars,n=14){let tr=bars.map((b,i)=>i?Math.max(b.high-b.low,Math.abs(b.high-bars[i-1].close),Math.abs(b.low-bars[i-1].close)):b.high-b.low);let e=ema(tr,n);return e}
+function analyze(bars){if(!bars||bars.length<35)return {ready:false,reason:'Недостаточно свечей для анализа (нужно не менее 35).',bars};let closes=bars.map(x=>x.close),vol=bars.map(x=>x.volume),e9=ema(closes,9),e21=ema(closes,21),e12=ema(closes,12),e26=ema(closes,26),rsi=rsiCalc(closes),atr=atrCalc(bars),macd=e12.map((x,i)=>x==null||e26[i]==null?null:x-e26[i]),signal=ema(macd.map(x=>x??0),9),hist=macd.map((x,i)=>x==null?null:x-signal[i]);let i=bars.length-1,p=bars[i],prev=bars[i-1],avgVol=vol.slice(Math.max(0,i-19),i).reduce((a,b)=>a+b,0)/Math.max(1,Math.min(19,i)),vr=avgVol?vol[i]/avgVol:0;let conditions=[p.close>e21[i],e9[i]>e21[i],e21[i]>e21[i-1],rsi[i]>=48&&rsi[i]<=70,hist[i]>0,vr>=.65];let score=conditions.filter(Boolean).length;let trigger=p.close>prev.high || (prev.close<=e9[i-1]&&p.close>e9[i]);let buy=score>=5&&trigger;let bearish=p.close<e21[i]&&e9[i]<e21[i]&&rsi[i]<48;let risk=Math.max(atr[i]*1.5,p.close*.012);risk=Math.min(risk,p.close*.03);return {ready:true,bars,e9,e21,rsi,atr,macd,hist,vr,score,conditions,buy,bearish,trigger,price:p.close,bar:p,stop:p.close-risk,tp1:p.close+risk*1.5,tp2:p.close+risk*2.5,confidence:Math.round(score/6*100),reason:`Тренд: ${conditions[0]?'цена выше EMA21':'цена ниже EMA21'}; EMA9 ${conditions[1]?'выше':'не выше'} EMA21; RSI ${num(rsi[i],1)}; MACD ${hist[i]>0?'положительный':'отрицательный'}; объём ${num(vr,2)}× среднего. Подтверждение пробоя: ${trigger?'есть':'нет'}.`}}
+ function equityValue(){let v=state.cash;for(let [sym,p] of Object.entries(state.positions)){let px=data[sym]?.mins?.at(-1)?.close||p.entry;v+=p.qty*px}return v}
+function countOpen(){return Object.keys(state.positions).filter(k=>state.positions[k]?.qty>0).length}
+function logEvent(x){state.history.unshift({...x,id:Date.now()+'-'+Math.random().toString(36).slice(2,7)});if(state.history.length>1000)state.history.length=1000}
+function openPosition(sym,price,plan,when){if(!auto||state.positions[sym]||countOpen()>=MAXOPEN||!plan||price<=plan.stop||price>plan.price*1.01)return false;let eq=equityValue(),riskPer=Math.max(price-plan.stop,price*.012);riskPer=Math.min(riskPer,price*.03);let stop=price-riskPer,r=riskPer,budget=Math.min(eq*MAXPOS,state.cash-FEE),qty=Math.floor(Math.min(budget/price,(eq*RISK)/riskPer));if(qty<1||qty*price+FEE>state.cash)return false;let cost=qty*price;state.cash-=cost+FEE;state.positions[sym]={symbol:sym,qty,initialQty:qty,entry:price,entryTime:when,entryFee:FEE,cost,proceeds:0,exitFees:0,stop,initialStop:stop,tp1:price+r*1.5,tp2:price+r*2.5,risk:r,highest:price,tp1Done:false,breakEven:false,trail:false,lastPrice:price};state.pending[sym]=null;logEvent({type:'BUY',symbol:sym,time:when,price,qty,fee:FEE,reason:'Автоматический сигнал SNIPER PRO 3.0'});save();return true}
+function closePart(sym,qty,price,when,reason,final=false){let p=state.positions[sym];if(!p||qty<1)return;qty=Math.min(qty,p.qty);let proceeds=qty*price,fee=FEE;state.cash+=proceeds-fee;p.proceeds+=proceeds;p.exitFees+=fee;p.qty-=qty;p.lastPrice=price;logEvent({type:final?'CLOSE':'PARTIAL',symbol:sym,time:when,price,qty,fee,reason,net:null});if(final||p.qty===0){let gross=p.proceeds-p.cost-p.entryFee-p.exitFees,tax=Math.max(0,gross)*TAX,net=gross-tax;state.cash-=tax;state.realized+=net;state.history[0].net=net;state.history[0].gross=gross;state.history[0].tax=tax;state.history[0].entry=p.entry;state.history[0].entryTime=p.entryTime;state.history[0].totalQty=p.initialQty;state.history[0].entryFee=p.entryFee;state.history[0].exitFees=p.exitFees;state.history[0].proceeds=p.proceeds;delete state.positions[sym]}save()}
+function managePosition(sym,bar,ind){let p=state.positions[sym];if(!p)return;let stamp=bar.end||bar.begin;p.lastPrice=bar.close;
+// Консервативное правило: если в одной свече задеты стоп и цель, считаем первым стоп.
+if(bar.low<=p.stop){let px=bar.open<p.stop?bar.open:p.stop;closePart(sym,p.qty,px,stamp,'Стоп-лосс / защитный стоп',true);return}
+if(!p.tp1Done&&bar.high>=p.tp1){let q=p.qty===1?1:Math.max(1,Math.floor(p.qty/2));let final=q===p.qty;closePart(sym,q,p.tp1,stamp,'Цель 1: частичная фиксация',final);p=state.positions[sym];if(!p)return;p.tp1Done=true}
+if(state.positions[sym]&&bar.high>=p.tp2){p=state.positions[sym];closePart(sym,p.qty,p.tp2,stamp,'Цель 2: полное закрытие',true);return}
+p=state.positions[sym];if(!p)return;
+if(bar.high>=p.entry+p.risk){p.highest=Math.max(p.highest,bar.high);if(!p.breakEven){p.stop=Math.max(p.stop,p.entry);p.breakEven=true}let a=ind?.atr?.at(-1)||p.risk/1.5;let trail=p.highest-a*1.2;if(trail>p.stop){p.stop=trail;p.trail=true}}
+if(ind?.bearish){closePart(sym,p.qty,bar.close,stamp,'Разворот тренда: цена ниже EMA21',true);return}save()}
+function seedSymbol(sym){let b=aggregate(data[sym]?.mins||[],5);if(!b.length)return;let last=b.at(-1),a=analyze(b);if(state.lastProcessed[sym]==null){state.lastProcessed[sym]=last.begin;state.pending[sym]=isFresh(sym)&&a.ready&&a.buy?{basedOn:last.begin,price:last.close,stop:a.stop,tp1:a.tp1,tp2:a.tp2}:null;save();return}
+let old=state.lastProcessed[sym],idx=b.findIndex(x=>x.begin===old);if(idx<0){state.lastProcessed[sym]=last.begin;state.pending[sym]=isFresh(sym)&&a.ready&&a.buy?{basedOn:last.begin,price:last.close,stop:a.stop,tp1:a.tp1,tp2:a.tp2}:null;save();return}
+for(let i=idx+1;i<b.length;i++){let bar=b[i],history=b.slice(0,i+1),ind=analyze(history),pending=state.pending[sym];if(pending&&auto&&!state.positions[sym]){let fresh=isFresh(sym),age=(parseTime(bar.begin)-parseTime(pending.basedOn))/60000;if(fresh&&age>0&&age<=10)openPosition(sym,bar.open,pending,bar.begin);else if(age>10)state.pending[sym]=null}
+if(state.positions[sym])managePosition(sym,bar,ind);
+if(!state.positions[sym]&&ind.ready&&ind.buy){state.pending[sym]={basedOn:bar.begin,price:bar.close,stop:ind.stop,tp1:ind.tp1,tp2:ind.tp2}}else if(!state.positions[sym])state.pending[sym]=null;
+state.lastProcessed[sym]=bar.begin}
+save()}
+function isFresh(sym){let b=data[sym]?.mins?.at(-1);if(!b)return false;let age=(Date.now()-parseTime(b.end||b.begin))/60000;return age>=-2&&age<=40}
+function getAge(sym){let b=data[sym]?.mins?.at(-1);if(!b)return null;return (Date.now()-parseTime(b.end||b.begin))/60000}
+function fmtTime(s){if(!s)return'—';let t=parseTime(s);return t?new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(t)+' МСК':s}
+function render(){let d=data[active],a=analysis[active],price=d?.mins?.at(-1)?.close;let eq=equityValue(),profit=eq-START;$('price').textContent=price?rub(price):'—';$('priceTime').textContent=d?.mins?.length?`Свеча: ${fmtTime(d.mins.at(-1).end)} · возраст ${getAge(active)==null?'—':num(getAge(active),0)+' мин'}`:'Нет котировок';$('equity').textContent=rub(eq);$('equityChange').textContent='Результат: '+(profit>=0?'+':'')+rub(profit);$('equityChange').className='s '+(profit>=0?'green':'red');$('cash').textContent=rub(state.cash);$('openCount').textContent='Открытых позиций: '+countOpen();$('signalMetric').textContent=a?.ready?(a.buy?'ПОКУПКА':a.bearish?'ВЫХОД':'ЖДАТЬ'):'—';$('scoreText').textContent=a?.ready?`Фильтры: ${a.score}/6 · стратегия 5 мин`:'Недостаточно данных';$('signalTitle').textContent=a?.ready?(state.positions[active]?'ПОЗИЦИЯ ОТКРЫТА':a.buy?'ПОКУПКА · СИГНАЛ':a.bearish?'СИГНАЛ ВЫХОДА':'ЖДАТЬ'):'ОЖИДАНИЕ ДАННЫХ';$('signalPanel').className='panel signal '+(a?.buy?'buy':a?.bearish?'sell':'wait');$('confidence').textContent=a?.ready?`${a.score}/6 фильтров`:'—';$('signalWhy').textContent=a?.ready?a.reason:'Недостаточно свечей. Ожидаю данные MOEX ISS.';if(a?.ready){$('planEntry').textContent=rub(a.price);$('planStop').textContent=rub(a.stop);$('planTp1').textContent=rub(a.tp1);$('planTp2').textContent=rub(a.tp2);$('rsi').textContent=num(a.rsi.at(-1),1);$('rsiBar').style.width=Math.max(0,Math.min(100,a.rsi.at(-1)))+'%';$('emas').textContent=num(a.e9.at(-1),2)+' / '+num(a.e21.at(-1),2);$('macd').textContent=num(a.hist.at(-1),4);$('volratio').textContent=num(a.vr,2)+'×';$('atr').textContent=rub(a.atr.at(-1))}else{$('planEntry').textContent=$('planStop').textContent=$('planTp1').textContent=$('planTp2').textContent='—'}
+let age=getAge(active),fresh=isFresh(active);setStatus(d?.mins?.length?(fresh?'MOEX · данные получены':'MOEX · данные устарели'):'Нет связи с MOEX',fresh);$('chartLabel').textContent=active+' · '+({1:'1 мин',5:'5 мин',15:'15 мин',60:'1 час',D:'1 день'}[chartTf]);$('chartFoot').textContent=fresh?'Плановые уровни — пунктир; фактические входы и выходы — метки.':`Котировки старше 40 минут. Новые виртуальные входы заблокированы.`;renderPosition();renderOpenTrades();renderHistory();renderStats();drawChart();setTV()}
+function renderPosition(){let p=state.positions[active];$('positionState').textContent=p?'ОТКРЫТА':'Нет позиции';if(!p){$('positionInfo').textContent='Автоматическая система откроет позицию при подтверждённом сигнале и наличии свежих котировок.';$('positionManage').textContent='';return}let px=data[active]?.mins?.at(-1)?.close||p.entry,un=(px-p.entry)*p.qty;$('positionInfo').innerHTML=`Вход: <b>${rub(p.entry)}</b> · остаток: <b>${p.qty}</b> шт.<br>Текущая цена: <b>${rub(px)}</b> · плавающий результат: <b class="${un>=0?'green':'red'}">${rub(un)}</b><br>Стоп: <b class="red">${rub(p.stop)}</b> · цель 1: <b class="green">${rub(p.tp1)}</b> · цель 2: <b class="green">${rub(p.tp2)}</b>`;$('positionManage').textContent=`Цель 1: ${p.tp1Done?'выполнена':'ожидается'} · Безубыток: ${p.breakEven?'активирован':'ожидается'} · Трейлинг: ${p.trail?'активен':'ожидается'}`}
+function renderOpenTrades(){let arr=Object.values(state.positions).filter(p=>p.qty>0);$('openLabel').textContent=arr.length;$('openTrades').innerHTML=arr.length?arr.map(p=>`<div class="trade"><div class="head"><b>${p.symbol} · ПОКУПКА</b><b>${p.qty} шт.</b></div><div class="details">Вход ${rub(p.entry)} · Стоп ${rub(p.stop)} · Ц1 ${rub(p.tp1)} · Ц2 ${rub(p.tp2)}<br>Открыта: ${fmtTime(p.entryTime)}</div><div class="small">Безубыток: ${p.breakEven?'да':'нет'} · трейлинг: ${p.trail?'да':'нет'} · цель 1: ${p.tp1Done?'да':'нет'}</div></div>`).join(''):'<div class="muted small">Открытых позиций нет.</div>'}
+function renderHistory(){let h=state.history;$('historyCount').textContent=h.length+' записей';$('history').innerHTML=h.length?h.slice(0,100).map(x=>`<div class="trade"><div class="head"><b>${x.symbol} · ${x.type==='BUY'?'ПОКУПКА':x.type==='PARTIAL'?'ЧАСТИЧНАЯ ПРОДАЖА':'ЗАКРЫТИЕ'}</b><b>${x.type==='CLOSE'?(x.net>=0?'<span class="green">+':'<span class="red">')+rub(x.net)+'</span>':rub(x.price)}</b></div><div class="details">${fmtTime(x.time)} · ${x.qty} шт. · ${rub(x.price)}<br>${x.reason||''}${x.type==='CLOSE'?`<br>Вход: ${rub(x.entry)} · Комиссии: ${rub((x.entryFee||0)+(x.exitFees||0))} · Налог: ${rub(x.tax||0)}`:''}</div><button onclick="copyOne('${x.id}')">Копировать запись</button></div>`).join(''):'<div class="muted small">Сделок пока нет. Автоторговля ждёт подтверждённый сигнал.</div>'}
+function renderStats(){let h=state.history.filter(x=>x.type==='CLOSE'),wins=h.filter(x=>x.net>0),pnl=h.reduce((s,x)=>s+(x.net||0),0);$('statN').textContent=h.length;$('statWin').textContent=h.length?pct(wins.length/h.length*100):'0%';$('statPnl').textContent=rub(pnl);$('statPnl').className='v '+(pnl>=0?'green':'red');$('statAvg').textContent=rub(h.length?pnl/h.length:0);$('statsText').textContent=h.length?`Закрыто ${h.length} сделок. Прибыльных ${wins.length}, убыточных ${h.length-wins.length}. Результат после комиссий и налога: ${rub(pnl)}. Это статистика виртуального счёта, а не прогноз будущей доходности.`:'После закрытия первой сделки здесь появится фактическая статистика виртуальной торговли.'}
+function copyText(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).then(()=>alert('Скопировано')).catch(()=>fallbackCopy(t));else fallbackCopy(t)}function fallbackCopy(t){let x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy');alert('Скопировано')}catch(e){alert('Не удалось скопировать')}x.remove()}
+function planText(){let a=analysis[active];if(!a?.ready)return'Нет готового анализа.';return `SNIPER PRO 3.0 · ${active}\nСигнал: ${a.buy?'ПОКУПКА':a.bearish?'ВЫХОД':'ЖДАТЬ'} (${a.score}/6 фильтров)\nЦена анализа: ${a.price}\nПлановый вход: ${a.price}\nСтоп: ${a.stop}\nЦель 1: ${a.tp1}\nЦель 2: ${a.tp2}\nRSI: ${num(a.rsi.at(-1),1)} · EMA9: ${num(a.e9.at(-1),2)} · EMA21: ${num(a.e21.at(-1),2)}\nУсловия: ${a.reason}\nВиртуальный вход выполняется на открытии следующей 5-минутной свечи при сохранении условий.\nДанные MOEX с задержкой; это виртуальный сценарий, не гарантия прибыли.`}
+function copyOne(id){let x=state.history.find(a=>a.id===id);if(x)copyText(JSON.stringify(x,null,2))}
+function setTV(){let interval=chartTf==='D'?'D':chartTf;let sym=CFG[active].tv;let u='https://www.tradingview.com/widgetembed/?symbol='+encodeURIComponent(sym)+'&interval='+interval+'&hidesidetoolbar=1&symboledit=0&saveimage=1&theme=dark&style=1&timezone=Europe%2FMoscow&locale=ru&withdateranges=1&hideideas=1&hidevolume=0&allow_symbol_change=0&details=0&hotlist=0&calendar=0';if($('tvFrame').dataset.url!==u){$('tvFrame').src=u;$('tvFrame').dataset.url=u}}
+function drawChart(){let c=$('chart'),ctx=c.getContext('2d'),rect=c.getBoundingClientRect(),w=Math.max(320,rect.width),h=Math.max(240,rect.height),dpr=Math.min(2,window.devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#0b1727';ctx.fillRect(0,0,w,h);let bars=barsFor(active,chartTf);if(!bars.length){ctx.fillStyle='#8fa4bc';ctx.fillText('Нет свечей для графика',15,30);return}bars=bars.slice(-65);let closes=bars.map(x=>x.close),e9=ema(closes,9),e21=ema(closes,21);let p=state.positions[active],a=analysis[active],levels=[];if(p)levels=[{v:p.stop,c:'#ff667a',t:'СТОП'},{v:p.tp1,c:'#35d49a',t:'Ц1'},{v:p.tp2,c:'#35d49a',t:'Ц2'},{v:p.entry,c:'#b69aff',t:'ВХОД'}];else if(a?.ready)levels=[{v:a.stop,c:'#ff667a',t:'СТОП'},{v:a.tp1,c:'#35d49a',t:'Ц1'},{v:a.tp2,c:'#35d49a',t:'Ц2'},{v:a.price,c:'#b69aff',t:'ВХОД'}];let min=Math.min(...bars.map(x=>x.low),...levels.map(x=>x.v)),max=Math.max(...bars.map(x=>x.high),...levels.map(x=>x.v));if(max===min){max+=1;min-=1}let pad=(max-min)*.1;min-=pad;max+=pad;let left=48,right=12,top=15,bottom=28,pw=w-left-right,ph=h-top-bottom,yy=v=>top+(max-v)/(max-min)*ph,step=pw/bars.length,cw=Math.max(2,Math.min(9,step*.62));ctx.strokeStyle='#20344b';ctx.lineWidth=1;ctx.font='10px system-ui';ctx.fillStyle='#8fa4bc';for(let j=0;j<5;j++){let y=top+ph*j/4,val=max-(max-min)*j/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.fillText(num(val,2),3,y+3)}bars.forEach((b,i)=>{let x=left+i*step+step/2,yo=yy(b.open),yc=yy(b.close),yh=yy(b.high),yl=yy(b.low),up=b.close>=b.open;ctx.strokeStyle=up?'#35d49a':'#ff667a';ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.moveTo(x,yh);ctx.lineTo(x,yl);ctx.stroke();ctx.fillRect(x-cw/2,Math.min(yo,yc),cw,Math.max(1,Math.abs(yc-yo)))});function line(arr,color){ctx.strokeStyle=color;ctx.lineWidth=1.4;ctx.beginPath();let started=false;arr.forEach((v,i)=>{if(v==null)return;let x=left+i*step+step/2,y=yy(v);if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});ctx.stroke()}line(e9,'#65a9ff');line(e21,'#ffc857');levels.forEach(l=>{let y=yy(l.v);ctx.strokeStyle=l.c;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=l.c;ctx.fillText(l.t+' '+num(l.v,2),left+4,Math.max(11,y-4))});let trades=state.history.filter(x=>x.symbol===active&&x.time).slice(0,100);trades.forEach(t=>{let ti=parseTime(t.time),idx=bars.findIndex(b=>Math.abs(parseTime(b.begin)-ti)<(chartTf==='1'?120000:chartTf==='5'?360000:chartTf==='15'?900000:3600000));if(idx>=0){let x=left+idx*step+step/2,y=yy(t.price);ctx.fillStyle=t.type==='BUY'?'#35d49a':'#ff667a';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()}});ctx.fillStyle='#8fa4bc';ctx.fillText(fmtTime(bars[0].begin),left,h-7);ctx.fillText(fmtTime(bars.at(-1).begin),Math.max(left+5,w-100),h-7)}
+async function refreshAll(initial=false){if(refreshBusy)return;refreshBusy=true;$('refresh').textContent='Загрузка…';setStatus('Получение свечей MOEX…');let errors=[];try{for(let sym of ['OZON','TGLD']){try{await loadSymbol(sym,initial);seedSymbol(sym)}catch(e){errors.push(sym+': '+e.message)}}if(!Object.values(data).some(x=>x?.mins?.length))throw Error(errors.join(' · ')||'MOEX не вернула свечи');render();if(!data[active]?.mins?.length){setStatus('Нет данных '+active,false);$('signalWhy').textContent='Не удалось получить котировки выбранного инструмента: '+(errors.join(' · ')||'пустой ответ MOEX')}else if(errors.length){setStatus('Частичная загрузка · '+errors.join(' · '),false)}else setStatus(isFresh(active)?'MOEX · котировки получены':'MOEX · данные устарели',isFresh(active));}catch(e){setStatus('Ошибка MOEX: '+e.message,false);$('signalWhy').textContent='Не удалось получить данные MOEX. Новые виртуальные сделки не открываются. '+e.message}finally{refreshBusy=false;$('refresh').textContent='↻ Обновить'}}
+function switchTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));['terminal','trades','stats','settings'].forEach(x=>$(x).classList.toggle('hidden',x!==name));if(name==='terminal')setTimeout(drawChart,80)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+$('symbol').addEventListener('change',e=>{active=e.target.value;render()});$('tf').addEventListener('change',e=>{chartTf=e.target.value;render()});$('refresh').addEventListener('click',()=>refreshAll(false));$('autoBtn').addEventListener('click',()=>{auto=!auto;state.auto=auto;if(!auto){state.pending={OZON:null,TGLD:null}}save();$('autoBtn').textContent='Автоторговля: '+(auto?'ВКЛ':'ВЫКЛ');$('autoBtn').className=auto?'primary':'';render()});$('copyPlan').addEventListener('click',()=>copyText(planText()));$('copySignal').addEventListener('click',()=>copyText(planText()));$('copyAll').addEventListener('click',()=>copyText(state.history.map(x=>`${x.symbol} ${x.type} ${fmtTime(x.time)} ${x.qty} шт. ${rub(x.price)} ${x.net==null?'':'результат '+rub(x.net)} ${x.reason||''}`).join('\n')||'История пуста'));
+$('exportCsv').addEventListener('click',()=>{let rows=[['Тип','Инструмент','Время','Цена','Количество','Комиссия','Результат','Причина'],...state.history.map(x=>[x.type,x.symbol,x.time,x.price,x.qty,x.fee,x.net??'',x.reason||''])];let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(';')).join('\n');let blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='sniper-pro-30-journal.csv';a.click();URL.revokeObjectURL(u)});
+$('backup').addEventListener('click',()=>{let b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='sniper-pro-30-backup.json';a.click();URL.revokeObjectURL(u)});$('restoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!Number.isFinite(x.cash)||!x.positions||!Array.isArray(x.history))throw Error('Неверный формат копии');state=x;auto=state.auto!==false;save();$('autoBtn').textContent='Автоторговля: '+(auto?'ВКЛ':'ВЫКЛ');render();alert('Копия восстановлена')}catch(err){alert('Не удалось восстановить: '+err.message)}e.target.value=''});$('reset').addEventListener('click',()=>{if(confirm('Точно сбросить виртуальный счёт, все позиции и историю? Сначала сохраните резервную копию.')){state=freshState();auto=true;save();$('autoBtn').textContent='Автоторговля: ВКЛ';render()}});
+window.addEventListener('resize',()=>{clearTimeout(window._chartResize);window._chartResize=setTimeout(drawChart,120)});window.addEventListener('beforeunload',save);
+auto=state.auto!==false;$('autoBtn').textContent='Автоторговля: '+(auto?'ВКЛ':'ВЫКЛ');$('autoBtn').className=auto?'primary':'';refreshAll(true);refreshTimer=setInterval(()=>refreshAll(false),60000);
+</script></body></html>
