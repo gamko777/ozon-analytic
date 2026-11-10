@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080e17">
-<title>SNIPER PRO 12.2 QUANT ANALYTICS</title>
+<title>SNIPER PRO 13.0 AI QUANT</title>
 <style>
 :root{--bg:#080e17;--panel:#101b29;--panel2:#142235;--line:#26384c;--txt:#e8f0fa;--muted:#91a5bb;--green:#20d69a;--red:#ff6376;--yellow:#f6c85f;--blue:#55aaff}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font:14px Arial,sans-serif}
 header{padding:16px 14px;background:#0c1623;border-bottom:1px solid var(--line)}
-h1{font-size:20px;margin:0 0 5px;letter-spacing:1px}
+h1{font-size:21px;margin:0 0 5px;letter-spacing:1px}
 .sub{color:var(--muted);font-size:11px}
-main{padding:12px;max-width:900px;margin:auto}
+main{padding:12px;max-width:950px;margin:auto}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:11px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .controls{display:flex;gap:6px;flex-wrap:wrap}
@@ -36,142 +36,215 @@ td,th{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}
 th{color:var(--muted);font-weight:normal}
 .scroll{overflow-x:auto}
 .note{font-size:12px;line-height:1.5;color:var(--muted)}
-.status{padding:8px;border-radius:8px;background:#0b1420;font-size:12px;line-height:1.5}
+.status{padding:9px;border-radius:8px;background:#0b1420;font-size:12px;line-height:1.5}
+.aihead{display:flex;align-items:center;gap:9px}
+.aiicon{font-size:27px}
+.airesult{font-size:30px;font-weight:bold;margin:8px 0}
+.bar{height:8px;background:#26384c;border-radius:8px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;width:0;background:var(--blue);transition:width .3s}
 @media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <header>
- <h1>SNIPER PRO 12.2</h1>
- <div class="sub">QUANT ANALYTICS · MOEX · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
+<h1>SNIPER PRO 13.0</h1>
+<div class="sub">AI QUANT · MACHINE LEARNING · MOEX · АВТОНОМНАЯ ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
 </header>
 <main>
- <div class="panel">
-  <div class="row">
-   <div class="controls">
-    <button id="ozon" class="active" onclick="selectSymbol('OZON')">OZON</button>
-    <button id="tgld" onclick="selectSymbol('TGLD')">TGLD · ЗОЛОТО</button>
-   </div>
-   <button onclick="refreshAll()">↻ Обновить</button>
+
+<div class="panel">
+ <div class="row">
+  <div class="controls">
+   <button id="ozon" class="active" onclick="selectSymbol('OZON')">OZON</button>
+   <button id="tgld" onclick="selectSymbol('TGLD')">TGLD · ЗОЛОТО</button>
   </div>
-  <div class="controls" style="margin-top:10px">
-   <button data-tf="1" onclick="selectTf('1')">1 мин</button>
-   <button data-tf="5" class="active" onclick="selectTf('5')">5 мин</button>
-   <button data-tf="15" onclick="selectTf('15')">15 мин</button>
-   <button data-tf="60" onclick="selectTf('60')">1 час</button>
-   <button data-tf="D" onclick="selectTf('D')">1 день</button>
-  </div>
-  <div class="price" id="price">Загрузка…</div>
-  <div class="row">
-   <span id="quoteStatus" class="small">Получение данных MOEX…</span>
-   <span id="lastUpdate" class="small"></span>
+  <button onclick="refreshAll()">↻ Обновить</button>
+ </div>
+ <div class="controls" style="margin-top:10px">
+  <button data-tf="1" onclick="selectTf('1')">1 мин</button>
+  <button data-tf="5" class="active" onclick="selectTf('5')">5 мин</button>
+  <button data-tf="15" onclick="selectTf('15')">15 мин</button>
+  <button data-tf="60" onclick="selectTf('60')">1 час</button>
+  <button data-tf="D" onclick="selectTf('D')">1 день</button>
+ </div>
+ <div class="price" id="price">Загрузка…</div>
+ <div class="row">
+  <span id="quoteStatus" class="small">Получение данных MOEX…</span>
+  <span id="lastUpdate" class="small"></span>
+ </div>
+</div>
+
+<div class="panel">
+ <div class="aihead">
+  <div class="aiicon">🧠</div>
+  <div>
+   <div class="section-title">AI QUANT ENGINE 13.0</div>
+   <div class="small">Адаптивная модель · анализ исторических ситуаций</div>
   </div>
  </div>
- <div class="panel">
-  <div class="row">
-   <div><div class="small">ТОРГОВЫЙ СИГНАЛ</div><div class="signal yellow" id="signal">ОЖИДАНИЕ</div></div>
-   <div style="text-align:right"><div class="small">Историческая оценка</div><div class="signal" id="probability">—</div></div>
+ <div class="row">
+  <div>
+   <div class="small">РЕШЕНИЕ ИСКУССТВЕННОГО ИНТЕЛЛЕКТА</div>
+   <div class="signal yellow" id="aiSignal">ОЖИДАНИЕ</div>
   </div>
-  <div class="status" id="decision">Загрузка аналитики…</div>
-  <div class="grid" style="margin-top:10px">
-   <div class="metric"><span class="small">Похожих случаев</span><b id="similar">—</b></div>
-   <div class="metric"><span class="small">RSI 14</span><b id="rsi">—</b></div>
-   <div class="metric"><span class="small">ADX 14</span><b id="adx">—</b></div>
-   <div class="metric"><span class="small">ATR 14</span><b id="atr">—</b></div>
-   <div class="metric"><span class="small">EMA 9 / EMA 21</span><b id="ema">—</b></div>
-   <div class="metric"><span class="small">MACD</span><b id="macd">—</b></div>
-   <div class="metric"><span class="small">Объём / средний</span><b id="volume">—</b></div>
-   <div class="metric"><span class="small">VWAP</span><b id="vwap">—</b></div>
+  <div style="text-align:right">
+   <div class="small">Оценка вероятности</div>
+   <div class="airesult blue" id="aiProb">—</div>
   </div>
  </div>
- <div class="panel">
-  <div class="section-title">ГРАФИК И АНАЛИЗ</div>
-  <canvas id="chart"></canvas>
-  <div class="small" id="chartInfo" style="margin-top:7px">Ожидание свечей…</div>
+ <div class="bar"><div id="aiBar"></div></div>
+ <div class="grid">
+  <div class="metric"><span class="small">Обучающих случаев</span><b id="aiSamples">0</b></div>
+  <div class="metric"><span class="small">Точность модели</span><b id="aiAccuracy">—</b></div>
+  <div class="metric"><span class="small">Выбранная стратегия</span><b id="aiStrategy">—</b></div>
+  <div class="metric"><span class="small">Режим рынка</span><b id="aiRegime">—</b></div>
  </div>
- <div class="panel">
-  <div class="section-title">ПЛАН СДЕЛКИ</div>
-  <div class="grid">
-   <div class="metric"><span class="small">Предполагаемый вход</span><b id="entry">—</b></div>
-   <div class="metric"><span class="small">Стоп-лосс</span><b id="stop">—</b></div>
-   <div class="metric"><span class="small">Цель 1</span><b id="target1">—</b></div>
-   <div class="metric"><span class="small">Цель 2</span><b id="target2">—</b></div>
+ <div class="status" id="aiReason" style="margin-top:10px">AI ожидает исторические данные.</div>
+ <div class="row" style="margin-top:10px">
+  <span class="small" id="aiMode">Автономная виртуальная торговля</span>
+  <button id="aiToggle" class="primary" onclick="toggleAI()">AI: ВКЛ.</button>
+ </div>
+ <p class="note">AI работает локально на основе математической модели. Вероятность является оценкой модели, а не гарантией. При недостатке обучающих случаев новые сделки блокируются.</p>
+</div>
+
+<div class="panel">
+ <div class="row">
+  <div>
+   <div class="small">ТОРГОВЫЙ СИГНАЛ</div>
+   <div class="signal yellow" id="signal">ОЖИДАНИЕ</div>
   </div>
-  <p class="note" id="planNote">План появится после загрузки достаточного количества свечей.</p>
- </div>
- <div class="panel">
-  <div class="section-title">МУЛЬТИТАЙМФРЕЙМ АНАЛИЗ</div>
-  <div class="grid">
-   <div class="metric"><span class="small">1 минута</span><b id="mtf1">—</b></div>
-   <div class="metric"><span class="small">5 минут</span><b id="mtf5">—</b></div>
-   <div class="metric"><span class="small">15 минут</span><b id="mtf15">—</b></div>
-   <div class="metric"><span class="small">1 час</span><b id="mtf60">—</b></div>
-  </div>
- </div>
- <div class="panel">
-  <div class="section-title">СТРАТЕГИИ</div>
-  <div class="grid">
-   <div class="metric"><span class="small">TREND · Тренд</span><b id="strTrend">—</b></div>
-   <div class="metric"><span class="small">PULLBACK · Откат</span><b id="strPull">—</b></div>
-   <div class="metric"><span class="small">BREAKOUT · Пробой</span><b id="strBreak">—</b></div>
-   <div class="metric"><span class="small">REVERSAL · Разворот</span><b id="strReverse">—</b></div>
+  <div style="text-align:right">
+   <div class="small">Историческая статистика</div>
+   <div class="signal" id="probability">—</div>
   </div>
  </div>
- <div class="panel">
-  <div class="section-title">ВИРТУАЛЬНЫЙ ПОРТФЕЛЬ</div>
-  <div class="grid">
-   <div class="metric"><span class="small">Свободные средства</span><b id="cash">100 000 ₽</b></div>
-   <div class="metric"><span class="small">Стоимость портфеля</span><b id="equity">100 000 ₽</b></div>
-   <div class="metric"><span class="small">Результат закрытых сделок</span><b id="profit">0 ₽</b></div>
-   <div class="metric"><span class="small">Открытая позиция</span><b id="position">Нет</b></div>
-  </div>
-  <div class="controls" style="margin-top:10px">
-   <button class="primary" onclick="manualBuy()">Виртуальная покупка</button>
-   <button class="danger" onclick="manualSell()">Закрыть позицию</button>
-   <button onclick="toggleAuto()" id="autoBtn">Автоторговля: выкл.</button>
-  </div>
-  <p class="note">Только виртуальные сделки. Реальные заявки брокеру не отправляются. Размер позиции ограничен 45% капитала и риском 1% на сделку.</p>
+ <div class="status" id="decision">Загрузка аналитики…</div>
+ <div class="grid" style="margin-top:10px">
+  <div class="metric"><span class="small">Похожих случаев</span><b id="similar">—</b></div>
+  <div class="metric"><span class="small">RSI 14</span><b id="rsi">—</b></div>
+  <div class="metric"><span class="small">ADX 14</span><b id="adx">—</b></div>
+  <div class="metric"><span class="small">ATR 14</span><b id="atr">—</b></div>
+  <div class="metric"><span class="small">EMA 9 / EMA 21</span><b id="ema">—</b></div>
+  <div class="metric"><span class="small">MACD</span><b id="macd">—</b></div>
+  <div class="metric"><span class="small">Объём / средний</span><b id="volume">—</b></div>
+  <div class="metric"><span class="small">VWAP</span><b id="vwap">—</b></div>
  </div>
- <div class="panel">
-  <div class="section-title">ТЕСТИРОВАНИЕ ИСТОРИИ</div>
-  <div class="grid">
-   <div class="metric"><span class="small">Проверено сделок</span><b id="btCount">—</b></div>
-   <div class="metric"><span class="small">Прибыльных</span><b id="btWin">—</b></div>
-   <div class="metric"><span class="small">Доля прибыльных</span><b id="btRate">—</b></div>
-   <div class="metric"><span class="small">Средний результат</span><b id="btExpect">—</b></div>
-  </div>
-  <p class="note" id="btNote">Тест на отложенном историческом участке. Результат не гарантирует будущую прибыль.</p>
+</div>
+
+<div class="panel">
+ <div class="section-title">ГРАФИК И АНАЛИЗ</div>
+ <canvas id="chart"></canvas>
+ <div class="small" id="chartInfo" style="margin-top:7px">Ожидание свечей…</div>
+</div>
+
+<div class="panel">
+ <div class="section-title">ПЛАН СДЕЛКИ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">Предполагаемый вход</span><b id="entry">—</b></div>
+  <div class="metric"><span class="small">Стоп-лосс</span><b id="stop">—</b></div>
+  <div class="metric"><span class="small">Цель 1</span><b id="target1">—</b></div>
+  <div class="metric"><span class="small">Цель 2</span><b id="target2">—</b></div>
  </div>
- <div class="panel">
-  <div class="section-title">ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</div>
-  <div class="scroll">
-   <table><thead><tr><th>Время</th><th>Инструмент</th><th>Тип</th><th>Цена</th><th>Результат</th></tr></thead>
-   <tbody id="journal"><tr><td colspan="5">Сделок пока нет</td></tr></tbody></table>
-  </div>
+ <p class="note" id="planNote">План появится после загрузки данных.</p>
+</div>
+
+<div class="panel">
+ <div class="section-title">МУЛЬТИТАЙМФРЕЙМ АНАЛИЗ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">1 минута</span><b id="mtf1">—</b></div>
+  <div class="metric"><span class="small">5 минут</span><b id="mtf5">—</b></div>
+  <div class="metric"><span class="small">15 минут</span><b id="mtf15">—</b></div>
+  <div class="metric"><span class="small">1 час</span><b id="mtf60">—</b></div>
  </div>
- <div class="panel">
-  <div class="section-title">ГРАФИК TRADINGVIEW</div>
-  <iframe id="tv" title="TradingView" loading="lazy"></iframe>
+</div>
+
+<div class="panel">
+ <div class="section-title">СТРАТЕГИИ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">TREND · Тренд</span><b id="strTrend">—</b></div>
+  <div class="metric"><span class="small">PULLBACK · Откат</span><b id="strPull">—</b></div>
+  <div class="metric"><span class="small">BREAKOUT · Пробой</span><b id="strBreak">—</b></div>
+  <div class="metric"><span class="small">REVERSAL · Разворот</span><b id="strReverse">—</b></div>
  </div>
- <div class="panel">
-  <div class="section-title">СОСТОЯНИЕ СИСТЕМЫ</div>
-  <div class="status" id="systemLog">Запуск…</div>
-  <div class="controls" style="margin-top:10px">
-   <button onclick="exportJournal()">Экспорт журнала CSV</button>
-   <button onclick="resetVirtual()">Сброс виртуального счёта</button>
-  </div>
+</div>
+
+<div class="panel">
+ <div class="section-title">ВИРТУАЛЬНЫЙ ПОРТФЕЛЬ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">Свободные средства</span><b id="cash">100 000 ₽</b></div>
+  <div class="metric"><span class="small">Стоимость портфеля</span><b id="equity">100 000 ₽</b></div>
+  <div class="metric"><span class="small">Результат закрытых сделок</span><b id="profit">0 ₽</b></div>
+  <div class="metric"><span class="small">Открытая позиция</span><b id="position">Нет</b></div>
  </div>
+ <div class="controls" style="margin-top:10px">
+  <button class="primary" onclick="manualBuy()">Виртуальная покупка</button>
+  <button class="danger" onclick="manualSell()">Закрыть позицию</button>
+ </div>
+ <p class="note">Автономная торговля только виртуальная. Реальные заявки брокеру не отправляются. Риск на сделку — 1%, максимальный размер позиции — 45% капитала.</p>
+</div>
+
+<div class="panel">
+ <div class="section-title">AI · РЕЗУЛЬТАТЫ ОБУЧЕНИЯ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">Виртуальных сделок AI</span><b id="aiTrades">0</b></div>
+  <div class="metric"><span class="small">Прибыльных сделок</span><b id="aiWins">0</b></div>
+  <div class="metric"><span class="small">Доля прибыльных</span><b id="aiWinRate">—</b></div>
+  <div class="metric"><span class="small">Средний результат</span><b id="aiExpect">—</b></div>
+ </div>
+ <p class="note">Статистика строится по закрытым виртуальным сделкам. Переобучение модели не гарантирует улучшения будущих результатов.</p>
+</div>
+
+<div class="panel">
+ <div class="section-title">ТЕСТИРОВАНИЕ ИСТОРИИ</div>
+ <div class="grid">
+  <div class="metric"><span class="small">Проверено сделок</span><b id="btCount">—</b></div>
+  <div class="metric"><span class="small">Прибыльных</span><b id="btWin">—</b></div>
+  <div class="metric"><span class="small">Доля прибыльных</span><b id="btRate">—</b></div>
+  <div class="metric"><span class="small">Средний результат</span><b id="btExpect">—</b></div>
+ </div>
+ <p class="note" id="btNote">Историческая проверка на отложенном участке.</p>
+</div>
+
+<div class="panel">
+ <div class="section-title">ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</div>
+ <div class="scroll">
+  <table>
+   <thead><tr><th>Время</th><th>Инструмент</th><th>Тип</th><th>Цена</th><th>Результат</th></tr></thead>
+   <tbody id="journal"><tr><td colspan="5">Сделок пока нет</td></tr></tbody>
+  </table>
+ </div>
+</div>
+
+<div class="panel">
+ <div class="section-title">ГРАФИК TRADINGVIEW</div>
+ <iframe id="tv" title="TradingView" loading="lazy"></iframe>
+</div>
+
+<div class="panel">
+ <div class="section-title">СОСТОЯНИЕ СИСТЕМЫ</div>
+ <div class="status" id="systemLog">Запуск…</div>
+ <div class="controls" style="margin-top:10px">
+  <button onclick="exportJournal()">Экспорт журнала CSV</button>
+  <button onclick="resetVirtual()">Сброс виртуального счёта</button>
+ </div>
+</div>
 </main>
+
 <script>
- const FEE=10.07,TAX=.13,START=100000;
+'use strict';
+
+const FEE=10.07,TAX=.13,START=100000;
 const RISK_PCT=.01,MAX_POSITION=.45,SLIPPAGE=.0005;
-const STORE='sniper_pro_12_1_state';
+const STORE='sniper_pro_13_ai_state';
 const symbols={
  OZON:{board:'TQBR',name:'Ozon'},
- TGLD:{board:'TQBR',name:'Золото'}
+ TGLD:{board:'TQTF',name:'Золото'}
 };
-let active='OZON',tf='5',data={},auto=false,refreshing=false;
-let state={cash:START,closed:[],positions:{}};
+
+let active='OZON',tf='5',data={},refreshing=false;
+let aiEnabled=true,aiModels={},lastDecision={};
+let state={cash:START,closed:[],positions:{},dailyLoss:0,lossDate:'',lossStreak:0,cooldown:false};
+
 try{
  const saved=JSON.parse(localStorage.getItem(STORE)||'null');
  if(saved&&Number.isFinite(saved.cash)){
@@ -180,13 +253,15 @@ try{
   if(!state.positions||typeof state.positions!=='object')state.positions={};
  }
 }catch(e){}
+
 const $=id=>document.getElementById(id);
 const fmt=(v,n=2)=>Number.isFinite(v)?v.toLocaleString('ru-RU',{minimumFractionDigits:n,maximumFractionDigits:n}):'—';
 const rub=v=>Number.isFinite(v)?fmt(v)+' ₽':'—';
 const setText=(id,v)=>{const e=$(id);if(e)e.textContent=v==null?'—':v};
 const log=s=>setText('systemLog',s);
-const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){log('Не удалось сохранить данные: память телефона переполнена.')}};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){log('Ошибка сохранения памяти телефона.')}};
+
 function dateBack(days){return new Date(Date.now()-days*86400000).toISOString().slice(0,10)}
 function parseStamp(date,time){
  if(!date)return 0;
@@ -230,8 +305,7 @@ async function candles(sym,interval,days,maxPages=8){
   if(block.data.length<500)break;
   await sleep(100);
  }
- const map=new Map();
- all.forEach(x=>map.set(x.time,x));
+ const map=new Map();all.forEach(x=>map.set(x.time,x));
  return [...map.values()].sort((a,b)=>a.time-b.time);
 }
 async function quote(sym){
@@ -256,19 +330,13 @@ function aggregate(mins,period){
  const out=[];
  for(const [start,arr] of groups){
   arr.sort((a,b)=>a.time-b.time);
-  const end=start+span;
-  if(end>Date.now()||arr.length!==period)continue;
+  if(start+span>Date.now()||arr.length!==period)continue;
   let complete=true;
-  for(let i=1;i<arr.length;i++){
-   if(arr[i].time-arr[i-1].time!==60000){complete=false;break}
-  }
+  for(let i=1;i<arr.length;i++)if(arr[i].time-arr[i-1].time!==60000){complete=false;break}
   if(!complete||arr[0].time!==start)continue;
-  out.push({
-   time:start,begin:start,end,
-   open:arr[0].open,high:Math.max(...arr.map(x=>x.high)),
-   low:Math.min(...arr.map(x=>x.low)),close:arr[arr.length-1].close,
-   volume:arr.reduce((s,x)=>s+x.volume,0)
-  });
+  out.push({time:start,begin:start,end:start+span,open:arr[0].open,
+   high:Math.max(...arr.map(x=>x.high)),low:Math.min(...arr.map(x=>x.low)),
+   close:arr[arr.length-1].close,volume:arr.reduce((s,x)=>s+x.volume,0)});
  }
  return out.sort((a,b)=>a.time-b.time);
 }
@@ -279,10 +347,8 @@ async function loadSymbol(sym){
   candles(sym,24,500,8).catch(()=>[])
  ]);
  const mins=closedBars(m1);
- data[sym]={
-  mins,five:aggregate(mins,5),fifteen:aggregate(mins,15),
-  hourly:closedBars(h),daily:closedBars(d),quote:q
- };
+ data[sym]={mins,five:aggregate(mins,5),fifteen:aggregate(mins,15),
+  hourly:closedBars(h),daily:closedBars(d),quote:q};
  return data[sym];
 }
 function bars(sym,period){
@@ -312,10 +378,7 @@ function rsi(a,n=14){
  const out=Array(a.length).fill(null);
  if(a.length<=n)return out;
  let up=0,dn=0;
- for(let i=1;i<=n;i++){
-  const ch=a[i].close-a[i-1].close;
-  if(ch>0)up+=ch;else dn-=ch;
- }
+ for(let i=1;i<=n;i++){const ch=a[i].close-a[i-1].close;if(ch>0)up+=ch;else dn-=ch}
  let ag=up/n,al=dn/n;
  out[n]=al===0?100:100-100/(1+ag/al);
  for(let i=n+1;i<a.length;i++){
@@ -339,11 +402,7 @@ function macd(a){
  const e12=ema(a,12),e26=ema(a,26);
  const line=a.map((x,i)=>e12[i]!=null&&e26[i]!=null?e12[i]-e26[i]:null);
  let signal=Array(a.length).fill(null),v=null,k=2/10;
- for(let i=0;i<a.length;i++){
-  if(line[i]==null)continue;
-  if(v==null)v=line[i];else v=line[i]*k+v*(1-k);
-  signal[i]=v;
- }
+ for(let i=0;i<a.length;i++){if(line[i]==null)continue;v=v==null?line[i]:line[i]*k+v*(1-k);signal[i]=v}
  return {line,signal};
 }
 function adx(a,n=14){
@@ -352,33 +411,34 @@ function adx(a,n=14){
  let trs=0,pdm=0,mdm=0,dxs=[];
  for(let i=1;i<=n;i++){
   const up=a[i].high-a[i-1].high,down=a[i-1].low-a[i].low;
-  pdm+=up>down&&up>0?up:0;
-  mdm+=down>up&&down>0?down:0;
+  pdm+=up>down&&up>0?up:0;mdm+=down>up&&down>0?down:0;
   trs+=Math.max(a[i].high-a[i].low,Math.abs(a[i].high-a[i-1].close),Math.abs(a[i].low-a[i-1].close));
  }
  for(let i=n+1;i<a.length;i++){
   const up=a[i].high-a[i-1].high,down=a[i-1].low-a[i].low;
   trs=trs-trs/n+Math.max(a[i].high-a[i].low,Math.abs(a[i].high-a[i-1].close),Math.abs(a[i].low-a[i-1].close));
-  pdm=pdm-pdm/n+(up>down&&up>0?up:0);
-  mdm=mdm-mdm/n+(down>up&&down>0?down:0);
+  pdm=pdm-pdm/n+(up>down&&up>0?up:0);mdm=mdm-mdm/n+(down>up&&down>0?down:0);
   const p=100*pdm/(trs||1),m=100*mdm/(trs||1);
   dxs.push(100*Math.abs(p-m)/(p+m||1));
   if(dxs.length>=n)out[i]=dxs.slice(-n).reduce((s,x)=>s+x,0)/n;
  }
  return out;
 }
-function moscowDay(t){
- return new Date(t+10800000).toISOString().slice(0,10);
-}
+function moscowDay(t){return new Date(t+10800000).toISOString().slice(0,10)}
 function vwap(a){
- let pv=0,vol=0;
- const day=a.length?moscowDay(a[a.length-1].time):'';
- for(const x of a){
-  if(moscowDay(x.time)!==day)continue;
-  const v=x.volume||0;
-  pv+=((x.high+x.low+x.close)/3)*v;vol+=v;
- }
+ let pv=0,vol=0;const day=a.length?moscowDay(a[a.length-1].time):'';
+ for(const x of a)if(moscowDay(x.time)===day){const v=x.volume||0;pv+=((x.high+x.low+x.close)/3)*v;vol+=v}
  return vol?pv/vol:null;
+}
+function calc(a){
+ const i=a.length-1;if(i<35)return null;
+ const e9=ema(a,9),e21=ema(a,21),rr=rsi(a),aa=atr(a),mm=macd(a),adxv=adx(a);
+ const volAvg=a.slice(-21,-1).reduce((s,x)=>s+x.volume,0)/20;
+ const relvol=volAvg>0?a[i].volume/volAvg:0,vw=vwap(a);
+ const vals=[e9[i],e21[i],rr[i],aa[i],mm.line[i],mm.signal[i],adxv[i]];
+ if(!vals.every(Number.isFinite)||aa[i]<=0)return null;
+ return {i,price:a[i].close,e9:e9[i],e21:e21[i],rsi:rr[i],atr:aa[i],
+  macd:mm.line[i],macdSignal:mm.signal[i],adx:adxv[i],relvol,vwap:vw};
 }
 function trend(a){
  if(a.length<25)return 'НЕДОСТАТОЧНО ДАННЫХ';
@@ -387,17 +447,6 @@ function trend(a){
  if(e9[i]<e21[i]&&a[i].close<e21[i])return 'НИСХОДЯЩИЙ';
  return 'БОКОВОЙ';
 }
-function calc(a){
- const i=a.length-1;
- if(i<30)return null;
- const e9=ema(a,9),e21=ema(a,21),rr=rsi(a),aa=atr(a),mm=macd(a),adxv=adx(a);
- const volAvg=a.slice(-21,-1).reduce((s,x)=>s+x.volume,0)/20;
- const relvol=volAvg>0?a[i].volume/volAvg:0;
- const vw=vwap(a);
- const values=[e9[i],e21[i],rr[i],aa[i],mm.line[i],mm.signal[i],adxv[i]];
- if(!values.every(Number.isFinite)||aa[i]<=0)return null;
- return {i,price:a[i].close,e9:e9[i],e21:e21[i],rsi:rr[i],atr:aa[i],macd:mm.line[i],macdSignal:mm.signal[i],adx:adxv[i],relvol,vwap:vw};
-}
 function wilson(w,n){
  if(!n)return null;
  const z=1.96,p=w/n,z2=z*z,den=1+z2/n;
@@ -405,15 +454,152 @@ function wilson(w,n){
  const half=z*Math.sqrt((p*(1-p)+z2/(4*n))/n)/den;
  return {p:p*100,low:(center-half)*100,high:(center+half)*100};
 }
+function strategySignals(a){
+ const c=calc(a);if(!c)return{};
+ const i=c.i,b=a[i],prev=a[i-1],old=a.slice(-21,-1);
+ const hi=Math.max(...old.map(x=>x.high));
+ const up=c.e9>c.e21&&b.close>c.e21;
+ return {
+  trend:up?'ПОКУПКА':c.e9<c.e21?'ПРОДАЖА':'ОЖИДАНИЕ',
+  pull:up&&b.low<=c.e9&&b.close>c.e9?'ПОКУПКА':'ОЖИДАНИЕ',
+  breakout:b.close>hi&&c.relvol>1.3?'ПОКУПКА':'ОЖИДАНИЕ',
+  reverse:c.rsi<30&&b.close>prev.close?'ВОЗМОЖНЫЙ РАЗВОРОТ':'ОЖИДАНИЕ'
+ };
+}
+ function features(a){
+ const c=calc(a);if(!c)return null;
+ const prev=a.length>5?a[a.length-6].close:a[0].close;
+ return [
+  Math.max(-3,Math.min(3,(c.e9-c.e21)/c.atr)),
+  (c.rsi-50)/25,
+  Math.max(-3,Math.min(3,(c.macd-c.macdSignal)/c.atr)),
+  Math.min(3,c.adx/25),
+  Math.min(3,Math.log(1+Math.max(0,c.relvol))),
+  Math.max(-3,Math.min(3,(c.price-prev)/c.atr))
+ ];
+}
+function sigmoid(z){z=Math.max(-25,Math.min(25,z));return 1/(1+Math.exp(-z))}
+function trainAI(a){
+ const samples=[];
+ const start=Math.max(60,a.length-420);
+ for(let i=start;i<a.length-13;i++){
+  const hist=a.slice(0,i+1),f=features(hist);
+  if(!f)continue;
+  const c=calc(hist),entry=hist[i].close;
+  const stop=entry-c.atr*1.3,target=entry+c.atr*1.8;
+  let label=null;
+  for(let k=i+1;k<=Math.min(i+12,a.length-1);k++){
+   const b=a[k];
+   if(b.low<=stop){label=0;break}
+   if(b.high>=target){label=1;break}
+  }
+  if(label!==null)samples.push({f,label});
+ }
+ const split=Math.floor(samples.length*.8);
+ const train=samples.slice(0,split),test=samples.slice(split);
+ const result={samples:samples.length,accuracy:null,weights:null};
+ if(train.length<60||test.length<15)return result;
+ let w=Array(7).fill(0);
+ const lr=.035,reg=.002;
+ for(let epoch=0;epoch<55;epoch++){
+  const grad=Array(7).fill(0);
+  for(const s of train){
+   const z=w[0]+s.f.reduce((sum,x,j)=>sum+x*w[j+1],0);
+   const err=sigmoid(z)-s.label;
+   grad[0]+=err;
+   s.f.forEach((x,j)=>grad[j+1]+=err*x);
+  }
+  for(let j=0;j<w.length;j++){
+   const g=grad[j]/train.length+(j?reg*w[j]:0);
+   w[j]-=lr*g;
+  }
+ }
+ let correct=0;
+ for(const s of test){
+  const p=sigmoid(w[0]+s.f.reduce((sum,x,j)=>sum+x*w[j+1],0));
+  if((p>=.5?1:0)===s.label)correct++;
+ }
+ result.accuracy=correct/test.length;
+ result.weights=w;
+ result.train=train.length;
+ result.test=test.length;
+ return result;
+}
+function predictAI(a,model){
+ const f=features(a);
+ if(!f||!model?.weights)return null;
+ const p=sigmoid(model.weights[0]+f.reduce((sum,x,j)=>sum+x*model.weights[j+1],0));
+ return p;
+}
+function regime(c){
+ if(!c)return 'НЕДОСТАТОЧНО ДАННЫХ';
+ if(c.adx<16)return 'БОКОВОЕ ДВИЖЕНИЕ';
+ if(c.adx>=22&&c.e9>c.e21)return 'ВОСХОДЯЩИЙ ТРЕНД';
+ if(c.adx>=22&&c.e9<c.e21)return 'НИСХОДЯЩИЙ ТРЕНД';
+ return 'ПЕРЕХОДНЫЙ РЕЖИМ';
+}
+function chooseStrategy(a,c){
+ const s=strategySignals(a);
+ if(s.breakout==='ПОКУПКА')return 'BREAKOUT';
+ if(s.pull==='ПОКУПКА')return 'PULLBACK';
+ if(s.trend==='ПОКУПКА'&&c.adx>=18)return 'TREND';
+ if(s.reverse==='ВОЗМОЖНЫЙ РАЗВОРОТ')return 'REVERSAL';
+ return 'WAIT';
+}
+function buildAI(sym){
+ const a=data[sym]?.five||[];
+ const c=calc(a);
+ if(!c)return {ok:false,reason:'Недостаточно пятиминутных свечей.'};
+ const model=trainAI(a);
+ aiModels[sym]=model;
+ const p=predictAI(a,model);
+ const mtf={
+  m1:trend(data[sym].mins||[]),
+  m5:trend(a),
+  m15:trend(data[sym].fifteen||[]),
+  m60:trend(data[sym].hourly||[])
+ };
+ const strategy=chooseStrategy(a,c);
+ const enough=model.samples>=80&&model.weights&&model.accuracy!==null;
+ const trendOK=mtf.m15!=='НИСХОДЯЩИЙ'&&mtf.m60!=='НИСХОДЯЩИЙ';
+ const priceOK=freshQuote(sym);
+ const quality=enough&&model.accuracy>=.52;
+ const buy=!!(p!==null&&p>=.62&&quality&&trendOK&&priceOK&&strategy!=='WAIT');
+ const reasons=[];
+ if(!priceOK)reasons.push('Котировка устарела или время сделки неизвестно.');
+ if(!enough)reasons.push('Мало разрешившихся исторических ситуаций для обучения.');
+ if(enough&&!quality)reasons.push('Точность модели на контрольной выборке недостаточна.');
+ if(p!==null&&p<.62)reasons.push('Оценка модели ниже порога входа 62%.');
+ if(!trendOK)reasons.push('Старшие таймфреймы не подтверждают покупку.');
+ if(strategy==='WAIT')reasons.push('Нет подходящей стратегии.');
+ if(buy)reasons.push('Условия покупки выполнены. Разрешена виртуальная сделка.');
+ return {ok:true,c,p,model,mtf,strategy,buy,regime:regime(c),reason:reasons.join(' ')};
+}
+function analyze(sym){
+ const a=bars(sym,tf),c=calc(a);
+ if(!c)return {ok:false,reason:'Недостаточно закрытых свечей.'};
+ const sigs=strategySignals(a);
+ let score=0;
+ if(c.e9>c.e21)score++;
+ if(c.macd>c.macdSignal)score++;
+ if(c.rsi>50&&c.rsi<70)score++;
+ if(c.adx>18)score++;
+ if(c.relvol>1.1)score++;
+ if(c.vwap&&c.price>c.vwap)score++;
+ const mtf={
+  m1:trend(data[sym].mins||[]),m5:trend(data[sym].five||[]),
+  m15:trend(data[sym].fifteen||[]),m60:trend(data[sym].hourly||[])
+ };
+ return {ok:true,c,sigs,score,mtf,prob:probability(a)};
+}
 function probability(a){
  let wins=0,total=0;
- const start=Math.max(40,a.length-1200);
+ const start=Math.max(40,a.length-500);
  for(let i=start;i<a.length-14;i++){
-  const hist=a.slice(0,i+1),v=calc(hist);
-  if(!v)continue;
-  const up=v.e9>v.e21&&v.macd>v.macdSignal&&v.rsi>50&&v.rsi<72;
-  if(!up)continue;
-  const entry=hist[i].close,stop=entry-v.atr*1.4,target=entry+v.atr*2;
+  const hist=a.slice(0,i+1),c=calc(hist);
+  if(!c)continue;
+  if(!(c.e9>c.e21&&c.macd>c.macdSignal&&c.rsi>50&&c.rsi<72))continue;
+  const entry=hist[i].close,stop=entry-c.atr*1.3,target=entry+c.atr*1.8;
   let outcome=0;
   for(let k=i+1;k<=Math.min(i+12,a.length-1);k++){
    const b=a[k];
@@ -424,39 +610,27 @@ function probability(a){
  }
  return {wins,total,ci:wilson(wins,total)};
 }
-function strategySignals(a){
- const c=calc(a);if(!c)return{};
- const i=c.i,b=a[i],prev=a[i-1];
- const trendUp=c.e9>c.e21&&b.close>c.e21;
- const trendDown=c.e9<c.e21&&b.close<c.e21;
- const breakout=a.slice(-21,-1);
- const hi=Math.max(...breakout.map(x=>x.high));
- const out={
-  trend:trendUp?'ПОКУПКА':trendDown?'ПРОДАЖА':'ОЖИДАНИЕ',
-  pull:trendUp&&b.low<=c.e9&&b.close>c.e9?'ПОКУПКА':'ОЖИДАНИЕ',
-  breakout:b.close>hi&&c.relvol>1.3?'ПОКУПКА':'ОЖИДАНИЕ',
-  reverse:c.rsi<30&&b.close>prev.close?'ВОЗМОЖНЫЙ РАЗВОРОТ':'ОЖИДАНИЕ'
- };
- return out;
-}
-function analyze(sym){
- const a=bars(sym,tf),c=calc(a);
- if(!c)return {ok:false,reason:'Недостаточно закрытых свечей для расчёта индикаторов.'};
- const sigs=strategySignals(a);
- let score=0;
- if(c.e9>c.e21)score++;
- if(c.macd>c.macdSignal)score++;
- if(c.rsi>50&&c.rsi<70)score++;
- if(c.adx>18)score++;
- if(c.relvol>1.1)score++;
- if(c.vwap&&c.price>c.vwap)score++;
- const mtf={
-  m1:trend(data[sym].mins),m5:trend(data[sym].five),
-  m15:trend(data[sym].fifteen),m60:trend(data[sym].hourly)
- };
- const up=score>=4&&mtf.m15!=='НИСХОДЯЩИЙ'&&mtf.m60!=='НИСХОДЯЩИЙ';
- const down=score<=1&&mtf.m15==='НИСХОДЯЩИЙ';
- return {ok:true,c,score,sigs,mtf,up,down,prob:probability(a)};
+function renderAI(){
+ const r=buildAI(active);
+ if(!r.ok){
+  setText('aiSignal','ОЖИДАНИЕ');setText('aiProb','—');
+  setText('aiSamples','0');setText('aiAccuracy','—');
+  setText('aiStrategy','—');setText('aiRegime','—');
+  setText('aiReason',r.reason);return;
+ }
+ const p=r.p,model=r.model;
+ const signal=r.buy?'ПОКУПКА':'ОЖИДАНИЕ';
+ setText('aiSignal',signal);
+ $('aiSignal').className='signal '+(r.buy?'green':'yellow');
+ setText('aiProb',p===null?'—':fmt(p*100,1)+'%');
+ $('aiProb').className='airesult '+(p!==null&&p>=.62?'green':'blue');
+ $('aiBar').style.width=p===null?'0%':Math.round(p*100)+'%';
+ setText('aiSamples',model.samples);
+ setText('aiAccuracy',model.accuracy===null?'Недостаточно данных':fmt(model.accuracy*100,1)+'%');
+ setText('aiStrategy',r.strategy);
+ setText('aiRegime',r.regime);
+ setText('aiReason',r.reason||'AI ожидает подтверждения условий.');
+ lastDecision[active]=r;
 }
 function render(){
  const d=data[active];if(!d)return;
@@ -469,37 +643,29 @@ function render(){
  if(!r.ok){
   setText('signal','ОЖИДАНИЕ');$('signal').className='signal yellow';
   setText('decision',r.reason);setText('probability','Недостаточно данных');
-  setText('similar','—');drawChart(a);updatePortfolio();return;
+  drawChart(a);updatePortfolio();renderAI();return;
  }
  const c=r.c,prob=r.prob;
- let signal=r.up?'ПОКУПКА':r.down?'ПРОДАЖА':'ОЖИДАНИЕ';
- if(!fresh)signal='ОЖИДАНИЕ';
+ const signal=fresh&&r.score>=4&&r.mtf.m15!=='НИСХОДЯЩИЙ'?'ПОКУПКА':'ОЖИДАНИЕ';
  setText('signal',signal);
- $('signal').className='signal '+(signal==='ПОКУПКА'?'green':signal==='ПРОДАЖА'?'red':'yellow');
- const ci=prob.ci;
- setText('probability',ci&&prob.total>=30?fmt(ci.p,1)+'%':'Недостаточно данных');
+ $('signal').className='signal '+(signal==='ПОКУПКА'?'green':'yellow');
+ setText('probability',prob.ci&&prob.total>=30?fmt(prob.ci.p,1)+'%':'Недостаточно данных');
  setText('similar',prob.total+' подтверждённых случаев');
  setText('rsi',fmt(c.rsi,1));setText('adx',fmt(c.adx,1));
  setText('atr',fmt(c.atr));setText('ema',fmt(c.e9)+' / '+fmt(c.e21));
  setText('macd',fmt(c.macd)+' / '+fmt(c.macdSignal));
  setText('volume',fmt(c.relvol,2)+'×');setText('vwap',rub(c.vwap));
- const reasons=[
-  'Совпадение факторов: '+r.score+' из 6.',
-  'Тренд 15 мин: '+r.mtf.m15+'. Тренд 1 час: '+r.mtf.m60+'.',
-  'Стратегии: тренд — '+r.sigs.trend+', откат — '+r.sigs.pull+', пробой — '+r.sigs.breakout+', разворот — '+r.sigs.reverse+'.',
-  fresh?'Время последней сделки позволяет оценивать сигнал.':'Вход заблокирован: котировка устарела или время последней сделки неизвестно.',
-  ci&&prob.total>=30?'Историческая доля успеха: '+fmt(ci.p,1)+'%, интервал Уилсона 95%: '+fmt(ci.low,1)+'–'+fmt(ci.high,1)+'%. Это не прогноз.':'Недостаточно разрешившихся исторических случаев для оценки вероятности.'
- ];
- setText('decision',reasons.join(' '));
+ setText('decision','Совпадение факторов: '+r.score+' из 6. Тренд 15 минут: '+r.mtf.m15+'. Тренд 1 час: '+r.mtf.m60+'. '+(fresh?'Котировка свежая.':'Вход заблокирован из-за котировки.'));
  for(const [id,key] of [['mtf1','m1'],['mtf5','m5'],['mtf15','m15'],['mtf60','m60']])setText(id,r.mtf[key]);
  setText('strTrend',r.sigs.trend);setText('strPull',r.sigs.pull);
  setText('strBreak',r.sigs.breakout);setText('strReverse',r.sigs.reverse);
- const entry=q?.price||c.price,stop=entry-c.atr*1.4,t1=entry+c.atr*1.4,t2=entry+c.atr*2.2;
+ const entry=q?.price||c.price,stop=entry-c.atr*1.3;
  setText('entry',rub(entry));setText('stop',rub(stop));
- setText('target1',rub(t1));setText('target2',rub(t2));
- setText('planNote','Расчёт по ATR. Это сценарий, а не гарантия исполнения. Вход возможен только при свежих данных.');
+ setText('target1',rub(entry+c.atr*1.3));
+ setText('target2',rub(entry+c.atr*1.8));
+ setText('planNote','Сценарий AI по ATR. Реальная цена исполнения не гарантируется.');
  setText('chartInfo',a.length+' закрытых свечей · период '+tf+' · последняя свеча '+(a.length?new Date(a[a.length-1].end).toLocaleString('ru-RU'):'—'));
- drawChart(a);updatePortfolio();
+ drawChart(a);updatePortfolio();renderAI();
 }
 function drawChart(a){
  const canvas=$('chart'),ctx=canvas.getContext('2d');
@@ -530,64 +696,76 @@ function drawChart(a){
  ctx.fillStyle='#91a5bb';ctx.font='10px Arial';
  ctx.fillText(fmt(hi),pad,10);ctx.fillText(fmt(lo),pad,h-5);
 }
-function updatePortfolio(){
- const pos=state.positions[active];let market=0;
- Object.keys(state.positions).forEach(s=>{
-  const p=state.positions[s];if(p)market+=p.qty*(data[s]?.quote?.price||p.entry);
- });
- const equity=state.cash+market;
- const profit=state.closed.reduce((s,x)=>s+(Number(x.result)||0),0);
- setText('cash',rub(state.cash));setText('equity',rub(equity));
- setText('profit',rub(profit));setText('position',pos?pos.qty+' шт. · '+rub(pos.entry):'Нет');
- const rows=state.closed.slice(-30).reverse();
- const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- $('journal').innerHTML=rows.length?rows.map(x=>`<tr><td>${esc(new Date(x.time).toLocaleString('ru-RU'))}</td><td>${esc(x.sym)}</td><td>${esc(x.type)}</td><td>${fmt(Number(x.price))}</td><td class="${x.result>=0?'green':'red'}">${rub(Number(x.result))}</td></tr>`).join(''):'<tr><td colspan="5">Сделок пока нет</td></tr>';
-}
-function positionSize(price,stop){
- const equity=state.cash+Object.keys(state.positions).reduce((s,k)=>{
+function equity(){
+ return state.cash+Object.keys(state.positions).reduce((s,k)=>{
   const p=state.positions[k];return s+(p?p.qty*(data[k]?.quote?.price||p.entry):0);
  },0);
- const riskPerShare=Math.max(price-stop,price*.002);
- const riskQty=Math.floor((equity*RISK_PCT)/(riskPerShare+price*SLIPPAGE*2));
- const capQty=Math.floor((equity*MAX_POSITION)/(price*(1+SLIPPAGE)));
+}
+function updatePortfolio(){
+ const pos=state.positions[active];
+ const profit=state.closed.filter(x=>x.type.startsWith('CLOSE')).reduce((s,x)=>s+(Number(x.result)||0),0);
+ setText('cash',rub(state.cash));setText('equity',rub(equity()));
+ setText('profit',rub(profit));setText('position',pos?pos.qty+' шт. · '+rub(pos.entry):'Нет');
+ const rows=state.closed.slice(-35).reverse();
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ $('journal').innerHTML=rows.length?rows.map(x=>`<tr><td>${esc(new Date(x.time).toLocaleString('ru-RU'))}</td><td>${esc(x.sym)}</td><td>${esc(x.type)}</td><td>${fmt(Number(x.price))}</td><td class="${x.result>=0?'green':'red'}">${rub(Number(x.result))}</td></tr>`).join(''):'<tr><td colspan="5">Сделок пока нет</td></tr>';
+ const closes=state.closed.filter(x=>x.type.startsWith('CLOSE'));
+ const wins=closes.filter(x=>x.result>0);
+ setText('aiTrades',closes.length);setText('aiWins',wins.length);
+ setText('aiWinRate',closes.length?fmt(wins.length/closes.length*100,1)+'%':'—');
+ setText('aiExpect',closes.length?rub(closes.reduce((s,x)=>s+x.result,0)/closes.length):'—');
+}
+function positionSize(price,stop){
+ const eq=equity(),riskPerShare=Math.max(price-stop,price*.002);
+ const riskQty=Math.floor(eq*RISK_PCT/(riskPerShare+price*SLIPPAGE*2));
+ const capQty=Math.floor(eq*MAX_POSITION/(price*(1+SLIPPAGE)));
  const cashQty=Math.floor((state.cash-FEE)/(price*(1+SLIPPAGE)));
  return Math.max(0,Math.min(riskQty,capQty,cashQty));
 }
-function manualBuy(){
- buyFor(active);
-}
-function buyFor(sym){
+function manualBuy(){buyFor(active,'MANUAL')}
+function buyFor(sym,source='AI'){
  const q=data[sym]?.quote;
- if(!freshQuote(sym)){alert('Покупка заблокирована: нет свежей котировки с достоверным временем последней сделки.');return}
- if(state.positions[sym]){alert('По этому инструменту уже есть открытая позиция.');return}
- const c=calc(bars(sym,tf));
- if(!c){alert('Недостаточно свечей для расчёта стопа и размера позиции.');return}
- const price=q.price*(1+SLIPPAGE),stop=price-c.atr*1.4;
+ if(!freshQuote(sym)){log('Покупка запрещена: котировка устарела.');return false}
+ if(state.positions[sym])return false;
+ if(Object.keys(state.positions).length>=2)return false;
+ const c=calc(data[sym]?.five||[]);
+ if(!c)return false;
+ if(source==='AI'){
+  const r=buildAI(sym);
+  if(!aiEnabled||!r.ok||!r.buy)return false;
+ }
+ const price=q.price*(1+SLIPPAGE),stop=price-c.atr*1.3;
  const qty=positionSize(price,stop);
- if(qty<1){alert('Размер позиции равен нулю: недостаточно средств или превышен лимит риска.');return}
+ if(qty<1)return false;
  const cost=qty*price+FEE;
+ if(cost>state.cash)return false;
  state.cash-=cost;
- state.positions[sym]={sym,qty,entry:price,cost,entryFee:FEE,stop,target:price+c.atr*2.2,peak:price,be:false,opened:Date.now()};
- state.closed.push({time:Date.now(),sym,type:'BUY',price,result:0});
+ state.positions[sym]={sym,qty,entry:price,cost,stop,target:price+c.atr*1.8,
+  peak:price,be:false,opened:Date.now(),source};
+ state.closed.push({time:Date.now(),sym,type:'BUY · '+source,price,result:0});
  save();updatePortfolio();
- log('Открыта виртуальная позиция '+sym+': '+qty+' шт. Цена с учётом расчётного проскальзывания '+fmt(price)+'.');
+ log('AI открыл виртуальную позицию '+sym+': '+qty+' шт. Вход '+fmt(price));
+ return true;
 }
 function closePosition(sym,rawPrice,reason){
  const p=state.positions[sym];if(!p)return;
- const price=rawPrice*(1-SLIPPAGE);
- const proceeds=p.qty*price-FEE;
- const gross=proceeds-p.cost;
- const tax=gross>0?gross*TAX:0;
- const result=gross-tax;
+ const price=rawPrice*(1-SLIPPAGE),proceeds=p.qty*price-FEE;
+ const gross=proceeds-p.cost,tax=gross>0?gross*TAX:0,result=gross-tax;
  state.cash+=proceeds-tax;
  state.closed.push({time:Date.now(),sym,type:'CLOSE · '+reason,price,result});
- delete state.positions[sym];save();updatePortfolio();
- log('Позиция '+sym+' закрыта. Результат после комиссий, расчётного проскальзывания и налога: '+rub(result));
+ delete state.positions[sym];
+ const day=new Date(Date.now()+10800000).toISOString().slice(0,10);
+ if(state.lossDate!==day){state.lossDate=day;state.dailyLoss=0;state.lossStreak=0;state.cooldown=false}
+ if(result<0){state.dailyLoss+=Math.abs(result);state.lossStreak++}
+ else if(result>0)state.lossStreak=0;
+ if(state.dailyLoss>=START*.03||state.lossStreak>=3)state.cooldown=true;
+ save();updatePortfolio();
+ log('Позиция '+sym+' закрыта. Чистый результат: '+rub(result));
 }
 function manualSell(){
  const p=state.positions[active],q=data[active]?.quote;
- if(!p){alert('Нет открытой позиции.');return}
- if(!q||!Number.isFinite(q.price)){alert('Нет цены для закрытия.');return}
+ if(!p){log('Нет открытой позиции.');return}
+ if(!q||!Number.isFinite(q.price)){log('Нет цены закрытия.');return}
  closePosition(active,q.price,'РУЧНОЕ ЗАКРЫТИЕ');
 }
 function managePosition(sym){
@@ -596,25 +774,27 @@ function managePosition(sym){
  const price=d.quote.price;
  if(price>p.peak)p.peak=price;
  const c=calc(d.five);
- if(c&&price>=p.entry+p.entry*.008)p.be=true;
+ if(price>=p.entry*1.008)p.be=true;
  if(p.be)p.stop=Math.max(p.stop,p.entry);
  if(c&&p.be)p.stop=Math.max(p.stop,p.peak-c.atr*1.5);
  if(price<=p.stop){closePosition(sym,price,'СТОП / ТРЕЙЛИНГ');return}
- if(price>=p.target){closePosition(sym,price,'ЦЕЛЬ');return}
+ if(price>=p.target){closePosition(sym,price,'ЦЕЛЬ AI');return}
  save();
 }
-function toggleAuto(){
- auto=!auto;
- setText('autoBtn','Автоторговля: '+(auto?'вкл.':'выкл.'));
- log(auto?'Автоведение виртуальных позиций включено.':'Автоведение выключено.');
+function toggleAI(){
+ aiEnabled=!aiEnabled;
+ $('aiToggle').textContent='AI: '+(aiEnabled?'ВКЛ.':'ВЫКЛ.');
+ $('aiToggle').className=aiEnabled?'primary':'danger';
+ setText('aiMode',aiEnabled?'Автономная виртуальная торговля активна':'Автономная торговля остановлена');
+ log(aiEnabled?'AI включён. Новые сделки разрешены при выполнении всех условий.':'AI остановлен. Открытые позиции продолжают сопровождаться.');
 }
-function maybeAuto(){
- if(!auto)return;
+function maybeAI(){
  for(const s of Object.keys(symbols)){
   if(state.positions[s]){managePosition(s);continue}
-  if(s!==active||!freshQuote(s))continue;
-  const r=analyze(s);
-  if(r.ok&&r.up&&r.score>=5&&r.prob.total>=30&&r.prob.ci&&r.prob.ci.low>45)buyFor(s);
+  if(!aiEnabled||state.cooldown||!freshQuote(s))continue;
+  if(Object.keys(state.positions).length>=2)continue;
+  const r=buildAI(s);
+  if(r.ok&&r.buy)buyFor(s,'AI');
  }
 }
 function selectSymbol(sym){
@@ -637,47 +817,37 @@ async function refreshAll(){
  refreshing=true;log('Загрузка данных MOEX ISS…');
  try{
   for(const sym of Object.keys(symbols)){
-   try{
-    await loadSymbol(sym);
-    log(sym+': данные загружены.');
-   }catch(e){console.error(sym,e);log(sym+': ошибка загрузки — '+e.message)}
+   try{await loadSymbol(sym);log(sym+': данные загружены.')}
+   catch(e){console.error(sym,e);log(sym+': ошибка загрузки — '+e.message)}
   }
-  render();renderBacktest();maybeAuto();
-  log('Обновление завершено. Проверяй свежесть котировки перед входом.');
+  render();renderBacktest();maybeAI();
+  log('Обновление завершено. AI проверил оба инструмента.');
  }catch(e){log('Ошибка загрузки: '+e.message)}
  finally{refreshing=false}
 }
 function backtest(a){
- let trades=0,wins=0,sum=0,equity=START,peak=START,maxDD=0;
+ let trades=0,wins=0,sum=0,eq=START,peak=START,maxDD=0;
  const split=Math.floor(a.length*.7);
- for(let i=Math.max(50,split);i<a.length-13;i++){
+ for(let i=Math.max(55,split);i<a.length-13;i++){
   const hist=a.slice(0,i+1),c=calc(hist);
   if(!c||!(c.e9>c.e21&&c.macd>c.macdSignal&&c.rsi>50&&c.rsi<70))continue;
-  const rawEntry=a[i+1].open;
-  const entry=rawEntry*(1+SLIPPAGE);
-  const stop=entry-c.atr*1.4,target=entry+c.atr*2.2;
-  const riskShare=entry-stop+entry*SLIPPAGE*2;
-  const qty=Math.max(0,Math.min(
-   Math.floor(equity*RISK_PCT/riskShare),
-   Math.floor(equity*MAX_POSITION/entry),
-   Math.floor((equity-FEE)/entry)
-  ));
+  const raw=a[i+1].open,entry=raw*(1+SLIPPAGE);
+  const stop=entry-c.atr*1.3,target=entry+c.atr*1.8;
+  const risk=entry-stop+entry*SLIPPAGE*2;
+  const qty=Math.max(0,Math.min(Math.floor(eq*RISK_PCT/risk),
+   Math.floor(eq*MAX_POSITION/entry),Math.floor((eq-FEE)/entry)));
   if(qty<1)continue;
-  let exit=null,reason='';
+  let exit=null;
   for(let k=i+1;k<=Math.min(i+12,a.length-1);k++){
    const b=a[k];
-   if(b.low<=stop){exit=stop*(1-SLIPPAGE);reason='STOP';break}
-   if(b.high>=target){exit=target*(1-SLIPPAGE);reason='TARGET';break}
+   if(b.low<=stop){exit=stop*(1-SLIPPAGE);break}
+   if(b.high>=target){exit=target*(1-SLIPPAGE);break}
   }
-  if(exit==null){
-   const last=a[Math.min(i+12,a.length-1)];
-   exit=last.close*(1-SLIPPAGE);reason='TIME';
-  }
+  if(exit===null)exit=a[Math.min(i+12,a.length-1)].close*(1-SLIPPAGE);
   const gross=qty*exit-FEE-(qty*entry+FEE);
   const net=gross-(gross>0?gross*TAX:0);
   trades++;if(net>0)wins++;sum+=net;
-  equity+=net;peak=Math.max(peak,equity);
-  maxDD=Math.max(maxDD,peak-equity);
+  eq+=net;peak=Math.max(peak,eq);maxDD=Math.max(maxDD,peak-eq);
   i+=3;
  }
  return {trades,wins,rate:trades?wins/trades*100:0,expect:trades?sum/trades:0,maxDD};
@@ -687,7 +857,7 @@ function renderBacktest(){
  setText('btCount',b.trades);setText('btWin',b.wins);
  setText('btRate',b.trades?fmt(b.rate,1)+'%':'—');
  setText('btExpect',b.trades?rub(b.expect):'—');
- setText('btNote','Отложенный участок последних 30% пятиминутной истории. Размер позиции ограничен риском 1% капитала и 45% капитала. Учтены две комиссии по 10,07 ₽, расчётное проскальзывание 0,05% на сторону и налог 13% с положительного результата. Внутри свечи стоп считается раньше цели. Упрощённая историческая проверка не гарантирует будущую прибыль.');
+ setText('btNote','Отложенный участок истории. Комиссия 10,07 ₽ на сторону, проскальзывание 0,05% на сторону, налог 13% с положительного результата. Внутри свечи стоп считается раньше цели. Это упрощённый тест, не гарантия будущей доходности.');
 }
 function exportJournal(){
  const rows=[['Время','Инструмент','Тип','Цена','Результат']];
@@ -695,29 +865,32 @@ function exportJournal(){
  const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');
- a.href=url;a.download='sniper-pro-12-2-journal.csv';a.click();
+ a.href=url;a.download='sniper-pro-13-ai-journal.csv';a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function resetVirtual(){
  if(!confirm('Сбросить виртуальный счёт, журнал и открытые позиции?'))return;
- state={cash:START,closed:[],positions:{}};
+ state={cash:START,closed:[],positions:{},dailyLoss:0,lossDate:'',lossStreak:0,cooldown:false};
  save();updatePortfolio();log('Виртуальный счёт сброшен.');
 }
 async function start(){
+ $('aiToggle').textContent='AI: '+(aiEnabled?'ВКЛ.':'ВЫКЛ.');
  updateTV();updatePortfolio();
  await refreshAll();
 }
 window.addEventListener('resize',()=>drawChart(bars(active,tf)));
 start();
 setInterval(async()=>{
+ if(refreshing)return;
  try{
   for(const sym of Object.keys(symbols)){
    if(!data[sym])continue;
-   const q=await quote(sym);
-   data[sym].quote=q;
-   managePosition(sym);
+   try{
+    data[sym].quote=await quote(sym);
+    managePosition(sym);
+   }catch(e){console.warn('Котировка '+sym,e)}
   }
-  render();renderBacktest();maybeAuto();
+  render();renderBacktest();maybeAI();
  }catch(e){log('Обновление котировки: '+e.message)}
 },60000);
 setInterval(()=>{if(!refreshing)refreshAll()},300000);
