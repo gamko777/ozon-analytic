@@ -1,0 +1,103 @@
+name: SNIPER PRO — сборка Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  APP_ID: com.gamko777.sniperpro31
+  APP_NAME: SNIPER PRO
+
+jobs:
+  build:
+    name: Собрать SNIPER PRO APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить исходный код
+        uses: actions/checkout@v4
+
+      - name: Проверить HTML
+        run: |
+          test -s index.html || { echo 'В корне репозитория не найден index.html'; exit 1; }
+          grep -q '<html' index.html || { echo 'index.html не похож на HTML-документ'; exit 1; }
+
+      - name: Установить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Установить Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Подготовить Capacitor-проект
+        run: |
+          mkdir -p www
+          cp index.html www/index.html
+          npm init -y
+          npm install --save-exact @capacitor/core@7.4.3 @capacitor/android@7.4.3
+          npm install --save-dev --save-exact @capacitor/cli@7.4.3
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "com.gamko777.sniperpro31",
+            "appName": "SNIPER PRO",
+            "webDir": "www",
+            "server": {
+              "androidScheme": "https"
+            }
+          }
+          JSON
+          npx cap add android
+          npx cap sync android
+
+      - name: Установить значок SNIPER PRO
+        run: |
+          mkdir -p android/app/src/main/res/drawable
+          mkdir -p android/app/src/main/res/values
+          mkdir -p android/app/src/main/res/mipmap-anydpi
+          mkdir -p android/app/src/main/res/mipmap-anydpi-v26
+          cat > android/app/src/main/res/values/ic_launcher_background.xml <<'XML'
+          <resources><color name="ic_launcher_background">#08111F</color></resources>
+          XML
+          cat > android/app/src/main/res/drawable/ic_launcher_foreground.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+            <path android:strokeColor="#35D49A" android:strokeWidth="5" android:fillColor="@android:color/transparent" android:pathData="M54,18 A36,36 0 1,1 53.99,18 Z M54,34 A20,20 0 1,1 53.99,34 Z"/>
+            <path android:strokeColor="#E8F0FA" android:strokeWidth="3" android:pathData="M54,8v26M54,74v26M8,54h26M74,54h26"/>
+            <path android:fillColor="#FFC857" android:pathData="M54,46 A8,8 0 1,1 53.99,46 Z"/>
+            <path android:fillColor="#35D49A" android:pathData="M76,25l7,-7 5,5 -7,7z"/>
+          </vector>
+          XML
+          cat > android/app/src/main/res/mipmap-anydpi/ic_launcher.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="48dp" android:height="48dp" android:viewportWidth="108" android:viewportHeight="108">
+            <path android:strokeColor="#35D49A" android:strokeWidth="5" android:fillColor="@android:color/transparent" android:pathData="M54,18 A36,36 0 1,1 53.99,18 Z M54,34 A20,20 0 1,1 53.99,34 Z"/>
+            <path android:strokeColor="#E8F0FA" android:strokeWidth="3" android:pathData="M54,8v26M54,74v26M8,54h26M74,54h26"/>
+            <path android:fillColor="#FFC857" android:pathData="M54,46 A8,8 0 1,1 53.99,46 Z"/>
+          </vector>
+          XML
+          cp android/app/src/main/res/mipmap-anydpi/ic_launcher.xml android/app/src/main/res/mipmap-anydpi/ic_launcher_round.xml
+          for name in ic_launcher ic_launcher_round; do
+            cat > "android/app/src/main/res/mipmap-anydpi-v26/${name}.xml" <<'XML'
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+            <background android:drawable="@color/ic_launcher_background"/>
+            <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+          </adaptive-icon>
+          XML
+          done
+
+      - name: Собрать APK
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Опубликовать APK как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: SNIPER-PRO-3.1-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
