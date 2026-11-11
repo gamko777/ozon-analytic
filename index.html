@@ -244,8 +244,20 @@ const log=s=>set('systemLog',s);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){log('Ошибка сохранения памяти телефона')}}
 function dateBack(days){return new Date(Date.now()-days*86400000).toISOString().slice(0,10)}
-function parseStamp(d,t){if(!d)return 0;let s=String(d).trim();if(!s.includes('T'))s+='T'+(t||'00:00:00');if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+='+03:00';return Date.parse(s)||0}
-async function getJSON(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j?.errors?.data?.length)throw Error('Ошибка MOEX');return j}
+
+/* ИСПРАВЛЕНО: корректно разбираем дату MOEX с пробелом между датой и временем. */
+function parseStamp(d,t){
+ if(!d)return 0;
+ let s=String(d).trim();
+ if(s.includes(' ')){
+  s=s.replace(' ','T');
+ }else if(!s.includes('T')){
+  s+='T'+(t||'00:00:00');
+ }
+ if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+='+03:00';
+ return Date.parse(s)||0;
+}
+ async function getJSON(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j?.errors?.data?.length)throw Error('Ошибка MOEX');return j}
 async function resolveBoard(sym){
  const j=await getJSON('https://iss.moex.com/iss/securities/'+sym+'.json?iss.meta=off&iss.only=boards&boards.columns=boardid,is_primary,is_traded,market,engine');
  const b=j.boards,ix=Object.fromEntries(b.columns.map((x,i)=>[x,i]));
@@ -478,7 +490,7 @@ function technical(a,c){
  if(e.roc>0)s++;if(e.mfi>50)s++;
  return .35+s*.0375;
 }
- function buildAI(sym){
+function buildAI(sym){
  let a=data[sym]?.five||[],c=calc(a);if(!c)return {ok:false,reason:'Недостаточно свечей'};
  let m=modelTrain(a),f=features(a);
  let pl=m.w&&f?sigmoid(m.w[0]+f.reduce((s,x,i)=>s+x*m.w[i+1],0)):null;
@@ -687,7 +699,7 @@ function autoManage(){
   if(c.e9<c.e21&&c.m<c.ms)closeVirtual(sym,price,'Разворот тренда');
  }
 }
-/* ИСПРАВЛЕНИЕ: закрыта функция autoManage(). Все функции ниже доступны кнопкам. */
+/* Функция autoManage закрыта. Все функции ниже доступны кнопкам. */
 
 async function refreshAll(){
  if(refreshing)return;
