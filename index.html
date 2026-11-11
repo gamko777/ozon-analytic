@@ -264,7 +264,6 @@ async function candles(sym,interval,days){
  let start=0;
  let ix=null;
  const maxPages=25;
-
  for(let page=0;page<maxPages;page++){
   const u=new URL(path);
   u.searchParams.set('from',dateBack(days));
@@ -273,67 +272,45 @@ async function candles(sym,interval,days){
   u.searchParams.set('start',String(start));
   u.searchParams.set('limit','500');
   u.searchParams.set('iss.meta','off');
-
   const j=await getJSON(u.toString());
   const b=j.candles;
-
-  if(!b||!b.columns||!b.data)
-   throw Error('MOEX не вернула таблицу свечей '+sym);
-
-  const currentIndex=Object.fromEntries(
-   b.columns.map((x,i)=>[x,i])
-  );
-
-  if(currentIndex.begin===undefined)
-   throw Error('В ответе MOEX отсутствует время свечи');
-
+  if(!b||!b.columns||!b.data)throw Error('MOEX не вернула таблицу свечей '+sym);
+  const currentIndex=Object.fromEntries(b.columns.map((x,i)=>[x,i]));
+  if(currentIndex.begin===undefined)throw Error('В ответе MOEX отсутствует время свечи');
   if(!ix)ix=currentIndex;
-
   if(!b.data.length)break;
-
   all.push(...b.data);
   start+=b.data.length;
-
   if(b.data.length<500)break;
   await sleep(100);
  }
-
  if(!ix||!all.length)return [];
-
  const map=new Map();
-
  for(const r of all){
   const t=parseStamp(r[ix.begin]);
   const duration=interval===24?86400000:interval*60000;
-  const end=ix.end!==undefined?
-   parseStamp(r[ix.end]):t+duration;
-
-  const o=Number(r[ix.open]);
-  const h=Number(r[ix.high]);
-  const l=Number(r[ix.low]);
-  const c=Number(r[ix.close]);
-  const v=Number(r[ix.volume]);
-
+  const end=ix.end!==undefined?parseStamp(r[ix.end]):t+duration;
+  const o=Number(r[ix.open]),h=Number(r[ix.high]),l=Number(r[ix.low]),c=Number(r[ix.close]),v=Number(r[ix.volume]);
   if(!t||!Number.isFinite(end)||end>Date.now())continue;
   if(![o,h,l,c].every(Number.isFinite))continue;
   if(h<Math.max(o,c)||l>Math.min(o,c)||h<l)continue;
-
-  map.set(t,{
-   time:t,end,
-   open:o,high:h,low:l,close:c,
-   volume:Number.isFinite(v)?v:0
-  });
+  map.set(t,{time:t,end,open:o,high:h,low:l,close:c,volume:Number.isFinite(v)?v:0});
  }
-
  return [...map.values()].sort((a,b)=>a.time-b.time);
 }
- function aggregate(a,n){const m=new Map(),span=n*60000,off=10800000;for(const x of a){const k=Math.floor((x.time+off)/span)*span-off;let b=m.get(k);if(!b)m.set(k,{...x,time:k,end:k+span});else{b.high=Math.max(b.high,x.high);b.low=Math.min(b.low,x.low);b.close=x.close;b.volume+=x.volume}}return [...m.values()].filter(x=>x.end<=Date.now()).sort((a,b)=>a.time-b.time)}
-
+function aggregate(a,n){
+ const m=new Map(),span=n*60000,off=10800000;
+ for(const x of a){
+  const k=Math.floor((x.time+off)/span)*span-off;
+  let b=m.get(k);
+  if(!b)m.set(k,{...x,time:k,end:k+span});
+  else{b.high=Math.max(b.high,x.high);b.low=Math.min(b.low,x.low);b.close=x.close;b.volume+=x.volume}
+ }
+ return [...m.values()].filter(x=>x.end<=Date.now()).sort((a,b)=>a.time-b.time);
+}
 async function loadSymbol(sym){
  const m=await resolveBoard(sym);marketInfo[sym]=m;
- const jobs=await Promise.allSettled([
-  quote(sym),candles(sym,1,14),candles(sym,60,120),candles(sym,24,500)
- ]);
+ const jobs=await Promise.allSettled([quote(sym),candles(sym,1,14),candles(sym,60,120),candles(sym,24,500)]);
  const mins=jobs[1].status==='fulfilled'?jobs[1].value:[];
  data[sym]={
   quote:jobs[0].status==='fulfilled'?jobs[0].value:null,
@@ -351,7 +328,8 @@ async function loadSymbol(sym){
  if(errors.length)console.warn(sym,errors.join('; '));
 }
 async function quote(sym){
- const j=await getJSON(apiBase(sym)+'/marketdata.json?iss.meta=off'),b=j.marketdata,ix=Object.fromEntries(b.columns.map((x,i)=>[x,i])),r=b.data?.[0];
+ const j=await getJSON(apiBase(sym)+'/marketdata.json?iss.meta=off');
+ const b=j.marketdata,ix=Object.fromEntries(b.columns.map((x,i)=>[x,i])),r=b.data?.[0];
  if(!r)throw Error('Нет котировки');
  const p=+r[ix.LAST],t=parseStamp(r[ix.LASTTRADEDATE],r[ix.LASTTRADETIME]);
  if(!Number.isFinite(p)||p<=0)throw Error('MOEX вернула некорректную цену '+sym);
@@ -383,7 +361,8 @@ function atr(a,n=14){
  let out=Array(a.length).fill(null);if(a.length<=n)return out;
  let tr=a.map((x,i)=>i?Math.max(x.high-x.low,Math.abs(x.high-a[i-1].close),Math.abs(x.low-a[i-1].close)):x.high-x.low);
  let v=tr.slice(1,n+1).reduce((s,x)=>s+x,0)/n;out[n]=v;
- for(let i=n+1;i<a.length;i++){v=(v*(n-1)+tr[i])/n;out[i]=v}return out;
+ for(let i=n+1;i<a.length;i++){v=(v*(n-1)+tr[i])/n;out[i]=v}
+ return out;
 }
 function macd(a){
  let x=ema(a,12),y=ema(a,26),line=a.map((b,i)=>x[i]!=null&&y[i]!=null?x[i]-y[i]:null),sig=Array(a.length).fill(null),v=null;
@@ -427,15 +406,7 @@ function extras(a){
   let f=((a[k].high+a[k].low+a[k].close)/3)*a[k].volume;
   if(a[k].close>a[k-1].close)pos+=f;else if(a[k].close<a[k-1].close)neg+=f;
  }
- return {
-  bbLow:mean-2*sd,bbHigh:mean+2*sd,
-  stoch:hh===ll?50:(x.close-ll)/(hh-ll)*100,
-  cci:dev?(tp[tp.length-1]-avg)/(.015*dev):0,
-  roc:(x.close/cl[cl.length-11]-1)*100,
-  obv,mfi:neg?100-100/(1+pos/neg):100,
-  support:Math.min(...old.map(b=>b.low)),
-  resistance:Math.max(...old.map(b=>b.high))
- };
+ return {bbLow:mean-2*sd,bbHigh:mean+2*sd,stoch:hh===ll?50:(x.close-ll)/(hh-ll)*100,cci:dev?(tp[tp.length-1]-avg)/(.015*dev):0,roc:(x.close/cl[cl.length-11]-1)*100,obv,mfi:neg?100-100/(1+pos/neg):100,support:Math.min(...old.map(b=>b.low)),resistance:Math.max(...old.map(b=>b.high))};
 }
 function calc(a){
  let i=a.length-1;if(i<35)return null;
@@ -454,16 +425,7 @@ function trend(a){
 }
 function features(a){
  let c=calc(a);if(!c)return null;let ex=extras(a),old=a[Math.max(0,a.length-6)].close;
- return [
-  Math.max(-3,Math.min(3,(c.e9-c.e21)/c.atr)),
-  (c.r-50)/25,
-  Math.max(-3,Math.min(3,(c.m-c.ms)/c.atr)),
-  Math.min(3,c.adx/25),
-  Math.min(3,Math.log(1+Math.max(0,c.vol))),
-  Math.max(-3,Math.min(3,(c.p-old)/c.atr)),
-  ex?Math.max(-3,Math.min(3,ex.cci/100)):0,
-  ex?(ex.stoch-50)/25:0
- ];
+ return [Math.max(-3,Math.min(3,(c.e9-c.e21)/c.atr)),(c.r-50)/25,Math.max(-3,Math.min(3,(c.m-c.ms)/c.atr)),Math.min(3,c.adx/25),Math.min(3,Math.log(1+Math.max(0,c.vol))),Math.max(-3,Math.min(3,(c.p-old)/c.atr)),ex?Math.max(-3,Math.min(3,ex.cci/100)):0,ex?(ex.stoch-50)/25:0];
 }
 const sigmoid=z=>1/(1+Math.exp(-Math.max(-25,Math.min(25,z))));
 function logistic(train){
@@ -480,10 +442,7 @@ function modelTrain(a){
  for(let i=start;i<a.length-13;i++){
   let h=a.slice(0,i+1),f=features(h),c=calc(h);if(!f||!c)continue;
   let stop=c.p-c.atr*1.3,target=c.p+c.atr*1.8,y=null;
-  for(let k=i+1;k<=Math.min(i+12,a.length-1);k++){
-   if(a[k].low<=stop){y=0;break}
-   if(a[k].high>=target){y=1;break}
-  }
+  for(let k=i+1;k<=Math.min(i+12,a.length-1);k++){if(a[k].low<=stop){y=0;break}if(a[k].high>=target){y=1;break}}
   if(y!==null)samples.push({f,y,i});
  }
  let split=Math.floor(a.length*.8);
@@ -519,7 +478,7 @@ function technical(a,c){
  if(e.roc>0)s++;if(e.mfi>50)s++;
  return .35+s*.0375;
 }
-function buildAI(sym){
+ function buildAI(sym){
  let a=data[sym]?.five||[],c=calc(a);if(!c)return {ok:false,reason:'Недостаточно свечей'};
  let m=modelTrain(a),f=features(a);
  let pl=m.w&&f?sigmoid(m.w[0]+f.reduce((s,x,i)=>s+x*m.w[i+1],0)):null;
@@ -551,10 +510,7 @@ function backtest(a){
   let score=(c.e9>c.e21?1:0)+(c.m>c.ms?1:0)+(c.r>50&&c.r<70?1:0)+(c.adx>18?1:0)+(c.vol>1.1?1:0)+(c.p>e.bbLow?1:0);
   if(score<4)continue;
   let entry=c.p,stop=entry-c.atr*1.3,target=entry+c.atr*1.8,exit=null;
-  for(let k=i+1;k<=i+12;k++){
-   if(a[k].low<=stop){exit=stop;break}
-   if(a[k].high>=target){exit=target;break}
-  }
+  for(let k=i+1;k<=i+12;k++){if(a[k].low<=stop){exit=stop;break}if(a[k].high>=target){exit=target;break}}
   if(exit===null)continue;
   let qty=Math.max(1,Math.floor(10000/entry));
   let gross=(exit-entry)*qty;
@@ -579,10 +535,10 @@ function monteCarlo(t){
 function strategies(a,c){
  let old=a.slice(-21,-1),hi=Math.max(...old.map(x=>x.high));
  return {
- trend:c.e9>c.e21&&c.adx>18?'ПОКУПКА':'ОЖИДАНИЕ',
- pull:c.e9>c.e21&&a.at(-1).low<=c.e9&&a.at(-1).close>c.e9?'ПОКУПКА':'ОЖИДАНИЕ',
- breakout:c.p>hi&&c.vol>1.3?'ПОКУПКА':'ОЖИДАНИЕ',
- reverse:c.r<30&&a.at(-1).close>a.at(-2).close?'ВОЗМОЖНЫЙ РАЗВОРОТ':'ОЖИДАНИЕ'
+  trend:c.e9>c.e21&&c.adx>18?'ПОКУПКА':'ОЖИДАНИЕ',
+  pull:c.e9>c.e21&&a.at(-1).low<=c.e9&&a.at(-1).close>c.e9?'ПОКУПКА':'ОЖИДАНИЕ',
+  breakout:c.p>hi&&c.vol>1.3?'ПОКУПКА':'ОЖИДАНИЕ',
+  reverse:c.r<30&&a.at(-1).close>a.at(-2).close?'ВОЗМОЖНЫЙ РАЗВОРОТ':'ОЖИДАНИЕ'
  };
 }
 function drawChart(a){
@@ -681,7 +637,8 @@ function updatePortfolio(){
  set('aiTrades',all.length);set('aiWins',wins.length);
  set('aiWinRate',all.length?fmt(wins.length/all.length*100,1)+'%':'—');
  set('aiExpect',all.length?rub(all.reduce((s,x)=>s+x.net,0)/all.length):'—');
- let j=$('journal');j.innerHTML=state.closed.slice(-40).reverse().map(x=>'<tr><td>'+new Date(x.time).toLocaleString('ru-RU')+'</td><td>'+x.sym+'</td><td>'+x.type+'</td><td>'+fmt(x.price)+'</td><td>'+rub(x.net||0)+'</td></tr>').join('')||'<tr><td colspan="5">Сделок пока нет</td></tr>';
+ let j=$('journal');
+ j.innerHTML=state.closed.slice(-40).reverse().map(x=>'<tr><td>'+new Date(x.time).toLocaleString('ru-RU')+'</td><td>'+x.sym+'</td><td>'+x.type+'</td><td>'+fmt(x.price)+'</td><td>'+rub(x.net||0)+'</td></tr>').join('')||'<tr><td colspan="5">Сделок пока нет</td></tr>';
 }
 function openVirtual(sym,price){
  if(state.positions[sym]||!fresh(sym))return false;
@@ -707,8 +664,16 @@ function closeVirtual(sym,price,reason){
  if(net<0)state.lossStreak++;else state.lossStreak=0;
  save();updatePortfolio();
 }
-function manualBuy(){let p=data[active]?.quote?.price;if(p&&openVirtual(active,p))log('Виртуальная покупка '+active);else log('Покупка заблокирована: нет свежих данных или недостаточно средств')}
-function manualSell(){let p=data[active]?.quote?.price;if(p&&state.positions[active]){closeVirtual(active,p,'Ручное закрытие');log('Позиция закрыта')}else log('Нет открытой позиции')}
+function manualBuy(){
+ let p=data[active]?.quote?.price;
+ if(p&&openVirtual(active,p))log('Виртуальная покупка '+active);
+ else log('Покупка заблокирована: нет свежих данных или недостаточно средств');
+}
+function manualSell(){
+ let p=data[active]?.quote?.price;
+ if(p&&state.positions[active]){closeVirtual(active,p,'Ручное закрытие');log('Позиция закрыта')}
+ else log('Нет открытой позиции');
+}
 function autoManage(){
  for(let sym of ['OZON','TGLD']){
   let p=state.positions[sym],q=data[sym]?.quote;
@@ -720,57 +685,45 @@ function autoManage(){
   if(price>=p.price+p.price*.003)p.stop=Math.max(p.stop,p.price+FEE*2/p.qty);
   if(price>p.price+c.atr)p.stop=Math.max(p.stop,price-c.atr*1.1);
   if(c.e9<c.e21&&c.m<c.ms)closeVirtual(sym,price,'Разворот тренда');
+ }
 }
+/* ИСПРАВЛЕНИЕ: закрыта функция autoManage(). Все функции ниже доступны кнопкам. */
 
-/* Обновление данных с раздельной обработкой ошибок */
 async function refreshAll(){
  if(refreshing)return;
  refreshing=true;
  $('systemLog').textContent='Загрузка OZON и TGLD…';
  try{
   for(let sym of ['OZON','TGLD']){
-   try{
-    await loadSymbol(sym);
-   }catch(e){
-    console.warn(sym,e);
-    log(sym+': ошибка загрузки — '+e.message);
-   }
+   try{await loadSymbol(sym)}
+   catch(e){console.warn(sym,e);log(sym+': ошибка загрузки — '+e.message)}
   }
   render();
   autoManage();
-
   let r=lastDecision[active];
   if(aiEnabled&&r?.buy&&!state.positions[active]&&fresh(active)){
    openVirtual(active,data[active].quote.price);
   }
-
   let problems=[];
   for(let sym of ['OZON','TGLD']){
-   if(data[sym]?.errors?.length){
-    problems.push(sym+': '+data[sym].errors.join(', '));
-   }
-   if(!data[sym]){
-    problems.push(sym+': данные не загружены');
-   }
+   if(data[sym]?.errors?.length)problems.push(sym+': '+data[sym].errors.join(', '));
+   if(!data[sym])problems.push(sym+': данные не загружены');
   }
-  if(problems.length){
-   log('Обновление завершено с предупреждениями. '+problems.join(' | '));
-  }else{
-   log('Обновление завершено. Инструменты обработаны независимо.');
-  }
+  if(problems.length)log('Обновление завершено с предупреждениями. '+problems.join(' | '));
+  else log('Обновление завершено. Инструменты обработаны независимо.');
  }catch(e){
   console.error('SNIPER refresh error',e);
   log('Ошибка обновления: '+e.message);
- }finally{
-  refreshing=false;
- }
+ }finally{refreshing=false}
 }
 function selectSymbol(s){
- active=s;['ozon','tgld'].forEach(id=>$(id).classList.toggle('active',id===(s==='OZON'?'ozon':'tgld')));
+ active=s;
+ ['ozon','tgld'].forEach(id=>$(id).classList.toggle('active',id===(s==='OZON'?'ozon':'tgld')));
  setChart();render();
 }
 function selectTf(p){
- tf=p;document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('active',b.dataset.tf===p));
+ tf=p;
+ document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('active',b.dataset.tf===p));
  setChart();render();
 }
 function setChart(){
@@ -779,7 +732,8 @@ function setChart(){
  $('tv').src='https://s.tradingview.com/widgetembed/?symbol='+encodeURIComponent(sym)+'&interval='+iv+'&theme=dark&style=1&locale=ru&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1';
 }
 function toggleAI(){
- aiEnabled=!aiEnabled;set('aiToggle',aiEnabled?'AI: ВКЛ.':'AI: ВЫКЛ.');
+ aiEnabled=!aiEnabled;
+ set('aiToggle',aiEnabled?'AI: ВКЛ.':'AI: ВЫКЛ.');
  if(!aiEnabled)set('aiSignal','ОТКЛЮЧЕН');
  renderAI();
 }
@@ -788,11 +742,14 @@ function exportJournal(){
  state.closed.forEach(x=>rows.push([new Date(x.time).toISOString(),x.sym,x.type,x.price,x.qty||'',x.net||0]));
  let csv='\uFEFF'+rows.map(r=>r.join(';')).join('\n');
  let blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
- let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sniper15_journal.csv';a.click();URL.revokeObjectURL(a.href);
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='sniper15_journal.csv';a.click();
+ URL.revokeObjectURL(a.href);
 }
 function resetVirtual(){
  if(!confirm('Сбросить виртуальный счёт и журнал?'))return;
- state={cash:START,closed:[],positions:{},dailyLoss:0,lossDate:'',lossStreak:0};save();updatePortfolio();log('Виртуальный счёт сброшен');
+ state={cash:START,closed:[],positions:{},dailyLoss:0,lossDate:'',lossStreak:0};
+ save();updatePortfolio();log('Виртуальный счёт сброшен');
 }
 setChart();
 refreshAll();
