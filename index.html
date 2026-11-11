@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080e17">
-<title>SNIPER PRO 15.0 QUANT AI</title>
+<title>SNIPER PRO 15.1 QUANT AI</title>
 <style>
 :root{--bg:#080e17;--panel:#101b29;--panel2:#142235;--line:#26384c;--txt:#e8f0fa;--muted:#91a5bb;--green:#20d69a;--red:#ff6376;--yellow:#f6c85f;--blue:#55aaff}
 *{box-sizing:border-box}
@@ -44,7 +43,7 @@ th{color:var(--muted)}
 </head>
 <body>
 <header>
-<h1>SNIPER PRO 15.0</h1>
+<h1>SNIPER PRO 15.1</h1>
 <div class="small">QUANT AI ENSEMBLE · MOEX · OZON + TGLD · АВТОНОМНАЯ ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
 </header>
 <main>
@@ -74,7 +73,7 @@ th{color:var(--muted)}
 <section class="panel">
 <div class="row">
 <div>
-<div class="title">🧠 QUANT AI ENSEMBLE 15.0</div>
+<div class="title">🧠 QUANT AI ENSEMBLE 15.1</div>
 <div class="small">Четыре независимые оценки · проверка качества · локальное обучение</div>
 </div>
 <button class="primary" id="aiToggle" onclick="toggleAI()">AI: ВКЛ.</button>
@@ -257,15 +256,77 @@ async function resolveBoard(sym){
  throw Error('Не найден активный режим торгов '+sym);
 }
 function apiBase(sym){const m=marketInfo[sym];return `https://iss.moex.com/iss/engines/${m.engine}/markets/${m.market}/boards/${m.board}/securities/${sym}`}
+
+/* ИСПРАВЛЕНО: постраничная загрузка истории свечей MOEX ISS */
 async function candles(sym,interval,days){
- const url=apiBase(sym)+'/candles.json?from='+dateBack(days)+'&interval='+interval+'&limit=500&iss.meta=off';
- const j=await getJSON(url),b=j.candles,ix=Object.fromEntries(b.columns.map((x,i)=>[x,i]));
- return (b.data||[]).map(r=>{const t=parseStamp(r[ix.begin]);const duration=interval===24?86400000:interval*60000;return {time:t,end:ix.end!==undefined?parseStamp(r[ix.end]):t+duration,open:+r[ix.open],high:+r[ix.high],low:+r[ix.low],close:+r[ix.close],volume:+r[ix.volume]||0}}).filter(x=>x.time&&[x.open,x.high,x.low,x.close].every(Number.isFinite)&&x.end<=Date.now());
+ const path=apiBase(sym)+'/candles.json';
+ const all=[];
+ let start=0;
+ const maxPages=25;
+
+ for(let page=0;page<maxPages;page++){
+  const u=new URL(path);
+  u.searchParams.set('from',dateBack(days));
+  u.searchParams.set('till',new Date().toISOString().slice(0,10));
+  u.searchParams.set('interval',String(interval));
+  u.searchParams.set('start',String(start));
+  u.searchParams.set('limit','500');
+  u.searchParams.set('iss.meta','off');
+
+  const j=await getJSON(u.toString());
+  const b=j.candles;
+
+  if(!b||!b.columns||!b.data)
+   throw Error('MOEX не вернула таблицу свечей '+sym);
+
+  const ix=Object.fromEntries(
+   b.columns.map((x,i)=>[x,i])
+  );
+
+  if(ix.begin===undefined)
+   throw Error('В ответе MOEX отсутствует время свечи');
+
+  if(!b.data.length)break;
+
+  all.push(...b.data);
+  start+=b.data.length;
+
+  if(b.data.length<500)break;
+  await sleep(100);
+ }
+
+ const map=new Map();
+
+ for(const r of all){
+  const t=parseStamp(r[ix.begin]);
+  const duration=interval===24?86400000:interval*60000;
+  const end=ix.end!==undefined?
+   parseStamp(r[ix.end]):t+duration;
+
+  const o=Number(r[ix.open]);
+  const h=Number(r[ix.high]);
+  const l=Number(r[ix.low]);
+  const c=Number(r[ix.close]);
+  const v=Number(r[ix.volume]);
+
+  if(!t||!Number.isFinite(end)||end>Date.now())continue;
+  if(![o,h,l,c].every(Number.isFinite))continue;
+  if(h<Math.max(o,c)||l>Math.min(o,c)||h<l)continue;
+
+  map.set(t,{
+   time:t,end,
+   open:o,high:h,low:l,close:c,
+   volume:Number.isFinite(v)?v:0
+  });
+ }
+
+ return [...map.values()].sort((a,b)=>a.time-b.time);
 }
 async function quote(sym){
  const j=await getJSON(apiBase(sym)+'/marketdata.json?iss.meta=off'),b=j.marketdata,ix=Object.fromEntries(b.columns.map((x,i)=>[x,i])),r=b.data?.[0];
  if(!r)throw Error('Нет котировки');
  const p=+r[ix.LAST],t=parseStamp(r[ix.LASTTRADEDATE],r[ix.LASTTRADETIME]);
+ if(!Number.isFinite(p)||p<=0)throw Error('MOEX вернула некорректную цену '+sym);
  return {price:p,time:t,received:Date.now()};
 }
 function aggregate(a,n){const m=new Map(),span=n*60000,off=10800000;for(const x of a){const k=Math.floor((x.time+off)/span)*span-off;let b=m.get(k);if(!b)m.set(k,{...x,time:k,end:k+span});else{b.high=Math.max(b.high,x.high);b.low=Math.min(b.low,x.low);b.close=x.close;b.volume+=x.volume}}return [...m.values()].filter(x=>x.end<=Date.now()).sort((a,b)=>a.time-b.time)}
@@ -282,7 +343,14 @@ async function loadSymbol(sym){
   hourly:jobs[2].status==='fulfilled'?jobs[2].value:[],
   daily:jobs[3].status==='fulfilled'?jobs[3].value:[]
  };
- if(!mins.length)throw Error('Нет истории минутных свечей '+sym);
+ const errors=[];
+ if(jobs[0].status==='rejected')errors.push('котировка: '+jobs[0].reason.message);
+ if(jobs[1].status==='rejected')errors.push('минутные свечи: '+jobs[1].reason.message);
+ if(jobs[2].status==='rejected')errors.push('часовые свечи: '+jobs[2].reason.message);
+ if(jobs[3].status==='rejected')errors.push('дневные свечи: '+jobs[3].reason.message);
+ data[sym].errors=errors;
+ if(!mins.length)throw Error('Нет истории минутных свечей '+sym+(errors.length?'. '+errors.join('; '):''));
+ if(errors.length)console.warn(sym,errors.join('; '));
 }
 function bars(sym,p){
  const d=data[sym];if(!d)return[];
@@ -338,6 +406,79 @@ function adx(a,n=14){
  for(let i=n;i<dx.length;i++){v=(v*(n-1)+dx[i].v)/n;out[dx[i].i]=v}
  return out;
 }
+ <script>
+/* Окончательная версия загрузчика.
+   Перекрывает предварительное объявление из первой части. */
+async function candles(sym,interval,days){
+ const path=apiBase(sym)+'/candles.json';
+ const all=[];
+ let start=0;
+ let ix=null;
+ const maxPages=25;
+
+ for(let page=0;page<maxPages;page++){
+  const u=new URL(path);
+  u.searchParams.set('from',dateBack(days));
+  u.searchParams.set('till',new Date().toISOString().slice(0,10));
+  u.searchParams.set('interval',String(interval));
+  u.searchParams.set('start',String(start));
+  u.searchParams.set('limit','500');
+  u.searchParams.set('iss.meta','off');
+
+  const j=await getJSON(u.toString());
+  const b=j.candles;
+
+  if(!b||!b.columns||!b.data)
+   throw Error('MOEX не вернула таблицу свечей '+sym);
+
+  const currentIndex=Object.fromEntries(
+   b.columns.map((x,i)=>[x,i])
+  );
+
+  if(currentIndex.begin===undefined)
+   throw Error('В ответе MOEX отсутствует время свечи');
+
+  if(!ix)ix=currentIndex;
+
+  if(!b.data.length)break;
+
+  all.push(...b.data);
+  start+=b.data.length;
+
+  if(b.data.length<500)break;
+  await sleep(100);
+ }
+
+ if(!ix||!all.length)return [];
+
+ const map=new Map();
+
+ for(const r of all){
+  const t=parseStamp(r[ix.begin]);
+  const duration=interval===24?86400000:interval*60000;
+  const end=ix.end!==undefined?
+   parseStamp(r[ix.end]):t+duration;
+
+  const o=Number(r[ix.open]);
+  const h=Number(r[ix.high]);
+  const l=Number(r[ix.low]);
+  const c=Number(r[ix.close]);
+  const v=Number(r[ix.volume]);
+
+  if(!t||!Number.isFinite(end)||end>Date.now())continue;
+  if(![o,h,l,c].every(Number.isFinite))continue;
+  if(h<Math.max(o,c)||l>Math.min(o,c)||h<l)continue;
+
+  map.set(t,{
+   time:t,end,
+   open:o,high:h,low:l,close:c,
+   volume:Number.isFinite(v)?v:0
+  });
+ }
+
+ return [...map.values()].sort((a,b)=>a.time-b.time);
+}
+
 function extras(a){
  let i=a.length-1;if(i<25)return null;
  let x=a[i],cl=a.map(b=>b.close),mean=cl.slice(-20).reduce((s,v)=>s+v,0)/20;
@@ -462,7 +603,7 @@ function buildAI(sym){
  let quality=m.accuracy!==undefined&&m.accuracy>=.52&&m.train>=60&&m.test>=15&&m.samples>=80;
  let aligned=mtf.m15!=='НИСХОДЯЩИЙ'&&mtf.m60!=='НИСХОДЯЩИЙ';
  let strategy=c.e9>c.e21&&c.adx>18?'TREND':
-  c.r<38&&c.p> a.at(-2).close?'REVERSAL':
+  c.r<38&&c.p>a.at(-2).close?'REVERSAL':
   c.p>a.slice(-21,-1).reduce((v,b)=>Math.max(v,b.high),0)&&c.vol>1.3?'BREAKOUT':'WAIT';
  let buy=aiEnabled&&p!==null&&p>=.63&&quality&&aligned&&fresh(sym)&&strategy!=='WAIT';
  let reason=[];
@@ -536,7 +677,17 @@ function drawChart(a){
 }
 function renderAI(){
  let r=buildAI(active);
- if(!r.ok){set('aiReason',r.reason);return}
+ if(!r.ok){
+  set('aiSignal','НЕДОСТАТОЧНО ДАННЫХ');
+  $('aiSignal').className='signal yellow';
+  set('aiProb','—');$('aiBar').style.width='0%';
+  set('aiSamples','—');set('aiAccuracy','—');
+  set('aiTestCount','—');set('modelLogit','—');
+  set('modelKnn','—');set('modelBayes','—');
+  set('modelTech','—');set('aiStrategy','—');
+  set('aiReason',r.reason);
+  return;
+ }
  let m=r.m,p=r.p;
  set('aiSignal',r.buy?'ПОКУПКА':'ОЖИДАНИЕ');
  $('aiSignal').className='signal '+(r.buy?'green':'yellow');
@@ -559,7 +710,11 @@ function render(){
  $('quoteStatus').className='small '+(fresh(active)?'green':'red');
  set('lastUpdate',q?.time?new Date(q.time).toLocaleString('ru-RU'):'Время сделки не определено');
  set('boardInfo','MOEX · '+marketInfo[active].engine+'/'+marketInfo[active].market+' · '+marketInfo[active].board);
- if(!c){set('decision','Недостаточно закрытых свечей');renderAI();return}
+ if(!c){
+  set('decision','Недостаточно закрытых свечей. Получено: '+a.length);
+  set('chartInfo','Недостаточно свечей для построения анализа');
+  drawChart(a);renderAI();updatePortfolio();return;
+ }
  let ex=extras(a),mtf={m1:trend(d.mins),m5:trend(d.five),m15:trend(d.fifteen),m60:trend(d.hourly)},s=strategies(a,c);
  set('signal','ОЖИДАНИЕ');$('signal').className='signal yellow';
  set('decision','Совпадение факторов: '+[c.e9>c.e21,c.m>c.ms,c.r>50&&c.r<70,c.adx>18,c.vol>1.1,c.vwap&&c.p>c.vwap].filter(Boolean).length+' из 6. '+(fresh(active)?'Котировка проверена':'Вход заблокирован: устаревшая котировка'));
@@ -579,6 +734,7 @@ function render(){
  set('entry',rub(entry));set('stop',rub(entry-c.atr*1.3));
  set('target1',rub(entry+c.atr*1.3));set('target2',rub(entry+c.atr*1.8));
  set('planNote','Уровни ATR. Комиссия 10,07 ₽ за сторону, проскальзывание 0,05% за сторону. Только виртуальные расчёты.');
+ set('chartInfo','Свечей на выбранном таймфрейме: '+a.length+' · последняя закрытая: '+new Date(a.at(-1).end).toLocaleString('ru-RU'));
  let bt=backtest(data[active].five);
  set('btCount',bt.trades.length);set('btWin',bt.wins);
  set('btRate',bt.rate===null?'—':fmt(bt.rate*100,1)+'%');
@@ -639,19 +795,49 @@ function autoManage(){
   if(c.e9<c.e21&&c.m<c.ms)closeVirtual(sym,price,'Разворот тренда');
  }
 }
+
+/* ИСПРАВЛЕНО: ошибки загрузки больше не скрываются */
 async function refreshAll(){
- if(refreshing)return;refreshing=true;
+ if(refreshing)return;
+ refreshing=true;
  $('systemLog').textContent='Загрузка OZON и TGLD…';
  try{
   for(let sym of ['OZON','TGLD']){
-   try{await loadSymbol(sym)}catch(e){console.warn(sym,e)}
+   try{
+    await loadSymbol(sym);
+   }catch(e){
+    console.warn(sym,e);
+    log(sym+': ошибка загрузки — '+e.message);
+   }
   }
-  render();autoManage();
+  render();
+  autoManage();
+
   let r=lastDecision[active];
-  if(aiEnabled&&r?.buy&&!state.positions[active])openVirtual(active,data[active].quote.price);
-  log('Обновление завершено. Инструменты обработаны независимо.');
- }catch(e){log('Ошибка загрузки: '+e.message)}
- finally{refreshing=false}
+  if(aiEnabled&&r?.buy&&!state.positions[active]&&fresh(active)){
+   openVirtual(active,data[active].quote.price);
+  }
+
+  let problems=[];
+  for(let sym of ['OZON','TGLD']){
+   if(data[sym]?.errors?.length){
+    problems.push(sym+': '+data[sym].errors.join(', '));
+   }
+   if(!data[sym]){
+    problems.push(sym+': данные не загружены');
+   }
+  }
+  if(problems.length){
+   log('Обновление завершено с предупреждениями. '+problems.join(' | '));
+  }else{
+   log('Обновление завершено. Инструменты обработаны независимо.');
+  }
+ }catch(e){
+  console.error('SNIPER refresh error',e);
+  log('Ошибка обновления: '+e.message);
+ }finally{
+  refreshing=false;
+ }
 }
 function selectSymbol(s){
  active=s;['ozon','tgld'].forEach(id=>$(id).classList.toggle('active',id===(s==='OZON'?'ozon':'tgld')));
