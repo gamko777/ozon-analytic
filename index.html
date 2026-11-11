@@ -4,627 +4,558 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080e17">
-<title>SNIPER PRO — Heikin Ashi</title>
+<title>SNIPER PRO — AUTO MACD</title>
 <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
 <style>
-:root{--bg:#080e17;--panel:#101b29;--panel2:#142438;--line:#26384c;--txt:#e7f0fa;--muted:#91a4b9;--green:#20d69a;--red:#ff6376;--yellow:#f6c85f;--blue:#55aaff}
+:root{--bg:#080e17;--panel:#101b29;--panel2:#172638;--line:#26384c;--txt:#e8f0fa;--muted:#8ca1b8;--green:#16d69a;--red:#ff5b70;--blue:#54a9ff;--gold:#f6bd55}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font:14px Arial,sans-serif}
-main{max-width:900px;margin:auto;padding:10px}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0 12px}
-h1{font-size:20px;margin:0;color:#fff}
-h2{font-size:14px;color:#9fcaff;margin:0 0 10px}
-.small{font-size:11px;color:var(--muted);line-height:1.5}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
-.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
-button,select{background:#1a2c40;color:var(--txt);border:1px solid #35506d;border-radius:8px;padding:10px 12px;font-size:13px}
-button.active{background:#174e52;border-color:var(--green)}
-button:disabled{opacity:.5}
-button.green{background:#124b3b;border-color:var(--green)}
-button.red{background:#512534;border-color:var(--red)}
-.metric{background:var(--panel2);padding:10px;border-radius:8px;min-width:0}
-.metric span{font-size:11px;color:var(--muted)}
-.metric b{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.signal{font-size:20px;font-weight:bold;padding:5px 0}
-.greenText{color:var(--green)}.redText{color:var(--red)}.yellowText{color:var(--yellow)}
-#priceChart{height:320px;width:100%}
-#macdChart{height:150px;width:100%}
-.chartTitle{font-size:11px;color:var(--muted);margin:8px 0}
-#status{font-size:12px;color:var(--yellow);line-height:1.5}
-#journal{max-height:260px;overflow:auto}
+header{padding:16px;background:#0d1927;border-bottom:1px solid var(--line)}
+h1{font-size:23px;margin:0;font-weight:900;letter-spacing:1px}
+.sub{font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px}
+main{padding:11px;max-width:950px;margin:auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:11px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+button,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:11px;border-radius:9px;font-size:13px}
+button.active,button.selected{border-color:var(--blue);color:var(--blue);background:#142b40}
+button:active{opacity:.7}
+.assets{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.asset{font-size:17px;font-weight:bold;padding:14px}
+.asset small{display:block;font-size:10px;color:var(--muted);margin-top:5px}
+.price{font-size:27px;font-weight:bold;margin:10px 0}
+.muted{color:var(--muted);font-size:11px}
+.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}
+.status{padding:11px;border-radius:9px;background:var(--panel2);font-weight:bold;text-align:center;margin-top:9px}
+.charttitle{font-weight:bold;margin-bottom:8px}
+.chartwrap{background:#0b1420;border-radius:9px;overflow:hidden}
+#priceChart{height:330px;width:100%}
+#macdChart{height:155px;width:100%;border-top:1px solid var(--line)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:var(--panel2);padding:11px;border-radius:9px;min-width:0}
+.metric span{font-size:10px;color:var(--muted)}
+.metric b{display:block;font-size:18px;margin-top:6px;overflow-wrap:anywhere}
+.bigsignal{font-size:22px;text-align:center;font-weight:900;padding:12px}
+.auto{width:100%;font-weight:bold;padding:14px}
+.auto.on{background:#075b45;border-color:#087b5c;color:#fff}
 table{width:100%;border-collapse:collapse;font-size:11px}
-td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
-th{color:#9fcaff}
-.good{color:var(--green)}.bad{color:var(--red)}
-.note{font-size:11px;color:var(--muted);line-height:1.55}
-hr{border:0;border-top:1px solid var(--line);margin:12px 0}
-@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+td,th{padding:9px 5px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--muted)}
+.tablewrap{overflow-x:auto}
+footer{text-align:center;color:var(--muted);font-size:10px;padding:18px}
+.note{font-size:11px;line-height:1.5;color:var(--muted)}
 </style>
 </head>
 <body>
-<main>
 <header>
- <div>
-  <h1>SNIPER PRO</h1>
-  <div class="small">HEIKIN ASHI · MACD CLOSE · АВТОВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
+ <div class="row">
+  <div>
+   <h1>SNIPER PRO <span class="gold">AUTO</span></h1>
+   <div class="sub">HEIKIN ASHI · MACD CLOSE · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
+  </div>
+  <span class="green" id="systemState">● ЗАПУСК</span>
  </div>
- <div id="runStatus" class="small yellowText">ЗАГРУЗКА</div>
 </header>
 
-<section class="panel">
+<main>
+<section class="card">
+ <div class="row"><b>ИНСТРУМЕНТ</b><span class="muted">MOEX ISS</span></div>
+ <div class="assets">
+  <button class="asset selected" id="ozonBtn" onclick="selectAsset('OZON')">OZON<small>Акции</small></button>
+  <button class="asset" id="goldBtn" onclick="selectAsset('TGLD')">ЗОЛОТО<small>Биржевой фонд</small></button>
+ </div>
+</section>
+
+<section class="card">
+ <div class="row"><b>РЫНОЧНЫЕ ДАННЫЕ</b><button onclick="refreshAll()">↻ Обновить</button></div>
+ <div class="price" id="price">—</div>
  <div class="row">
-  <button id="ozon" class="active" onclick="selectSymbol('OZON')">OZON</button>
-  <button id="tgld" onclick="selectSymbol('TGLD')">TGLD · ЗОЛОТО</button>
-  <button onclick="refreshAll()">↻ Обновить</button>
+  <span class="muted" id="quoteStatus">Загрузка котировки</span>
+  <span class="muted" id="quoteTime">—</span>
  </div>
- <div class="row" style="margin-top:10px">
-  <span class="small">Таймфрейм торговли:</span>
-  <button data-tf="1" onclick="selectTf('1')">1м</button>
-  <button data-tf="5" class="active" onclick="selectTf('5')">5м</button>
-  <button data-tf="15" onclick="selectTf('15')">15м</button>
-  <button data-tf="30" onclick="selectTf('30')">30м</button>
- </div>
- <div class="grid" style="margin-top:10px">
-  <div class="metric"><span>Последняя цена</span><b id="price">—</b></div>
-  <div class="metric"><span>Состояние данных</span><b id="quoteStatus">—</b></div>
-  <div class="metric"><span>Время последней сделки</span><b id="lastUpdate">—</b></div>
-  <div class="metric"><span>Выбранный график</span><b id="periodInfo">5 минут</b></div>
- </div>
- <p id="status">Подключение к Московской бирже…</p>
 </section>
 
-<section class="panel">
- <div class="row" style="justify-content:space-between">
-  <h2>АВТОМАТИЧЕСКАЯ ТОРГОВЛЯ</h2>
-  <button id="autoBtn" class="green" onclick="toggleAuto()">АВТО: ВКЛ.</button>
+<section class="card">
+ <div class="row">
+  <b>ТАЙМФРЕЙМ СИГНАЛОВ И СДЕЛОК</b>
+  <select id="tf" onchange="changeTF()">
+   <option value="1">1 минута</option>
+   <option value="5" selected>5 минут</option>
+   <option value="15">15 минут</option>
+   <option value="30">30 минут</option>
+  </select>
  </div>
- <div id="signal" class="signal yellowText">ОЖИДАНИЕ СИГНАЛА</div>
- <div class="grid">
-  <div class="metric"><span>Линия MACD</span><b id="macdValue">—</b></div>
-  <div class="metric"><span>Сигнальная линия</span><b id="signalValue">—</b></div>
-  <div class="metric"><span>Направление Heikin Ashi</span><b id="haDirection">—</b></div>
-  <div class="metric"><span>Виртуальная позиция</span><b id="positionInfo">Нет</b></div>
- </div>
- <p class="note">Покупка — пересечение MACD вверх через сигнальную линию. Продажа — пересечение вниз. Heikin Ashi используется для расчёта MACD и отображения сглаженных свечей.</p>
+ <div class="note" style="margin-top:8px">Выбранный период используется одновременно для свечей, MACD и автоматических виртуальных сделок.</div>
 </section>
 
-<section class="panel">
- <h2>ГРАФИК HEIKIN ASHI · МЕТКИ СДЕЛОК</h2>
- <div class="chartTitle">Зелёные свечи — рост · Красные свечи — снижение</div>
- <div id="priceChart"></div>
- <div class="chartTitle">MACD CLOSE · ЗЕЛЁНАЯ ЛИНИЯ / КРАСНАЯ ЛИНИЯ</div>
- <div id="macdChart"></div>
- <p class="note">Метки BUY и SELL появляются на свечах в местах виртуальных сделок. График и расчёты используют выбранный таймфрейм.</p>
-</section>
-
-<section class="panel">
- <h2>ВИРТУАЛЬНЫЙ СЧЁТ</h2>
- <div class="grid">
-  <div class="metric"><span>Свободные средства</span><b id="cash">—</b></div>
-  <div class="metric"><span>Стоимость позиции</span><b id="positionValue">—</b></div>
-  <div class="metric"><span>Результат закрытых сделок</span><b id="profit">—</b></div>
-  <div class="metric"><span>Всего сделок</span><b id="tradeCount">—</b></div>
+<section class="card">
+ <div class="charttitle">ОБЩИЙ ГРАФИК · СИНХРОННАЯ ШКАЛА ВРЕМЕНИ</div>
+ <div class="muted" style="margin-bottom:8px">Верхний график — Heikin Ashi. Нижний — MACD зелёная и Signal красная. Перетаскивание и масштабирование синхронизированы.</div>
+ <div class="chartwrap">
+  <div id="priceChart"></div>
+  <div id="macdChart"></div>
  </div>
- <p class="note">Стартовый виртуальный капитал — 100 000 ₽. В первой версии покупка совершается на все доступные виртуальные средства. Комиссии и налоги пока не учитываются.</p>
+ <div class="note" style="margin-top:8px">Метки BUY и SELL показывают фактические виртуальные входы и выходы. Они привязаны к времени свечи.</div>
 </section>
 
-<section class="panel">
- <h2>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</h2>
- <div id="journal">
+<section class="card">
+ <b>АНАЛИТИКА MACD</b>
+ <div class="bigsignal" id="signal">ОЖИДАНИЕ ДАННЫХ</div>
+ <div class="metrics">
+  <div class="metric"><span>MACD · ЗЕЛЁНАЯ</span><b id="macdVal">—</b></div>
+  <div class="metric"><span>SIGNAL · КРАСНАЯ</span><b id="sigVal">—</b></div>
+  <div class="metric"><span>НАПРАВЛЕНИЕ HA</span><b id="haDirection">—</b></div>
+  <div class="metric"><span>РАЗНИЦА ЛИНИЙ</span><b id="macdDiff">—</b></div>
+ </div>
+ <div class="status" id="reason">Ожидание пересечения линий</div>
+</section>
+
+<section class="card">
+ <div class="row"><b>АВТОМАТИЧЕСКАЯ ВИРТУАЛЬНАЯ ТОРГОВЛЯ</b><span class="gold">БЕЗ БРОКЕРА</span></div>
+ <div class="bigsignal" id="autoState">АВТОТОРГОВЛЯ ВКЛЮЧЕНА</div>
+ <button class="auto on" id="autoBtn" onclick="toggleAuto()">АВТОТОРГОВЛЯ: ВКЛ</button>
+ <div class="metrics" style="margin-top:10px">
+  <div class="metric"><span>ВИРТУАЛЬНЫЙ БАЛАНС</span><b id="balance">100 000 ₽</b></div>
+  <div class="metric"><span>ТЕКУЩАЯ ПОЗИЦИЯ</span><b id="position">НЕТ</b></div>
+  <div class="metric"><span>ЦЕНА ПОКУПКИ</span><b id="entry">—</b></div>
+  <div class="metric"><span>ТЕКУЩИЙ РЕЗУЛЬТАТ</span><b id="profit">0 ₽</b></div>
+  <div class="metric"><span>ЗАКРЫТЫХ СДЕЛОК</span><b id="tradesCount">0</b></div>
+  <div class="metric"><span>ОБЩИЙ РЕЗУЛЬТАТ</span><b id="net">0 ₽</b></div>
+ </div>
+ <div class="note" style="margin-top:10px">Покупка: зелёная MACD пересекает красную снизу вверх. Продажа: зелёная MACD пересекает красную сверху вниз. Покупка выполняется на весь доступный виртуальный баланс. Реальные заявки не отправляются.</div>
+</section>
+
+<section class="card">
+ <div class="row"><b>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</b><button onclick="exportCSV()">Скачать CSV</button></div>
+ <div class="tablewrap" style="margin-top:9px">
   <table>
-   <thead><tr><th>Время</th><th>Инструмент</th><th>Тип</th><th>ТФ</th><th>Цена</th><th>Результат</th></tr></thead>
-   <tbody id="journalRows"><tr><td colspan="6">Сделок пока нет</td></tr></tbody>
+   <thead><tr><th>Время</th><th>Инструмент</th><th>Операция</th><th>Цена</th><th>Кол-во</th><th>Результат</th></tr></thead>
+   <tbody id="history"><tr><td colspan="6">Сделок пока нет</td></tr></tbody>
   </table>
  </div>
- <div class="row" style="margin-top:10px">
-  <button onclick="exportJournal()">Скачать журнал CSV</button>
-  <button class="red" onclick="resetAccount()">Сбросить счёт</button>
- </div>
+ <button style="margin-top:10px;width:100%" onclick="resetAll()">Сбросить виртуальный счёт и журнал</button>
 </section>
 
-<section class="panel">
- <h2>СОСТОЯНИЕ СИСТЕМЫ</h2>
- <div id="systemLog" class="note">Запуск системы…</div>
+<section class="card">
+ <b>СОСТОЯНИЕ СИСТЕМЫ</b>
+ <div class="note" id="systemInfo" style="margin-top:8px">Ожидание подключения к MOEX ISS.</div>
 </section>
 </main>
 
+<footer>SNIPER PRO AUTO · ТОЛЬКО ВИРТУАЛЬНЫЕ СДЕЛКИ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
+
 <script>
-'use strict';
-
 const $=id=>document.getElementById(id);
-const START_CAPITAL=100000;
-const POLL_MS=30000;
-const SYMBOLS={OZON:'OZON',TGLD:'TGLD'};
-const TF_LABEL={'1':'1 минута','5':'5 минут','15':'15 минут','30':'30 минут'};
+const STORE='SNIPER_PRO_AUTO_SYNC_V2';
+const START_BALANCE=100000;
+let asset='OZON',tf=5,rawCandles=[],candles=[],ha=[],macdData=[];
+let auto=true,busy=false,initialized=false,lastSignalKeys={};
+let balance=START_BALANCE,position=null,history=[],totalNet=0;
+let priceChart=null,macdChart=null,haSeries=null,macdSeries=null,signalSeries=null;
+let markers=[];
+const boards={OZON:['TQBR'],TGLD:['TQTF','TQTD','TQIF','TQBR']};
 
-let activeSymbol='OZON';
-let activeTf='5';
-let busy=false;
-let minuteBars=[];
-let currentQuote=null;
-let currentHeikin=[];
-let currentMacd=null;
-let priceChart=null;
-let macdChart=null;
-let candleSeries=null;
-let macdLine=null;
-let signalLine=null;
-let firstDraw=true;
-let lastSystemMessage='';
-
-let state;
-try{state=JSON.parse(localStorage.getItem('sniper_pro_ha_state'))}catch(e){}
-if(!state||typeof state.cash!=='number'){
- state={
-  cash:START_CAPITAL,
-  positions:{},
-  trades:[],
-  processed:[],
-  auto:true,
-  totalProfit:0
+function save(){
+ try{localStorage.setItem(STORE,JSON.stringify({auto,balance,position,history,totalNet,lastSignalKeys}));}catch(e){}
+}
+function load(){
+ try{
+  const d=JSON.parse(localStorage.getItem(STORE)||'{}');
+  if(typeof d.auto==='boolean')auto=d.auto;
+  if(Number.isFinite(d.balance))balance=d.balance;
+  position=d.position||null;
+  history=Array.isArray(d.history)?d.history:[];
+  totalNet=Number(d.totalNet)||0;
+  lastSignalKeys=d.lastSignalKeys||{};
+ }catch(e){}
+ updateTradeUI();
+}
+function fmt(n,d=2){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function timeToUnix(s){
+ const v=String(s).replace(' ','T');
+ return Math.floor(new Date(v+'+03:00').getTime()/1000);
+}
+function selectAsset(a){
+ asset=a;
+ $('ozonBtn').classList.toggle('selected',a==='OZON');
+ $('goldBtn').classList.toggle('selected',a==='TGLD');
+ refreshAll();
+}
+function changeTF(){
+ tf=Number($('tf').value);
+ initialized=false;
+ refreshAll();
+}
+function createCharts(){
+ if(!window.LightweightCharts){$('systemInfo').textContent='Не загрузилась библиотека графиков. Проверьте интернет.';return;}
+ const common={
+  layout:{background:{color:'#0b1420'},textColor:'#9eb0c4'},
+  grid:{vertLines:{color:'#172638'},horzLines:{color:'#172638'}},
+  rightPriceScale:{borderColor:'#26384c'},
+  timeScale:{borderColor:'#26384c',timeVisible:true,secondsVisible:false},
+  crosshair:{mode:0},
+  handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+  handleScale:{mouseWheel:true,pinch:true,axisPressedMouseMove:true}
  };
-}
-if(!state.positions)state.positions={};
-if(!state.trades)state.trades=[];
-if(!state.processed)state.processed=[];
-if(typeof state.auto!=='boolean')state.auto=true;
-
-function saveState(){
- try{localStorage.setItem('sniper_pro_ha_state',JSON.stringify(state))}
- catch(e){systemMessage('Не удалось сохранить состояние в памяти телефона')}
-}
-function fmt(n,d=2){
- return Number.isFinite(Number(n))
-  ?Number(n).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d})
-  :'—';
-}
-function rub(n){return Number.isFinite(Number(n))?fmt(n,2)+' ₽':'—'}
-function systemMessage(s){
- lastSystemMessage=s;
- $('systemLog').textContent=new Date().toLocaleTimeString('ru-RU')+' · '+s;
-}
-function escapeHTML(s){
- return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function parseMOEXTime(s){
- if(!s)return null;
- let v=String(s).trim().replace(' ','T');
- if(!/[zZ]|[+-]\d\d:\d\d$/.test(v))v+='+03:00';
- const n=Date.parse(v);
- return Number.isFinite(n)?Math.floor(n/1000):null;
-}
-async function getJSON(url){
- const r=await fetch(url,{cache:'no-store'});
- if(!r.ok)throw new Error('Ошибка загрузки: HTTP '+r.status);
- return await r.json();
-}
-function tableData(j,key){
- return j&&j[key]&&Array.isArray(j[key].data)?j[key].data:[];
-}
-async function loadMinuteCandles(sym){
- const from=new Date(Date.now()-5*86400000).toISOString().slice(0,10);
- const all=[];
- for(let page=0;page<8;page++){
-  const url='https://iss.moex.com/iss/engines/stock/markets/shares/securities/'+
-   encodeURIComponent(sym)+'/candles.json?interval=1&from='+from+
-   '&start='+(page*500)+'&limit=500&iss.meta=off';
-  const j=await getJSON(url);
-  const tab=j.candles;
-  if(!tab||!tab.columns)break;
-  const ix=Object.fromEntries(tab.columns.map((x,i)=>[x,i]));
-  const rows=tab.data||[];
-  for(const r of rows){
-   const t=parseMOEXTime(r[ix.begin]);
-   const o=Number(r[ix.open]),h=Number(r[ix.high]);
-   const l=Number(r[ix.low]),c=Number(r[ix.close]);
-   const v=Number(r[ix.volume]||0);
-   if(t&&[o,h,l,c].every(Number.isFinite)&&h>=l){
-    all.push({time:t,open:o,high:h,low:l,close:c,volume:v});
-   }
-  }
-  if(rows.length<500)break;
- }
- const unique=new Map();
- all.forEach(b=>unique.set(b.time,b));
- return [...unique.values()].sort((a,b)=>a.time-b.time);
-}
-async function loadQuote(sym){
- const url='https://iss.moex.com/iss/engines/stock/markets/shares/securities/'+
-  encodeURIComponent(sym)+'.json?iss.meta=off';
- const j=await getJSON(url);
- const sec=j.securities,md=j.marketdata;
- if(!md||!md.columns||!md.data||!md.data.length)throw new Error('Нет данных котировки');
- const mi=Object.fromEntries(md.columns.map((x,i)=>[x,i]));
- const si=Object.fromEntries((sec?.columns||[]).map((x,i)=>[x,i]));
- const mr=md.data[0],sr=sec?.data?.[0]||[];
- const price=Number(mr[mi.LAST]??mr[mi.MARKETPRICE]??mr[mi.LASTTOPREVPRICE]);
- const date=mr[mi.LASTTRADEDATE]||sr[si.LASTTRADEDATE];
- const time=mr[mi.LASTTRADETIME]||sr[si.LASTTRADETIME];
- const stamp=date&&time?parseMOEXTime(date+' '+time):null;
- if(!Number.isFinite(price)||price<=0)throw new Error('Биржа не вернула последнюю цену');
- return{price,time:stamp};
-}
-function mergeQuoteIntoMinutes(bars,q){
- if(!bars.length||!q||!Number.isFinite(q.price)||!q.time)return bars;
- const out=bars.slice();
- const t=Math.floor(q.time/60)*60;
- const last=out[out.length-1];
- if(t===last.time){
-  last.close=q.price;
-  last.high=Math.max(last.high,q.price);
-  last.low=Math.min(last.low,q.price);
- }else if(t>last.time){
-  out.push({
-   time:t,open:last.close,high:Math.max(last.close,q.price),
-   low:Math.min(last.close,q.price),close:q.price,volume:0
+ priceChart=LightweightCharts.createChart($('priceChart'),{
+  ...common,width:$('priceChart').clientWidth,height:330,
+  rightPriceScale:{borderColor:'#26384c',scaleMargins:{top:.08,bottom:.08}},
+  timeScale:{...common.timeScale,visible:false}
+ });
+ macdChart=LightweightCharts.createChart($('macdChart'),{
+  ...common,width:$('macdChart').clientWidth,height:155,
+  rightPriceScale:{borderColor:'#26384c',scaleMargins:{top:.12,bottom:.12}},
+  timeScale:{...common.timeScale}
+ });
+ haSeries=priceChart.addCandlestickSeries({
+  upColor:'#16d69a',downColor:'#ff5b70',
+  borderUpColor:'#16d69a',borderDownColor:'#ff5b70',
+  wickUpColor:'#16d69a',wickDownColor:'#ff5b70',
+  priceLineVisible:true
+ });
+ macdSeries=macdChart.addLineSeries({color:'#16d69a',lineWidth:2,priceLineVisible:false,lastValueVisible:true});
+ signalSeries=macdChart.addLineSeries({color:'#ff5b70',lineWidth:2,priceLineVisible:false,lastValueVisible:true});
+ let syncing=false;
+ function sync(from,to){
+  from.timeScale().subscribeVisibleLogicalRangeChange(range=>{
+   if(syncing||!range)return;
+   syncing=true;
+   try{to.timeScale().setVisibleLogicalRange(range);}catch(e){}
+   syncing=false;
   });
+ }
+ sync(priceChart,macdChart);
+ sync(macdChart,priceChart);
+ const resize=()=>{
+  if(!priceChart||!macdChart)return;
+  priceChart.applyOptions({width:$('priceChart').clientWidth});
+  macdChart.applyOptions({width:$('macdChart').clientWidth});
+ };
+ if(window.ResizeObserver){
+  new ResizeObserver(resize).observe($('priceChart'));
+  new ResizeObserver(resize).observe($('macdChart'));
+ }else window.addEventListener('resize',resize);
+}
+function dateDaysAgo(days){
+ const d=new Date();d.setDate(d.getDate()-days);
+ return d.toISOString().slice(0,10);
+}
+async function fetchCandles(){
+ let result=[];
+ for(const board of boards[asset]){
+  try{
+   let all=[];
+   for(let start=0;start<4000;start+=500){
+    const url='https://iss.moex.com/iss/engines/stock/markets/shares/boards/'+board+
+     '/securities/'+asset+'/candles.json?from='+dateDaysAgo(10)+
+     '&interval=1&start='+start+'&iss.meta=off';
+    const r=await fetch(url,{cache:'no-store'});
+    if(!r.ok)break;
+    const j=await r.json(),b=j.candles;
+    if(!b||!b.data||!b.data.length)break;
+    const ix=b.columns;
+    const part=b.data.map(row=>({
+     time:row[ix.indexOf('begin')],
+     open:+row[ix.indexOf('open')],
+     high:+row[ix.indexOf('high')],
+     low:+row[ix.indexOf('low')],
+     close:+row[ix.indexOf('close')],
+     volume:+row[ix.indexOf('volume')]
+    })).filter(x=>x.time&&x.close>0);
+    all.push(...part);
+    if(b.data.length<500)break;
+   }
+   if(all.length){result=all;break;}
+  }catch(e){}
+ }
+ if(!result.length)throw Error('MOEX ISS не вернула свечи для '+asset);
+ const unique=new Map();
+ result.forEach(c=>unique.set(c.time,c));
+ return [...unique.values()].sort((a,b)=>a.time.localeCompare(b.time));
+}
+function aggregate(data,minutes){
+ if(minutes===1)return data;
+ const out=[],map=new Map();
+ for(const c of data){
+  const [day,clock]=c.time.split(' ');
+  const parts=clock.split(':').map(Number);
+  const bucket=Math.floor((parts[0]*60+parts[1])/minutes);
+  const key=day+'-'+bucket;
+  let x=map.get(key);
+  if(!x){
+   x={time:c.time,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
+   map.set(key,x);out.push(x);
+  }else{
+   x.high=Math.max(x.high,c.high);x.low=Math.min(x.low,c.low);
+   x.close=c.close;x.volume+=c.volume;
+  }
  }
  return out;
 }
-function aggregateBars(bars,minutes){
- if(minutes===1)return bars.slice();
- const groups=new Map();
- for(const b of bars){
-  const t=Math.floor(b.time/(minutes*60))*minutes*60;
-  let g=groups.get(t);
-  if(!g){
-   g={time:t,open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume||0};
-   groups.set(t,g);
-  }else{
-   g.high=Math.max(g.high,b.high);
-   g.low=Math.min(g.low,b.low);
-   g.close=b.close;
-   g.volume+=(b.volume||0);
-  }
- }
- return [...groups.values()].sort((a,b)=>a.time-b.time);
-}
-function toHeikinAshi(bars){
- const out=[];
- for(let i=0;i<bars.length;i++){
-  const b=bars[i];
-  const close=(b.open+b.high+b.low+b.close)/4;
-  const open=i===0?(b.open+b.close)/2:(out[i-1].open+out[i-1].close)/2;
-  out.push({
-   time:b.time,
-   open,
-   close,
-   high:Math.max(b.high,open,close),
-   low:Math.min(b.low,open,close),
-   realClose:b.close,
-   volume:b.volume||0
-  });
+function makeHA(data){
+ let out=[],prevOpen=null,prevClose=null;
+ for(const c of data){
+  const close=(c.open+c.high+c.low+c.close)/4;
+  const open=prevOpen===null?(c.open+c.close)/2:(prevOpen+prevClose)/2;
+  const x={time:timeToUnix(c.time),open,high:Math.max(c.high,open,close),low:Math.min(c.low,open,close),close,source:c};
+  out.push(x);prevOpen=open;prevClose=close;
  }
  return out;
 }
 function ema(values,period){
- const out=[];
- const k=2/(period+1);
- let prev=null;
- for(let i=0;i<values.length;i++){
-  const v=values[i];
-  prev=prev===null?v:v*k+prev*(1-k);
-  out.push(prev);
- }
+ const k=2/(period+1),out=[];let v=null;
+ for(const x of values){v=v===null?x:x*k+v*(1-k);out.push(v);}
  return out;
 }
-function calculateMACD(ha){
- const closes=ha.map(b=>b.close);
- const fast=ema(closes,12),slow=ema(closes,26);
- const line=fast.map((v,i)=>v-slow[i]);
- const signal=ema(line,9);
- return{line,signal};
+function calculateMACD(data){
+ const closes=data.map(x=>x.close);
+ const e12=ema(closes,12),e26=ema(closes,26);
+ const m=e12.map((x,i)=>x-e26[i]),s=ema(m,9);
+ return data.map((x,i)=>({time:x.time,macd:m[i],signal:s[i],diff:m[i]-s[i],ha:x}));
 }
-function detectCross(macd){
- const n=macd.line.length;
- if(n<2)return null;
- const a=macd.line[n-2]-macd.signal[n-2];
- const b=macd.line[n-1]-macd.signal[n-1];
- if(a<=0&&b>0)return'BUY';
- if(a>=0&&b<0)return'SELL';
- return null;
-}
-function selectedBars(){
- const tf=Number(activeTf);
- return aggregateBars(minuteBars,tf);
-}
- function createCharts(){
- if(!window.LightweightCharts){
-  $('status').textContent='Не загрузилась библиотека графиков. Проверь интернет-соединение.';
-  return;
- }
- const common={
-  layout:{background:{type:'solid',color:'#09121d'},textColor:'#b7c8d9'},
-  grid:{vertLines:{color:'#18283a'},horzLines:{color:'#18283a'}},
-  rightPriceScale:{borderColor:'#26384c'},
-  timeScale:{timeVisible:true,secondsVisible:false,borderColor:'#26384c'},
-  crosshair:{mode:1},
-  localization:{locale:'ru-RU'}
- };
- priceChart=LightweightCharts.createChart($('priceChart'),{
-  ...common,width:$('priceChart').clientWidth,height:320
- });
- candleSeries=priceChart.addCandlestickSeries({
-  upColor:'#20d69a',
-  downColor:'#ff6376',
-  borderUpColor:'#20d69a',
-  borderDownColor:'#ff6376',
-  wickUpColor:'#20d69a',
-  wickDownColor:'#ff6376',
-  priceLineVisible:true
- });
- macdChart=LightweightCharts.createChart($('macdChart'),{
-  ...common,width:$('macdChart').clientWidth,height:150,
-  rightPriceScale:{borderColor:'#26384c'},
-  timeScale:{timeVisible:true,secondsVisible:false,borderColor:'#26384c'}
- });
- macdLine=macdChart.addLineSeries({
-  color:'#20d69a',lineWidth:2,lastValueVisible:true
- });
- signalLine=macdChart.addLineSeries({
-  color:'#ff6376',lineWidth:2,lastValueVisible:true
- });
- window.addEventListener('resize',()=>{
-  if(priceChart)priceChart.applyOptions({width:$('priceChart').clientWidth});
-  if(macdChart)macdChart.applyOptions({width:$('macdChart').clientWidth});
- });
-}
-function drawCharts(ha,macd){
- if(!candleSeries||!ha.length)return;
- const candleData=ha.map(b=>({
-  time:b.time,open:b.open,high:b.high,low:b.low,close:b.close
- }));
- candleSeries.setData(candleData);
- const markers=state.trades
-  .filter(t=>t.symbol===activeSymbol&&t.tf===activeTf)
-  .slice(-150)
-  .map(t=>({
-   time:t.barTime,
-   position:t.type==='BUY'?'belowBar':'aboveBar',
-   color:t.type==='BUY'?'#20d69a':'#ff6376',
-   shape:t.type==='BUY'?'arrowUp':'arrowDown',
-   text:t.type==='BUY'?'BUY':'SELL'
-  }))
-  .sort((a,b)=>a.time-b.time);
- candleSeries.setMarkers(markers);
- macdLine.setData(ha.map((b,i)=>({time:b.time,value:macd.line[i]})));
- signalLine.setData(ha.map((b,i)=>({time:b.time,value:macd.signal[i]})));
- if(firstDraw){
+ function renderCharts(){
+ if(!priceChart)return;
+ const priceData=ha.map(x=>({time:x.time,open:x.open,high:x.high,low:x.low,close:x.close}));
+ const mData=macdData.map(x=>({time:x.time,value:x.macd}));
+ const sData=macdData.map(x=>({time:x.time,value:x.signal}));
+ haSeries.setData(priceData);
+ macdSeries.setData(mData);
+ signalSeries.setData(sData);
+ renderMarkers();
+ if(!window.chartWasLoaded){
   priceChart.timeScale().fitContent();
   macdChart.timeScale().fitContent();
-  firstDraw=false;
+  window.chartWasLoaded=true;
  }
 }
-function addTrade(type,symbol,tf,barTime,price,qty,result){
- state.trades.push({
-  id:Date.now()+'_'+Math.random().toString(36).slice(2,7),
-  time:Date.now(),
-  barTime,
-  symbol,
-  type,
-  tf,
-  price,
-  qty,
-  result:result||0
- });
- if(state.trades.length>1000)state.trades=state.trades.slice(-1000);
+function renderMarkers(){
+ if(!haSeries)return;
+ markers=history.filter(x=>x.asset===asset&&Number.isFinite(x.time)).map(x=>({
+  time:x.time,
+  position:x.type==='BUY'?'belowBar':'aboveBar',
+  color:x.type==='BUY'?'#16d69a':'#ff5b70',
+  shape:x.type==='BUY'?'arrowUp':'arrowDown',
+  text:x.type==='BUY'?'BUY '+fmt(x.price):'SELL '+fmt(x.price),
+  size:2
+ })).sort((a,b)=>a.time-b.time);
+ haSeries.setMarkers(markers);
 }
-function processCross(cross,ha,price){
- if(!cross||!ha.length)return;
- const bar=ha[ha.length-1];
- const key=activeSymbol+'_'+activeTf+'_'+bar.time+'_'+cross;
- if(state.processed.includes(key))return;
- state.processed.push(key);
- if(state.processed.length>500)state.processed=state.processed.slice(-300);
-
- if(!state.auto){
-  saveState();
+function analyze(){
+ if(macdData.length<35)return null;
+ const n=macdData.length-1,p=macdData[n-1],c=macdData[n];
+ const up=p.diff<=0&&c.diff>0;
+ const down=p.diff>=0&&c.diff<0;
+ const direction=c.ha.close>c.ha.open?'ВОСХОДЯЩЕЕ':
+  c.ha.close<c.ha.open?'НИСХОДЯЩЕЕ':'НЕЙТРАЛЬНОЕ';
+ return {
+  price:c.ha.source.close,
+  macd:c.macd,signal:c.signal,diff:c.diff,
+  up,down,direction,time:c.time,
+  candleTime:c.ha.time
+ };
+}
+function addTrade(type,price,qty,result,reason,time){
+ history.unshift({
+  asset,type,price,qty,result,reason,time,
+  date:new Date(time*1000).toLocaleString('ru-RU')
+ });
+ history=history.slice(0,500);
+ renderHistory();
+ renderMarkers();
+}
+function buyVirtual(a){
+ if(position||balance<=0)return;
+ const qty=Math.floor(balance/a.price);
+ if(qty<1){
+  $('reason').textContent='Недостаточно виртуальных средств для покупки целой акции.';
   return;
  }
- const pos=state.positions[activeSymbol];
-
- if(cross==='BUY'&&!pos){
-  const qty=Math.floor(state.cash/price);
-  if(qty<1){
-   systemMessage('Недостаточно виртуальных средств для покупки');
-   saveState();
+ const cost=qty*a.price;
+ balance-=cost;
+ position={asset,price:a.price,qty,time:a.candleTime};
+ addTrade('BUY',a.price,qty,0,'MACD пересечение вверх',a.candleTime);
+ save();
+ updateTradeUI();
+}
+function sellVirtual(a){
+ if(!position||position.asset!==asset)return;
+ const p=position;
+ const result=(a.price-p.price)*p.qty;
+ balance+=p.qty*a.price;
+ totalNet+=result;
+ addTrade('SELL',a.price,p.qty,result,'MACD пересечение вниз',a.candleTime);
+ position=null;
+ save();
+ updateTradeUI();
+}
+function processSignal(a){
+ const stateKey=asset+'_'+tf;
+ const relation=a.diff>0?1:a.diff<0?-1:0;
+ const previous=lastSignalKeys[stateKey];
+ if(previous===undefined){
+  lastSignalKeys[stateKey]=relation;
+  save();
+  return;
+ }
+ let direction='';
+ if(previous<=0&&relation>0)direction='BUY';
+ if(previous>=0&&relation<0)direction='SELL';
+ lastSignalKeys[stateKey]=relation;
+ if(!direction){save();return;}
+ const eventKey=stateKey+'_'+a.candleTime+'_'+direction;
+ if(lastSignalKeys[eventKey]){save();return;}
+ lastSignalKeys[eventKey]=true;
+ save();
+ if(direction==='BUY'){
+  if(!auto){
+   $('reason').textContent='Есть сигнал BUY. Автоторговля выключена.';
    return;
   }
-  const cost=qty*price;
-  state.cash-=cost;
-  state.positions[activeSymbol]={
-   qty,
-   entry:price,
-   entryTime:Date.now(),
-   entryBar:bar.time,
-   entryTf:activeTf
-  };
-  addTrade('BUY',activeSymbol,activeTf,bar.time,price,qty,0);
-  $('signal').textContent='BUY · ВИРТУАЛЬНАЯ ПОКУПКА';
-  $('signal').className='signal greenText';
-  systemMessage('Автоматически открыта виртуальная покупка '+activeSymbol+' по '+rub(price));
-  saveState();
-  return;
- }
-
- if(cross==='SELL'&&pos){
-  const proceeds=pos.qty*price;
-  const result=(price-pos.entry)*pos.qty;
-  state.cash+=proceeds;
-  state.totalProfit+=result;
-  addTrade('SELL',activeSymbol,activeTf,bar.time,price,pos.qty,result);
-  delete state.positions[activeSymbol];
-  $('signal').textContent='SELL · ПОЗИЦИЯ ЗАКРЫТА';
-  $('signal').className='signal redText';
-  systemMessage('Автоматически закрыта виртуальная позиция. Результат: '+rub(result));
-  saveState();
- }
-}
-function renderJournal(){
- const rows=state.trades.slice().reverse().slice(0,100);
- if(!rows.length){
-  $('journalRows').innerHTML='<tr><td colspan="6">Сделок пока нет</td></tr>';
-  return;
- }
- $('journalRows').innerHTML=rows.map(t=>{
-  const time=new Date(t.time).toLocaleString('ru-RU');
-  const cls=t.type==='BUY'?'good':'bad';
-  const result=t.type==='SELL'?rub(t.result):'—';
-  return '<tr>'+
-   '<td>'+escapeHTML(time)+'</td>'+
-   '<td>'+escapeHTML(t.symbol)+'</td>'+
-   '<td class="'+cls+'">'+t.type+'</td>'+
-   '<td>'+t.tf+'м</td>'+
-   '<td>'+rub(t.price)+'</td>'+
-   '<td class="'+(t.result>=0?'good':'bad')+'">'+result+'</td>'+
-   '</tr>';
- }).join('');
-}
-function updateUI(ha,macd){
- const pos=state.positions[activeSymbol];
- const price=currentQuote?.price||
-  (minuteBars.length?minuteBars[minuteBars.length-1].close:null);
- $('price').textContent=price?rub(price):'—';
- $('periodInfo').textContent=TF_LABEL[activeTf];
- $('quoteStatus').textContent=currentQuote?.time?'MOEX · задержка возможна':'Нет времени сделки';
- $('lastUpdate').textContent=currentQuote?.time
-  ?new Date(currentQuote.time*1000).toLocaleTimeString('ru-RU')
-  :'—';
- $('autoBtn').textContent=state.auto?'АВТО: ВКЛ.':'АВТО: ПАУЗА';
- $('autoBtn').className=state.auto?'green':'red';
-
- if(ha.length&&macd){
-  const i=ha.length-1;
-  $('macdValue').textContent=fmt(macd.line[i],5);
-  $('signalValue').textContent=fmt(macd.signal[i],5);
-  $('haDirection').textContent=ha[i].close>=ha[i].open?'ВОСХОДЯЩЕЕ':'НИСХОДЯЩЕЕ';
-  $('haDirection').className=ha[i].close>=ha[i].open?'good':'bad';
-  const diff=macd.line[i]-macd.signal[i];
-  if(diff>0){
-   $('signal').textContent='ЛИНИЯ MACD ВЫШЕ СИГНАЛЬНОЙ';
-   $('signal').className='signal greenText';
+  if(position){
+   $('reason').textContent=position.asset===asset?
+    'Сигнал BUY: виртуальная позиция уже открыта.':
+    'Сигнал BUY: сначала требуется закрыть позицию по '+position.asset;
+   return;
+  }
+  buyVirtual(a);
+  $('signal').textContent='АВТОПОКУПКА';
+  $('signal').className='bigsignal green';
+  $('reason').textContent='Зелёная MACD пересекла красную снизу вверх. Виртуальная покупка выполнена.';
+ }else{
+  if(!auto){
+   $('reason').textContent='Есть сигнал SELL. Автоторговля выключена.';
+   return;
+  }
+  if(position&&position.asset===asset){
+   sellVirtual(a);
+   $('signal').textContent='АВТОПРОДАЖА';
+   $('signal').className='bigsignal red';
+   $('reason').textContent='Зелёная MACD пересекла красную сверху вниз. Виртуальная позиция закрыта.';
   }else{
-   $('signal').textContent='ЛИНИЯ MACD НИЖЕ СИГНАЛЬНОЙ';
-   $('signal').className='signal redText';
+   $('reason').textContent='Пересечение вниз. Открытой виртуальной покупки по этому инструменту нет.';
   }
  }
- $('positionInfo').textContent=pos
-  ?pos.qty+' шт. · вход '+rub(pos.entry)
-  :'Нет открытой покупки';
- $('cash').textContent=rub(state.cash);
- $('positionValue').textContent=pos&&price?rub(pos.qty*price):'0 ₽';
- $('profit').textContent=rub(state.totalProfit);
- $('profit').className=state.totalProfit>=0?'good':'bad';
- $('tradeCount').textContent=state.trades.filter(t=>t.type==='SELL').length;
- renderJournal();
 }
-function updateButtons(){
- document.querySelectorAll('[data-tf]').forEach(b=>{
-  b.classList.toggle('active',b.dataset.tf===activeTf);
- });
- $('ozon').classList.toggle('active',activeSymbol==='OZON');
- $('tgld').classList.toggle('active',activeSymbol==='TGLD');
+function updateAnalysis(a){
+ $('price').textContent=fmt(a.price,2)+' ₽';
+ $('quoteTime').textContent=new Date(a.candleTime*1000).toLocaleString('ru-RU');
+ $('macdVal').textContent=a.macd.toFixed(5);
+ $('sigVal').textContent=a.signal.toFixed(5);
+ $('macdDiff').textContent=a.diff.toFixed(5);
+ $('haDirection').textContent=a.direction;
+ $('haDirection').className=a.direction==='ВОСХОДЯЩЕЕ'?'green':
+  a.direction==='НИСХОДЯЩЕЕ'?'red':'';
+ if(a.diff>0){
+  $('signal').textContent='ЗЕЛЁНАЯ ВЫШЕ КРАСНОЙ';
+  $('signal').className='bigsignal green';
+ }else{
+  $('signal').textContent='ЗЕЛЁНАЯ НИЖЕ КРАСНОЙ';
+  $('signal').className='bigsignal red';
+ }
+ if(!a.up&&!a.down){
+  $('reason').textContent='Ожидание нового пересечения MACD.';
+ }
+}
+function updateTradeUI(){
+ $('balance').textContent=fmt(balance)+' ₽';
+ const p=position;
+ $('position').textContent=p?(p.asset+' · '+p.qty+' шт.'):'НЕТ';
+ $('position').className=p?'green':'';
+ $('entry').textContent=p?fmt(p.price)+' ₽':'—';
+ let current=0;
+ if(p&&p.asset===asset&&candles.length){
+  current=(candles[candles.length-1].close-p.price)*p.qty;
+ }
+ $('profit').textContent=fmt(current)+' ₽';
+ $('profit').className=current>=0?'green':'red';
+ $('tradesCount').textContent=history.filter(x=>x.type==='SELL').length;
+ $('net').textContent=fmt(totalNet)+' ₽';
+ $('net').className=totalNet>=0?'green':'red';
+ $('autoBtn').textContent='АВТОТОРГОВЛЯ: '+(auto?'ВКЛ':'ВЫКЛ');
+ $('autoBtn').classList.toggle('on',auto);
+ $('autoState').textContent=auto?'АВТОТОРГОВЛЯ ВКЛЮЧЕНА':'АВТОТОРГОВЛЯ ВЫКЛЮЧЕНА';
+ $('autoState').className='bigsignal '+(auto?'green':'red');
+}
+function renderHistory(){
+ $('history').innerHTML=history.length?history.slice(0,100).map(x=>
+  '<tr><td>'+x.date+'</td><td>'+x.asset+'</td>'+
+  '<td class="'+(x.type==='BUY'?'green':'red')+'">'+x.type+'</td>'+
+  '<td>'+fmt(x.price)+'</td><td>'+x.qty+'</td>'+
+  '<td>'+(x.type==='BUY'?'—':fmt(x.result)+' ₽')+'</td></tr>'
+ ).join(''):'<tr><td colspan="6">Сделок пока нет</td></tr>';
+}
+function toggleAuto(){
+ auto=!auto;
+ save();
+ updateTradeUI();
+ $('reason').textContent=auto?'Автоматические виртуальные сделки разрешены.':'Автоматические сделки остановлены.';
 }
 async function refreshAll(){
  if(busy)return;
  busy=true;
- $('runStatus').textContent='ОБНОВЛЕНИЕ';
- $('runStatus').className='small yellowText';
+ $('quoteStatus').textContent='Загрузка данных MOEX ISS...';
  try{
-  const sym=activeSymbol;
-  const [bars,q]=await Promise.all([
-   loadMinuteCandles(sym),
-   loadQuote(sym).catch(()=>null)
-  ]);
-  if(!bars.length)throw new Error('Биржа не вернула минутные свечи');
-  minuteBars=mergeQuoteIntoMinutes(bars,q);
-  currentQuote=q;
-  const selected=selectedBars();
-  if(selected.length<35)throw new Error('Пока недостаточно свечей для расчёта MACD');
-  currentHeikin=toHeikinAshi(selected);
-  currentMacd=calculateMACD(currentHeikin);
-
-  const price=q?.price||selected[selected.length-1].close;
-  const cross=detectCross(currentMacd);
-  if(cross)processCross(cross,currentHeikin,price);
-
-  drawCharts(currentHeikin,currentMacd);
-  updateUI(currentHeikin,currentMacd);
-  updateButtons();
-
-  $('runStatus').textContent='РАБОТАЕТ';
-  $('runStatus').className='small greenText';
-  $('status').textContent=
-   'Данные: Московская биржа ISS. Минутные свечи объединяются в выбранный период. '+
-   'Проверка новых данных каждые 30 секунд. Возможна задержка биржевых данных.';
-  systemMessage('Данные обновлены: '+sym+', '+TF_LABEL[activeTf]+', свечей: '+selected.length);
+  rawCandles=await fetchCandles();
+  candles=aggregate(rawCandles,tf);
+  ha=makeHA(candles);
+  macdData=calculateMACD(ha);
+  if(macdData.length<35)throw Error('Недостаточно свечей для расчёта MACD.');
+  renderCharts();
+  const a=analyze();
+  if(!a)throw Error('Не удалось рассчитать MACD.');
+  updateAnalysis(a);
+  processSignal(a);
+  updateTradeUI();
+  $('quoteStatus').textContent='Данные получены · '+candles.length+' свечей';
+  $('systemState').textContent='● РАБОТАЕТ';
+  $('systemState').className='green';
+  $('systemInfo').textContent=
+   'Инструмент: '+asset+
+   '. Таймфрейм: '+tf+' мин. '+
+   'Свечей MOEX ISS: '+rawCandles.length+
+   '. Время обновления: '+new Date().toLocaleTimeString('ru-RU')+
+   '. Проверка каждые 20 секунд. Источник может предоставлять данные с задержкой.';
  }catch(e){
-  $('runStatus').textContent='ОШИБКА ДАННЫХ';
-  $('runStatus').className='small redText';
-  $('status').textContent=e.message+' · Проверь подключение к интернету и доступность MOEX ISS.';
-  systemMessage(e.message);
+  $('quoteStatus').textContent='Ошибка получения данных';
+  $('systemState').textContent='● ПРОВЕРЬТЕ ДАННЫЕ';
+  $('systemState').className='red';
+  $('reason').textContent=e.message;
+  $('systemInfo').textContent=e.message;
  }finally{
   busy=false;
  }
 }
-function selectSymbol(sym){
- if(activeSymbol===sym)return;
- activeSymbol=sym;
- firstDraw=true;
- updateButtons();
- refreshAll();
-}
-function selectTf(tf){
- if(activeTf===tf)return;
- activeTf=tf;
- firstDraw=true;
- updateButtons();
- $('periodInfo').textContent=TF_LABEL[tf];
- refreshAll();
-}
-function toggleAuto(){
- state.auto=!state.auto;
- saveState();
- $('autoBtn').textContent=state.auto?'АВТО: ВКЛ.':'АВТО: ПАУЗА';
- $('autoBtn').className=state.auto?'green':'red';
- systemMessage(state.auto?'Автоматическая виртуальная торговля включена':'Автоматическая торговля приостановлена');
-}
-function resetAccount(){
- if(!confirm('Сбросить виртуальный счёт, позиции и историю сделок?'))return;
- state={
-  cash:START_CAPITAL,
-  positions:{},
-  trades:[],
-  processed:[],
-  auto:true,
-  totalProfit:0
- };
- saveState();
- updateUI(currentHeikin,currentMacd);
- if(currentHeikin.length)drawCharts(currentHeikin,currentMacd);
- systemMessage('Виртуальный счёт сброшен');
-}
-function exportJournal(){
- const head=['Время','Инструмент','Тип','Таймфрейм','Цена','Количество','Результат'];
- const rows=state.trades.map(t=>[
-  new Date(t.time).toLocaleString('ru-RU'),
-  t.symbol,t.type,t.tf,rub(t.price),t.qty,rub(t.result)
- ]);
- const csv=[head,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');
- const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+function exportCSV(){
+ const rows=[['Дата','Инструмент','Операция','Цена','Количество','Результат','Причина']];
+ history.slice().reverse().forEach(x=>rows.push([
+  x.date,x.asset,x.type,x.price,x.qty,x.result,x.reason
+ ]));
+ const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
  const url=URL.createObjectURL(blob);
  const a=document.createElement('a');
- a.href=url;
- a.download='SNIPER_PRO_journal.csv';
- a.click();
+ a.href=url;a.download='SNIPER_PRO_trades.csv';a.click();
  URL.revokeObjectURL(url);
 }
+function resetAll(){
+ if(!confirm('Сбросить виртуальный баланс, открытую позицию и журнал сделок?'))return;
+ balance=START_BALANCE;
+ position=null;
+ history=[];
+ totalNet=0;
+ lastSignalKeys={};
+ initialized=false;
+ save();
+ renderHistory();
+ renderMarkers();
+ updateTradeUI();
+ $('reason').textContent='Виртуальный счёт сброшен.';
+}
+load();
 createCharts();
-updateButtons();
-updateUI([],null);
+renderHistory();
+updateTradeUI();
 refreshAll();
-setInterval(refreshAll,POLL_MS);
+setInterval(refreshAll,20000);
 </script>
 </body>
 </html>
