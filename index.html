@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#07111d">
 <title>SNIPER PRO 2.1</title>
 <style>
-:root{--bg:#07111d;--panel:#101e2d;--panel2:#15283a;--line:#24394e;--text:#e8f1fa;--muted:#8da3b8;--green:#35f28a;--red:#ff5368;--yellow:#ffc857;--blue:#50aaff}
+:root{--bg:#07111d;--panel:#101e2d;--panel2:#15283a;--line:#263c50;--text:#e8f1fa;--muted:#91a7bb;--green:#35f28a;--red:#ff5368;--yellow:#ffc857}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
 header{padding:16px;background:#0b1927;border-bottom:1px solid var(--line)}
@@ -17,37 +17,33 @@ main{padding:10px;max-width:900px;margin:auto}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .between{justify-content:space-between}
-label{color:var(--muted);font-size:12px}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 select,input,button{background:#0b1927;color:var(--text);border:1px solid #30465c;border-radius:8px;padding:10px;font-size:14px}
-select,input{min-width:0}
 button{cursor:pointer;font-weight:bold}
-button.primary{background:#0d5938;border-color:#168b56;color:#dffff0}
+button.primary{background:#0d5938;border-color:#168b56}
 button:disabled{opacity:.5}
-.metric{flex:1;min-width:115px;background:var(--panel2);border-radius:9px;padding:10px}
+.metric{flex:1;min-width:105px;background:var(--panel2);border-radius:9px;padding:10px;margin-top:8px}
 .metric small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
-.metric strong{font-size:19px;font-variant-numeric:tabular-nums}
+.metric strong{font-size:18px;font-variant-numeric:tabular-nums}
 .green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
-.status{font-size:12px;color:var(--muted);padding:8px 0}
+.status{font-size:12px;color:var(--muted);padding:8px 0;line-height:1.5}
 .status.ok{color:var(--green)}.status.bad{color:var(--red)}
-.chartwrap{height:370px;position:relative;background:#091522;border-radius:9px;overflow:hidden}
+.chartwrap{height:360px;background:#091522;border-radius:9px;overflow:hidden}
 canvas{width:100%;height:100%;display:block}
-.chartnote{font-size:11px;color:var(--muted);margin-top:7px}
-.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.control{background:var(--panel2);padding:10px;border-radius:8px}
-.control label{display:block;margin-bottom:7px}
+.pill{border:1px solid var(--line);border-radius:20px;padding:5px 9px;font-size:11px;color:var(--muted)}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.control{background:var(--panel2);padding:10px;border-radius:8px;min-width:0}
 .control input{width:100%;padding:7px}
 input[type=range]{padding:0;accent-color:var(--green)}
-.signal{font-size:25px;font-weight:bold;letter-spacing:1px}
-.signal.buy{color:var(--green)}.signal.sell{color:var(--red)}.signal.wait{color:var(--yellow)}
+.small{font-size:11px;color:var(--muted);line-height:1.5}
+.signal{font-size:24px;font-weight:bold}
+.scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
 th{color:var(--muted);font-weight:normal}
-.scroll{overflow-x:auto}
-.small{font-size:11px;color:var(--muted);line-height:1.5}
-.pill{border:1px solid var(--line);border-radius:20px;padding:5px 9px;font-size:11px;color:var(--muted)}
 hr{border:0;border-top:1px solid var(--line);margin:12px 0}
-@media(max-width:420px){.chartwrap{height:310px}.metric strong{font-size:17px}.controls{gap:7px}.panel{padding:10px}}
+@media(max-width:420px){.chartwrap{height:300px}.metric strong{font-size:16px}}
 </style>
 </head>
 <body>
@@ -56,152 +52,136 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
  <div class="sub">HEIKIN ASHI · ALLIGATOR ONE LINE · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
 </header>
 <main>
- <section class="panel">
-  <div class="row between">
-   <div>
-    <label>ИНСТРУМЕНТ</label><br>
-    <select id="symbol">
-     <option value="OZON">OZON</option>
-     <option value="TGLD">TGLD · ЗОЛОТО</option>
-    </select>
-   </div>
-   <div>
-    <label>ТАЙМФРЕЙМ</label><br>
-    <select id="tf">
-     <option value="1">1 мин</option>
-     <option value="5" selected>5 мин</option>
-     <option value="15">15 мин</option>
-     <option value="30">30 мин</option>
-     <option value="60">1 час</option>
-     <option value="24">День</option>
-    </select>
-   </div>
-   <button id="refresh" class="primary">↻ Обновить</button>
-  </div>
-  <div id="feedStatus" class="status">Ожидание загрузки котировок…</div>
- </section>
 
- <section class="panel">
-  <div class="row between">
-   <span class="pill">ОСНОВНОЙ ГРАФИК</span>
-   <span class="pill">HEIKIN ASHI</span>
-   <span class="pill">ЗЕЛЁНАЯ ЛИНИЯ</span>
+<section class="panel">
+ <div class="row between">
+  <div><label>ИНСТРУМЕНТ</label>
+   <select id="symbol"><option value="OZON">OZON</option><option value="TGLD">TGLD · ЗОЛОТО</option></select>
   </div>
-  <div class="chartwrap"><canvas id="chart"></canvas></div>
-  <div class="chartnote">Свечи Heikin Ashi. Зелёная линия — выбранная линия Alligator. Для сигналов используются только закрытые свечи.</div>
- </section>
+  <div><label>ТАЙМФРЕЙМ</label>
+   <select id="tf">
+    <option value="1">1 мин</option><option value="5" selected>5 мин</option>
+    <option value="15">15 мин</option><option value="30">30 мин</option>
+    <option value="60">1 час</option><option value="1440">День</option>
+   </select>
+  </div>
+  <button id="refresh" class="primary">↻ Обновить</button>
+ </div>
+ <div id="feedStatus" class="status">Загрузка…</div>
+</section>
 
- <section class="row">
-  <div class="metric"><small>ПОСЛЕДНЯЯ ЦЕНА</small><strong id="lastPrice">—</strong></div>
-  <div class="metric"><small>СИГНАЛ</small><strong id="signal" class="signal wait">WAIT</strong></div>
-  <div class="metric"><small>ВИРТУАЛЬНАЯ ПОЗИЦИЯ</small><strong id="position">НЕТ</strong></div>
- </section>
+<section class="panel">
+ <div class="row between">
+  <span class="pill">ОСНОВНОЙ ГРАФИК</span>
+  <span class="pill">HEIKIN ASHI</span>
+  <span class="pill">ALLIGATOR</span>
+ </div>
+ <div class="chartwrap"><canvas id="chart"></canvas></div>
+ <div class="small" style="margin-top:7px">Одна основная диаграмма. Зелёная линия — выбранная линия Alligator. Сигналы рассчитываются по закрытым свечам.</div>
+</section>
 
- <section class="panel">
-  <div class="row between">
-   <strong>НАСТРОЙКА ЗЕЛЁНОЙ ЛИНИИ</strong>
-   <span class="pill">ALLIGATOR LIPS</span>
-  </div>
-  <div class="control" style="margin-top:10px">
-   <label>БЛИЖЕ — ДАЛЬШЕ: <b id="sliderValue">5</b></label>
-   <input id="periodSlider" type="range" min="2" max="20" value="5">
-  </div>
-  <div class="controls" style="margin-top:9px">
-   <div class="control">
-    <label>ПЕРИОД СГЛАЖИВАНИЯ</label>
-    <input id="period" type="number" min="2" max="50" value="5">
-   </div>
-   <div class="control">
-    <label>СМЕЩЕНИЕ ЛИНИИ</label>
-    <input id="shift" type="number" min="0" max="20" value="3">
-   </div>
-   <div class="control">
-    <label>ТОЛЩИНА ЛИНИИ</label>
-    <input id="thickness" type="number" min="1" max="5" value="2">
-   </div>
-   <div class="control">
-    <label>ЦВЕТ ЛИНИИ</label>
-    <input id="lineColor" type="color" value="#35f28a">
-   </div>
-  </div>
-  <div class="small" style="margin-top:9px">Период меняет сглаживание. Смещение задаёт отображение линии вперёд, но расчёт сигнала не использует будущие свечи. Настройки графика и сигналов общие.</div>
- </section>
+<section class="row">
+ <div class="metric"><small>ПОСЛЕДНЯЯ ЦЕНА</small><strong id="lastPrice">—</strong></div>
+ <div class="metric"><small>СИГНАЛ</small><strong id="signal" class="signal yellow">WAIT</strong></div>
+ <div class="metric"><small>ПОЗИЦИЯ</small><strong id="position">НЕТ</strong></div>
+</section>
 
- <section class="panel">
-  <strong>ПРАВИЛА СИГНАЛА</strong>
-  <div class="small" style="margin-top:9px">
-   <b class="green">BUY:</b> закрытая свеча Heikin Ashi пересекла зелёную линию снизу вверх. Открывается виртуальная покупка.<br><br>
-   <b class="red">SELL:</b> закрытая свеча пересекла зелёную линию сверху вниз. Виртуальная позиция закрывается.<br><br>
-   После SELL программа ждёт нового BUY. Короткие позиции не открываются.
-  </div>
- </section>
+<section class="panel">
+ <strong>НАСТРОЙКИ ЗЕЛЁНОЙ ЛИНИИ</strong>
+ <div class="control" style="margin-top:10px">
+  <label>БЛИЖЕ — ДАЛЬШЕ · ПЕРИОД: <b id="sliderValue">5</b></label>
+  <input id="periodSlider" type="range" min="2" max="20" value="5">
+ </div>
+ <div class="controls" style="margin-top:9px">
+  <div class="control"><label>ПЕРИОД</label><input id="period" type="number" min="2" max="50" value="5"></div>
+  <div class="control"><label>СМЕЩЕНИЕ</label><input id="shift" type="number" min="0" max="20" value="3"></div>
+  <div class="control"><label>ТОЛЩИНА ЛИНИИ</label><input id="thickness" type="number" min="1" max="5" value="2"></div>
+  <div class="control"><label>ЦВЕТ</label><input id="lineColor" type="color" value="#35f28a"></div>
+ </div>
+ <div class="small" style="margin-top:9px">Период меняет сглаживание линии. Смещение используется одинаково в расчёте сигналов и при отображении. Изменение настроек не открывает сделку задним числом.</div>
+</section>
 
- <section class="panel">
-  <div class="row between">
-   <strong>АВТОПОДБОР СТРАТЕГИИ</strong>
-   <button id="optimize" class="primary">Проверить варианты</button>
-  </div>
-  <div id="optimizerStatus" class="status">Подбор не запускался.</div>
-  <div class="small">Программа сравнивает варианты периода зелёной линии и фильтров. История делится на обучающий и тестовый участки. Результаты теста не используются для выбора параметров.</div>
-  <div class="scroll" style="margin-top:8px">
-   <table>
-    <thead><tr><th>Вариант</th><th>Сделки</th><th>Обучение</th><th>Тест</th><th>Просадка</th></tr></thead>
-    <tbody id="optimizerTable"><tr><td colspan="5" style="text-align:center">Нет результатов</td></tr></tbody>
-   </table>
-  </div>
- </section>
+<section class="panel">
+ <strong>ТОРГОВАЯ ЛОГИКА</strong>
+ <div class="small" style="margin-top:9px">
+  <b class="green">BUY:</b> закрытая свеча Heikin Ashi пересекла зелёную линию снизу вверх. Открывается виртуальная покупка на весь доступный баланс.<br><br>
+  <b class="red">SELL:</b> закрытая свеча пересекла зелёную линию сверху вниз. Виртуальная позиция закрывается.<br><br>
+  После SELL программа ждёт следующего BUY. Короткие позиции не открываются.
+ </div>
+</section>
 
- <section class="panel">
-  <strong>ВИРТУАЛЬНЫЙ СЧЁТ</strong>
-  <div class="row" style="margin-top:10px">
-   <div class="metric"><small>СТАРТОВЫЙ БАЛАНС</small><strong id="startBalance">100 000 ₽</strong></div>
-   <div class="metric"><small>ТЕКУЩИЙ БАЛАНС</small><strong id="balance">100 000 ₽</strong></div>
-   <div class="metric"><small>РЕЗУЛЬТАТ</small><strong id="profit">0 ₽</strong></div>
-  </div>
-  <div class="row" style="margin-top:10px">
-   <button id="reset" >Сбросить виртуальный счёт</button>
-   <button id="clearLog">Очистить журнал</button>
-  </div>
-  <div class="small" style="margin-top:8px">Виртуальные сделки. Комиссии и налоги временно не учитываются — сначала проверяем логику сигналов.</div>
- </section>
+<section class="panel">
+ <div class="row between"><strong>АВТОПОДБОР СТРАТЕГИИ</strong><button id="optimize" class="primary">Проверить варианты</button></div>
+ <div id="optimizerStatus" class="status">Подбор ещё не запускался.</div>
+ <div class="small">Алгоритм сравнивает параметры на исторических данных. Прошлый результат не гарантирует будущую прибыль. Автоподбор не является искусственным интеллектом.</div>
+ <div class="scroll" style="margin-top:8px">
+  <table><thead><tr><th>Период / фильтр</th><th>Сделки</th><th>Обучение</th><th>Тест</th><th>Просадка</th></tr></thead>
+  <tbody id="optimizerTable"><tr><td colspan="5" style="text-align:center">Нет результатов</td></tr></tbody></table>
+ </div>
+</section>
 
- <section class="panel">
-  <strong>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</strong>
-  <div class="scroll" style="margin-top:8px">
-   <table>
-    <thead><tr><th>Тип</th><th>Время</th><th>Цена</th><th>Результат</th></tr></thead>
-    <tbody id="tradeLog"><tr><td colspan="4" style="text-align:center">Сделок пока нет</td></tr></tbody>
-   </table>
-  </div>
- </section>
- <div class="small" style="text-align:center;padding:8px">SNIPER PRO 2.1 · Сигналы и виртуальная торговля. Не является инвестиционной рекомендацией.</div>
+<section class="panel">
+ <strong>ВИРТУАЛЬНЫЙ СЧЁТ</strong>
+ <div class="row">
+  <div class="metric"><small>СТАРТОВЫЙ БАЛАНС</small><strong>100 000 ₽</strong></div>
+  <div class="metric"><small>ТЕКУЩИЙ БАЛАНС</small><strong id="balance">100 000 ₽</strong></div>
+  <div class="metric"><small>РЕЗУЛЬТАТ</small><strong id="profit">0 ₽</strong></div>
+ </div>
+ <div class="row" style="margin-top:10px">
+  <button id="reset">Сбросить счёт</button><button id="clearLog">Очистить журнал</button>
+ </div>
+ <div class="small" style="margin-top:8px">Комиссии и налоги временно не учитываются. Только виртуальные сделки, без подключения брокера.</div>
+</section>
+
+<section class="panel">
+ <strong>ЖУРНАЛ СДЕЛОК</strong>
+ <div class="scroll" style="margin-top:8px">
+  <table><thead><tr><th>Тип</th><th>Время</th><th>Цена</th><th>Результат</th></tr></thead>
+  <tbody id="tradeLog"><tr><td colspan="4" style="text-align:center">Сделок пока нет</td></tr></tbody></table>
+ </div>
+</section>
+<div class="small" style="text-align:center;padding:8px">SNIPER PRO 2.1 · Виртуальная торговля · Не инвестиционная рекомендация</div>
 </main>
+
 <script>
 "use strict";
+
 const $=id=>document.getElementById(id);
 const state={
- candles:[],ha:[],line:[],symbol:"OZON",tf:5,
+ candles:[],ha:[],line:[],symbol:"OZON",tf:"5",
  cash:100000,initial:100000,qty:0,entry:0,
- trades:[],lastProcessed:"",lastSignal:"WAIT",
+ trades:[],lastProcessed:"",fresh:false,
  settings:{period:5,shift:3,thickness:2,color:"#35f28a"},
- optimizer:[],fresh:false
+ optimizer:[]
 };
 const fmt=n=>Number(n).toLocaleString("ru-RU",{maximumFractionDigits:2});
 const timeText=t=>new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-function setStatus(msg,kind=""){const e=$("feedStatus");e.textContent=msg;e.className="status "+kind}
-function intervalMinutes(){return Number(state.tf)}
-function tfLabel(){return state.tf==="24"?"День":state.tf+" мин"}
-function makeURL(board,sec,interval,start){
- return `https://iss.moex.com/iss/engines/stock/markets/shares/boards/${board}/securities/${sec}/candles.json?from=${encodeURIComponent(start)}&interval=${interval}&start=0&limit=500&iss.meta=off&iss.only=candles&candles.columns=begin,open,high,low,close,volume`;
+
+function setStatus(message,kind=""){
+ $("feedStatus").textContent=message;
+ $("feedStatus").className="status "+kind;
 }
-async function fetchBoard(board,sec,interval,start){
- const all=[];let offset=0;
- for(let page=0;page<20;page++){
-  const url=makeURL(board,sec,interval,start).replace("start=0",`start=${offset}`);
-  const r=await fetch(url,{cache:"no-store"});
-  if(!r.ok)throw Error("MOEX ISS: HTTP "+r.status);
-  const j=await r.json();const cols=j.candles?.columns||[];
-  const rows=j.candles?.data||[];
+function tfMinutes(){return Number(state.tf)}
+function exchangeTime(t){return new Date(t+3*3600000)}
+function isTradingTime(t){
+ const d=exchangeTime(t),day=d.getUTCDay();
+ const mins=d.getUTCHours()*60+d.getUTCMinutes();
+ return day>=1&&day<=5&&mins>=600&&mins<1130;
+}
+function isFresh(t){
+ if(!isTradingTime(Date.now()))return true;
+ return Date.now()-t<=8*60000;
+}
+function boardList(){
+ return state.symbol==="OZON"?["TQBR"]:["TQTF","TQTD","TQIF","TQBR"];
+}
+async function fetchOneBoard(board,sec,from){
+ let all=[],offset=0;
+ for(let page=0;page<15;page++){
+  const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/${board}/securities/${sec}/candles.json?from=${from}&interval=1&start=${offset}&limit=500&iss.meta=off&iss.only=candles&candles.columns=begin,open,high,low,close,volume`;
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok)throw Error("Ошибка MOEX: "+response.status);
+  const json=await response.json(),rows=json.candles?.data||[],cols=json.candles?.columns||[];
   if(!rows.length)break;
   for(const row of rows){
    const o={};cols.forEach((c,i)=>o[c]=row[i]);
@@ -212,110 +192,135 @@ async function fetchBoard(board,sec,interval,start){
  }
  return all;
 }
-async function loadCandles(){
- state.symbol=$("symbol").value;state.tf=$("tf").value;
- setStatus("Загружаю историю MOEX…");
- const start=new Date(Date.now()-45*86400000).toISOString().slice(0,10);
- let rows=[],errors=[];
- const boards=state.symbol==="OZON"?["TQBR"]:["TQTF","TQTD","TQIF","TQBR"];
- for(const board of boards){
-  try{rows=await fetchBoard(board,state.symbol,state.tf,start);if(rows.length)break}
-  catch(e){errors.push(e.message)}
+function aggregate(rows,minutes){
+ if(minutes===1||minutes===1440&&rows.length===0)return rows;
+ const buckets=new Map();
+ for(const c of rows){
+  const d=exchangeTime(c.time);
+  let key;
+  if(minutes===1440){
+   key=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-3*3600000;
+  }else{
+   const dayStart=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-3*3600000;
+   const elapsed=Math.floor((c.time-dayStart)/60000);
+   key=dayStart+Math.floor(elapsed/minutes)*minutes*60000;
+  }
+  let b=buckets.get(key);
+  if(!b)b={time:key,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
+  else{b.high=Math.max(b.high,c.high);b.low=Math.min(b.low,c.low);b.close=c.close;b.volume+=c.volume}
+  buckets.set(key,b);
  }
- if(!rows.length)throw Error(errors.join(" / ")||"Исторические свечи не получены");
+ return [...buckets.values()].sort((a,b)=>a.time-b.time);
+}
+async function loadCandles(){
+ state.symbol=$("symbol").value;
+ state.tf=$("tf").value;
+ setStatus("Загружаю минутные свечи MOEX…");
+ const from=new Date(Date.now()-45*86400000).toISOString().slice(0,10);
+ let rows=[],errors=[];
+ for(const board of boardList()){
+  try{
+   rows=await fetchOneBoard(board,state.symbol,from);
+   if(rows.length)break;
+  }catch(e){errors.push(e.message)}
+ }
+ if(!rows.length)throw Error(errors.join("; ")||"Биржа не вернула свечи");
  rows.sort((a,b)=>a.time-b.time);
  const unique=new Map();rows.forEach(c=>unique.set(c.time,c));
  rows=[...unique.values()];
- state.candles=rows;
- state.ha=makeHeikinAshi(rows);
+ state.candles=aggregate(rows,tfMinutes());
+ if(state.candles.length<30)throw Error("Получено слишком мало свечей");
+ state.ha=makeHeikinAshi(state.candles);
  calculateLine();
- const last=rows[rows.length-1];
- const age=(Date.now()-last.time)/60000;
+ const last=state.candles[state.candles.length-1];
  state.fresh=isFresh(last.time);
  $("lastPrice").textContent=fmt(last.close);
- const ageText=age<0?"время данных некорректно":`последняя свеча ${timeText(last.time)} · ${Math.round(age)} мин назад`;
- setStatus(`${state.symbol} · ${tfLabel()} · ${rows.length} свечей · ${ageText}`,state.fresh?"ok":"bad");
- if(!state.fresh)setStatus("КОТИРОВКИ УСТАРЕЛИ. Новые виртуальные входы заблокированы. "+ageText,"bad");
- drawChart();updateSignalDisplay();renderAccount();
+ const age=Math.max(0,Math.round((Date.now()-last.time)/60000));
+ if(state.fresh){
+  setStatus(`${state.symbol} · ${state.tf} мин · ${state.candles.length} свечей · последняя ${timeText(last.time)} · ${age} мин назад`,"ok");
+ }else{
+  setStatus(`КОТИРОВКИ УСТАРЕЛИ · последняя свеча ${timeText(last.time)} · новые входы заблокированы`,"bad");
+ }
+ drawChart();
+ updateSignalDisplay();
+ renderAccount();
  processLatest();
-}
-function isFresh(timestamp){
- const d=new Date(timestamp);
- const day=d.getUTCDay();
- const moscow=new Date(timestamp+3*3600000);
- const mins=moscow.getUTCHours()*60+moscow.getUTCMinutes();
- const weekday=day>=1&&day<=5;
- const marketOpen=weekday&&mins>=600&&mins<=1130;
- if(!marketOpen)return true;
- return (Date.now()-timestamp)<=8*60000;
 }
 function makeHeikinAshi(rows){
  const out=[];let prevO=null,prevC=null;
  for(const c of rows){
   const close=(c.open+c.high+c.low+c.close)/4;
   const open=prevO===null?(c.open+c.close)/2:(prevO+prevC)/2;
-  const high=Math.max(c.high,open,close);
-  const low=Math.min(c.low,open,close);
-  out.push({...c,haOpen:open,haClose:close,haHigh:high,haLow:low});
+  out.push({...c,haOpen:open,haClose:close,haHigh:Math.max(c.high,open,close),haLow:Math.min(c.low,open,close)});
   prevO=open;prevC=close;
  }
  return out;
 }
 function smma(values,period){
- const out=Array(values.length).fill(null);let seed=0,count=0,prev=null;
+ const out=Array(values.length).fill(null);
+ let sum=0,count=0,prev=null;
  for(let i=0;i<values.length;i++){
-  const v=values[i];if(v==null||!Number.isFinite(v))continue;
+  const v=values[i];
+  if(!Number.isFinite(v))continue;
   if(prev===null){
-   seed+=v;count++;
-   if(count===period){prev=seed/period;out[i]=prev}
-  }else{prev=(prev*(period-1)+v)/period;out[i]=prev}
+   sum+=v;count++;
+   if(count===period){prev=sum/period;out[i]=prev}
+  }else{
+   prev=(prev*(period-1)+v)/period;
+   out[i]=prev;
+  }
  }
  return out;
 }
-function calculateLine(period=state.settings.period){
+function calculateLine(){
+ const period=state.settings.period,shift=state.settings.shift;
  const mid=state.ha.map(c=>(c.haHigh+c.haLow)/2);
  const raw=smma(mid,period);
- const shift=state.settings.shift;
+ // Значение линии на текущей свече берётся только из прошлых данных.
  state.line=raw.map((v,i)=>i-shift>=0?raw[i-shift]:null);
 }
-function signalAt(i,line){
- if(i<1||line[i]==null||line[i-1]==null)return "WAIT";
- const a=state.ha[i-1].haClose-line[i-1];
- const b=state.ha[i].haClose-line[i];
- if(a<=0&&b>0)return "BUY";
- if(a>=0&&b<0)return "SELL";
+function signalAt(i,line,data=state.ha){
+ if(i<1||!line[i]||!line[i-1])return "WAIT";
+ const prev=data[i-1].haClose-line[i-1];
+ const now=data[i].haClose-line[i];
+ if(prev<=0&&now>0)return "BUY";
+ if(prev>=0&&now<0)return "SELL";
  return "WAIT";
 }
-function currentSignal(){
- const i=state.ha.length-1;
- return signalAt(i,state.line);
-}
 function updateSignalDisplay(){
- const s=currentSignal();state.lastSignal=s;
- const e=$("signal");e.textContent=s;e.className="signal "+(s==="BUY"?"buy":s==="SELL"?"sell":"wait");
+ const i=state.ha.length-2;
+ const sig=i>0?signalAt(i,state.line):"WAIT";
+ const el=$("signal");
+ el.textContent=sig;
+ el.className="signal "+(sig==="BUY"?"green":sig==="SELL"?"red":"yellow");
  $("position").textContent=state.qty>0?"ПОКУПКА":"НЕТ";
  $("position").className=state.qty>0?"green":"";
 }
 function applySettings(){
- state.settings.period=Math.max(2,Math.min(50,+$("period").value||5));
- state.settings.shift=Math.max(0,Math.min(20,+$("shift").value||0));
- state.settings.thickness=Math.max(1,Math.min(5,+$("thickness").value||2));
+ state.settings.period=Math.max(2,Math.min(50,Number($("period").value)||5));
+ state.settings.shift=Math.max(0,Math.min(20,Number($("shift").value)||0));
+ state.settings.thickness=Math.max(1,Math.min(5,Number($("thickness").value)||2));
  state.settings.color=$("lineColor").value;
  $("period").value=state.settings.period;
  $("shift").value=state.settings.shift;
  $("thickness").value=state.settings.thickness;
  $("periodSlider").value=Math.min(20,state.settings.period);
  $("sliderValue").textContent=state.settings.period;
- calculateLine();drawChart();updateSignalDisplay();
+ calculateLine();
+ drawChart();
+ updateSignalDisplay();
+ saveSettings();
 }
 function drawChart(){
  const canvas=$("chart"),ctx=canvas.getContext("2d");
- const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+ const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.max(1,Math.round(rect.width*dpr));
+ canvas.height=Math.max(1,Math.round(rect.height*dpr));
  ctx.setTransform(dpr,0,0,dpr,0,0);
  const w=rect.width,h=rect.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle="#091522";ctx.fillRect(0,0,w,h);
- const n=state.ha.length;if(!n){ctx.fillStyle="#8da3b8";ctx.fillText("Нет данных",20,30);return}
+ const n=state.ha.length;
+ if(!n){ctx.fillStyle="#91a7bb";ctx.fillText("Нет данных",20,30);return}
  const count=Math.min(n,100),start=n-count;
  const vals=[];
  for(let i=start;i<n;i++){
@@ -323,174 +328,150 @@ function drawChart(){
   if(state.line[i]!=null)vals.push(state.line[i]);
  }
  let min=Math.min(...vals),max=Math.max(...vals);
- const pad=(max-min)*.09||1;min-=pad;max+=pad;
- const left=8,right=62,top=15,bottom=24;
- const cw=w-left-right,ch=h-top-bottom;
+ const pad=(max-min)*.1||1;min-=pad;max+=pad;
+ const left=8,right=65,top=14,bottom=23,cw=w-left-right,ch=h-top-bottom;
  const y=v=>top+(max-v)/(max-min)*ch;
- ctx.strokeStyle="#1c3043";ctx.lineWidth=1;
+ ctx.strokeStyle="#1c3043";ctx.lineWidth=1;ctx.font="10px Arial";
  for(let k=0;k<=5;k++){
-  const yy=top+ch*k/5;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();
-  ctx.fillStyle="#8da3b8";ctx.font="10px Arial";ctx.fillText(fmt(max-(max-min)*k/5),w-right+4,yy+3);
+  const yy=top+ch*k/5;
+  ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();
+  ctx.fillStyle="#91a7bb";ctx.fillText(fmt(max-(max-min)*k/5),w-right+4,yy+3);
  }
  const step=cw/count,body=Math.max(2,Math.min(9,step*.62));
  for(let j=0;j<count;j++){
-  const c=state.ha[start+j],x=left+step*(j+.5);
-  const up=c.haClose>=c.haOpen;
+  const c=state.ha[start+j],x=left+step*(j+.5),up=c.haClose>=c.haOpen;
   ctx.strokeStyle=up?"#36e78a":"#ff596e";ctx.fillStyle=ctx.strokeStyle;
   ctx.beginPath();ctx.moveTo(x,y(c.haHigh));ctx.lineTo(x,y(c.haLow));ctx.stroke();
-  const yy=Math.min(y(c.haOpen),y(c.haClose)),hh=Math.max(1,Math.abs(y(c.haOpen)-y(c.haClose)));
-  ctx.fillRect(x-body/2,yy,body,hh);
+  const yy=Math.min(y(c.haOpen),y(c.haClose));
+  ctx.fillRect(x-body/2,yy,body,Math.max(1,Math.abs(y(c.haOpen)-y(c.haClose))));
  }
- ctx.strokeStyle=state.settings.color;ctx.lineWidth=state.settings.thickness;ctx.beginPath();let started=false;
+ ctx.strokeStyle=state.settings.color;ctx.lineWidth=state.settings.thickness;ctx.beginPath();
+ let started=false;
  for(let j=0;j<count;j++){
-  const i=start+j,v=state.line[i];if(v==null){started=false;continue}
+  const i=start+j,v=state.line[i];
+  if(v==null){started=false;continue}
   const x=left+step*(j+.5),yy=y(v);
   if(!started){ctx.moveTo(x,yy);started=true}else ctx.lineTo(x,yy);
  }
  ctx.stroke();
- ctx.fillStyle="#8da3b8";ctx.font="10px Arial";
+ ctx.fillStyle="#91a7bb";
  for(let k=0;k<4;k++){
   const j=Math.floor(k*(count-1)/3),c=state.candles[start+j];
-  if(c)ctx.fillText(timeText(c.time),left+step*(j+.15),h-7);
+  if(c)ctx.fillText(timeText(c.time),left+step*(j+.1),h-6);
  }
 }
-</script>
-
 function addTrade(type,price,time,result=0){
- state.trades.unshift({type,price,time,result,symbol:state.symbol});
+ state.trades.unshift({type,price,time,result});
  if(state.trades.length>100)state.trades.length=100;
  renderLog();
 }
 function processLatest(){
- if(state.ha.length<3)return;
- // Последняя свеча считается закрытой только после появления следующей.
+ // При загрузке старой истории не проигрываем сделки задним числом.
+ if(!state.fresh||state.ha.length<3)return;
  const i=state.ha.length-2;
- if(i<1)return;
  const candle=state.candles[i];
  if(!candle||state.lastProcessed===candle.time)return;
  state.lastProcessed=candle.time;
- if(!state.fresh)return;
  const sig=signalAt(i,state.line);
- if(sig==="BUY"&&state.qty===0){
+ if(sig==="BUY"&&state.qty===0&&state.cash>0){
   const price=candle.close;
-  if(price>0&&state.cash>0){
-   state.entry=price;
-   state.qty=state.cash/price;
-   state.cash=0;
-   addTrade("BUY",price,candle.time,0);
-  }
+  state.entry=price;
+  state.qty=state.cash/price;
+  state.cash=0;
+  addTrade("BUY",price,candle.time);
  }else if(sig==="SELL"&&state.qty>0){
-  const price=candle.close;
-  const proceeds=state.qty*price;
+  const price=candle.close,proceeds=state.qty*price;
   const pnl=proceeds-state.qty*state.entry;
-  state.cash=proceeds;
-  state.qty=0;state.entry=0;
+  state.cash=proceeds;state.qty=0;state.entry=0;
   addTrade("SELL",price,candle.time,pnl);
  }
  renderAccount();
  updateSignalDisplay();
 }
 function renderAccount(){
- const equity=state.cash+(state.qty&&state.candles.length?state.qty*state.candles[state.candles.length-1].close:0);
- const result=equity-state.initial;
+ const last=state.candles[state.candles.length-1];
+ const equity=state.cash+(state.qty&&last?state.qty*last.close:0);
+ const pnl=equity-state.initial;
  $("balance").textContent=fmt(equity)+" ₽";
- $("profit").textContent=(result>=0?"+":"")+fmt(result)+" ₽";
- $("profit").className=result>=0?"green":"red";
+ $("profit").textContent=(pnl>=0?"+":"")+fmt(pnl)+" ₽";
+ $("profit").className=pnl>=0?"green":"red";
  $("position").textContent=state.qty>0?"ПОКУПКА":"НЕТ";
  $("position").className=state.qty>0?"green":"";
 }
 function renderLog(){
  const body=$("tradeLog");
- if(!state.trades.length){body.innerHTML='<tr><td colspan="4" style="text-align:center">Сделок пока нет</td></tr>';return}
+ if(!state.trades.length){
+  body.innerHTML='<tr><td colspan="4" style="text-align:center">Сделок пока нет</td></tr>';return;
+ }
  body.innerHTML=state.trades.slice(0,40).map(t=>{
   const cls=t.type==="BUY"?"green":"red";
-  return `<tr><td class="${cls}">${t.type}</td><td>${timeText(t.time)}</td><td>${fmt(t.price)}</td><td>${t.type==="SELL"?(t.result>=0?"+":"")+fmt(t.result)+" ₽":"—"}</td></tr>`;
+  const result=t.type==="SELL"?(t.result>=0?"+":"")+fmt(t.result)+" ₽":"—";
+  return `<tr><td class="${cls}">${t.type}</td><td>${timeText(t.time)}</td><td>${fmt(t.price)}</td><td>${result}</td></tr>`;
  }).join("");
 }
-function updateSignalDisplay(){
- const i=state.ha.length-2;
- const s=i>0?signalAt(i,state.line):"WAIT";
- state.lastSignal=s;
- const e=$("signal");e.textContent=s;e.className="signal "+(s==="BUY"?"buy":s==="SELL"?"sell":"wait");
- $("position").textContent=state.qty>0?"ПОКУПКА":"НЕТ";
- $("position").className=state.qty>0?"green":"";
-}
-function calcLineFor(data,period,shift){
- const mid=data.map(c=>(c.haHigh+c.haLow)/2);
- const raw=smma(mid,period);
- return raw.map((v,i)=>i-shift>=0?raw[i-shift]:null);
-}
-function sma(values,period){
+function sma(values,p){
  const out=Array(values.length).fill(null);let sum=0;
  for(let i=0;i<values.length;i++){
-  sum+=values[i];
-  if(i>=period)sum-=values[i-period];
-  if(i>=period-1)out[i]=sum/period;
+  sum+=values[i];if(i>=p)sum-=values[i-p];
+  if(i>=p-1)out[i]=sum/p;
  }
  return out;
 }
 function backtest(data,start,end,period,shift,filter){
- if(end-start<20)return {trades:0,pnl:0,dd:0,score:-999};
- const line=calcLineFor(data,period,shift);
- const averages=sma(data.map(c=>c.close),21);
+ if(end-start<30)return {trades:0,pnl:0,dd:0,score:-999};
+ const mid=data.map(c=>(c.haHigh+c.haLow)/2);
+ const raw=smma(mid,period);
+ const line=raw.map((v,i)=>i-shift>=0?raw[i-shift]:null);
+ const avg=sma(data.map(c=>c.close),21);
  let cash=100000,qty=0,entry=0,peak=100000,maxDD=0,closed=0;
  for(let i=Math.max(start+1,1);i<end-1;i++){
-  const sig=signalAt(i,line);
+  const sig=signalAt(i,line,data);
   let allowed=true;
   if(filter==="HA")allowed=data[i].haClose>data[i].haOpen;
-  if(filter==="SMA21")allowed=averages[i]!=null&&data[i].close>averages[i];
+  if(filter==="SMA21")allowed=avg[i]!=null&&data[i].close>avg[i];
   const fill=data[i+1].open;
-  if(sig==="BUY"&&qty===0&&allowed&&fill>0){
-   qty=cash/fill;entry=fill;cash=0;
-  }else if(sig==="SELL"&&qty>0&&fill>0){
-   cash=qty*fill;qty=0;entry=0;closed++;
-  }
+  if(sig==="BUY"&&qty===0&&allowed&&fill>0){qty=cash/fill;entry=fill;cash=0}
+  else if(sig==="SELL"&&qty>0&&fill>0){cash=qty*fill;qty=0;entry=0;closed++}
   const equity=cash+(qty?qty*data[i+1].close:0);
   peak=Math.max(peak,equity);
   maxDD=Math.max(maxDD,(peak-equity)/peak*100);
  }
- if(qty>0){
-  cash=qty*data[end-1].close;qty=0;closed++;
- }
+ if(qty>0){cash=qty*data[end-1].close;qty=0;closed++}
  const pnl=cash-100000;
  const score=pnl/1000-maxDD*1.5+(closed>=3?closed*.15:0);
  return {trades:closed,pnl,dd:maxDD,score};
 }
 function optimize(){
  if(state.ha.length<100){
-  $("optimizerStatus").textContent="Недостаточно истории. Нужно не менее 100 свечей.";
-  return;
+  $("optimizerStatus").textContent="Недостаточно истории: нужно не менее 100 свечей.";return;
  }
  $("optimize").disabled=true;
- $("optimizerStatus").textContent="Проверяю комбинации параметров…";
+ $("optimizerStatus").textContent="Проверяю варианты…";
  setTimeout(()=>{
   try{
-   const data=state.ha,n=data.length,split=Math.floor(n*.7);
-   const periods=[3,5,8,13,18];
-   const shifts=[1,3,5];
-   const filters=["NONE","HA","SMA21"];
-   const results=[];
-   for(const p of periods)for(const sh of shifts)for(const f of filters){
-    const train=backtest(data,0,split,p,sh,f);
-    const test=backtest(data,split,n,p,sh,f);
-    results.push({p,sh,f,train,test});
+   const data=state.ha,n=data.length,split=Math.floor(n*.7),results=[];
+   for(const p of [3,5,8,13,18]){
+    for(const sh of [1,3,5]){
+     for(const f of ["NONE","HA","SMA21"]){
+      const train=backtest(data,0,split,p,sh,f);
+      const test=backtest(data,split,n,p,sh,f);
+      results.push({p,sh,f,train,test});
+     }
+    }
    }
    results.sort((a,b)=>b.train.score-a.train.score);
    state.optimizer=results;
-   const best=results[0];
    $("optimizerTable").innerHTML=results.slice(0,12).map(r=>{
     const cls=r.test.pnl>=0?"green":"red";
-    return `<tr><td>${r.p}/${r.sh} · ${r.f}</td><td>${r.test.trades}</td><td>${r.train.pnl>=0?"+":""}${fmt(r.train.pnl)} ₽</td><td class="${cls}">${r.test.pnl>=0?"+":""}${fmt(r.test.pnl)} ₽</td><td>${fmt(r.test.dd)}%</td></tr>`;
+    return `<tr><td>${r.p}/${r.sh} · ${r.f}</td><td>${r.test.trades}</td><td>${fmt(r.train.pnl)} ₽</td><td class="${cls}">${r.test.pnl>=0?"+":""}${fmt(r.test.pnl)} ₽</td><td>${fmt(r.test.dd)}%</td></tr>`;
    }).join("");
-   $("optimizerStatus").innerHTML=`Проверено ${results.length} комбинаций. Лучший по обучающему участку: период ${best.p}, смещение ${best.sh}, фильтр ${best.f}. Тестовый результат: <b class="${best.test.pnl>=0?"green":"red"}">${best.test.pnl>=0?"+":""}${fmt(best.test.pnl)} ₽</b> · ${best.test.trades} сделок.`;
-   // Лучшие параметры применяются к рабочей линии.
-   $("period").value=best.p;
-   $("shift").value=best.sh;
-   applySettings();
+   const best=results[0];
+   $("optimizerStatus").textContent=`Проверено ${results.length} комбинаций. Лучший на обучении: период ${best.p}, смещение ${best.sh}, фильтр ${best.f}. Тестовый результат: ${fmt(best.test.pnl)} ₽.`;
+   // Результаты показываются, рабочие настройки автоматически не меняются.
   }catch(e){
-   $("optimizerStatus").textContent="Ошибка проверки: "+e.message;
+   $("optimizerStatus").textContent="Ошибка тестирования: "+e.message;
   }finally{$("optimize").disabled=false}
- },80);
+ },50);
 }
 function resetAccount(){
  state.cash=state.initial;state.qty=0;state.entry=0;
@@ -521,32 +502,35 @@ function restoreSettings(){
 async function refreshAll(){
  $("refresh").disabled=true;
  try{
-  state.lastProcessed="";
   await loadCandles();
   saveSettings();
  }catch(e){
   setStatus("Не удалось загрузить данные: "+e.message,"bad");
  }finally{$("refresh").disabled=false}
 }
+
 $("refresh").addEventListener("click",refreshAll);
 $("optimize").addEventListener("click",optimize);
 $("reset").addEventListener("click",()=>{
- if(confirm("Сбросить виртуальный счёт и журнал сделок?"))resetAccount();
+ if(confirm("Сбросить виртуальный счёт и журнал?"))resetAccount();
 });
-$("clearLog").addEventListener("click",()=>{
- state.trades=[];renderLog();
-});
+$("clearLog").addEventListener("click",()=>{state.trades=[];renderLog()});
 $("periodSlider").addEventListener("input",()=>{
  $("period").value=$("periodSlider").value;
  $("sliderValue").textContent=$("periodSlider").value;
- applySettings();saveSettings();
+ applySettings();
 });
 ["period","shift","thickness","lineColor"].forEach(id=>{
- $(id).addEventListener("change",()=>{applySettings();saveSettings()});
+ $(id).addEventListener("change",applySettings);
 });
-$("symbol").addEventListener("change",()=>{state.lastProcessed="";refreshAll()});
-$("tf").addEventListener("change",()=>{state.lastProcessed="";refreshAll()});
-window.addEventListener("resize",()=>drawChart());
+$("symbol").addEventListener("change",()=>{
+ state.lastProcessed="";refreshAll();
+});
+$("tf").addEventListener("change",()=>{
+ state.lastProcessed="";refreshAll();
+});
+window.addEventListener("resize",drawChart);
+
 restoreSettings();
 applySettings();
 renderAccount();
