@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER PRO 2.2 QUANT AI</title>
+<title>SNIPER PRO 2.3 QUANT AI</title>
 <style>
 :root{--bg:#07111d;--panel:#101e2d;--panel2:#15283a;--line:#263c50;--text:#e8f1fa;--muted:#91a7bb;--green:#35f28a;--red:#ff5368;--yellow:#ffc857;--blue:#56b8ff}
 *{box-sizing:border-box}
@@ -51,156 +51,149 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
 </head>
 <body>
 <header>
- <h1>SNIPER PRO 2.2</h1>
- <div class="sub">QUANT AI · HEIKIN ASHI · ALLIGATOR ONE LINE · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
+<h1>SNIPER PRO 2.3</h1>
+<div class="sub">QUANT AI · HEIKIN ASHI · ALLIGATOR ONE LINE · ВИРТУАЛЬНАЯ ТОРГОВЛЯ</div>
 </header>
 <main>
 
 <section class="panel">
- <div class="row between">
-  <div><label>ИНСТРУМЕНТ</label>
-   <select id="symbol"><option value="OZON">OZON</option><option value="TGLD">TGLD · ЗОЛОТО</option></select>
-  </div>
-  <div><label>ТАЙМФРЕЙМ</label>
-   <select id="tf">
-    <option value="1">1 мин</option><option value="5" selected>5 мин</option>
-    <option value="15">15 мин</option><option value="30">30 мин</option>
-    <option value="60">1 час</option><option value="1440">День</option>
-   </select>
-  </div>
-  <button id="refresh" class="primary">↻ Обновить</button>
- </div>
- <div id="feedStatus" class="status">Подключение к MOEX…</div>
+<div class="row between">
+<div><label>ИНСТРУМЕНТ</label>
+<select id="symbol"><option value="OZON">OZON</option><option value="TGLD">TGLD · ЗОЛОТО</option></select>
+</div>
+<div><label>ТАЙМФРЕЙМ</label>
+<select id="tf">
+<option value="1">1 мин</option><option value="5" selected>5 мин</option>
+<option value="15">15 мин</option><option value="30">30 мин</option>
+<option value="60">1 час</option><option value="1440">День</option>
+</select>
+</div>
+<button id="refresh" class="primary">↻ Обновить</button>
+</div>
+<div id="feedStatus" class="status">Подключение к MOEX…</div>
+<div id="dataInfo" class="small">Ожидание данных.</div>
 </section>
 
 <section class="panel">
- <div class="row between">
-  <span class="pill">ОСНОВНОЙ ГРАФИК</span>
-  <span class="pill">HEIKIN ASHI</span>
-  <span class="pill">ONE LINE</span>
- </div>
- <div class="chartwrap"><canvas id="chart"></canvas></div>
- <div class="small" style="margin-top:7px">
-  BUY — зелёная отметка. SELL — красная отметка. Пунктир соединяет вход и выход одной виртуальной сделки. На графике отображаются реальные исторические свечи и сделки текущего виртуального счёта.
- </div>
+<div class="row between">
+<span class="pill">ОСНОВНОЙ ГРАФИК</span>
+<span class="pill">HEIKIN ASHI</span>
+<span class="pill">ONE LINE</span>
+</div>
+<div class="chartwrap"><canvas id="chart"></canvas></div>
+<div class="small" style="margin-top:7px">
+BUY — зелёная отметка. SELL — красная отметка. Пунктир соединяет вход и выход виртуальной сделки.
+</div>
 </section>
 
 <section class="row">
- <div class="metric"><small>ПОСЛЕДНЯЯ ЦЕНА</small><strong id="lastPrice">—</strong></div>
- <div class="metric"><small>СИГНАЛ ЛИНИИ</small><strong id="signal" class="signal yellow">WAIT</strong></div>
- <div class="metric"><small>ПОЗИЦИЯ</small><strong id="position">НЕТ</strong></div>
+<div class="metric"><small>ПОСЛЕДНЯЯ ЦЕНА</small><strong id="lastPrice">—</strong></div>
+<div class="metric"><small>СИГНАЛ ЛИНИИ</small><strong id="signal" class="signal yellow">WAIT</strong></div>
+<div class="metric"><small>ПОЗИЦИЯ</small><strong id="position">НЕТ</strong></div>
 </section>
 
 <section class="panel">
- <strong>QUANT AI · ОЦЕНКА СИТУАЦИИ</strong>
- <div class="row" style="margin-top:8px">
-  <div style="flex:1;min-width:100px">
-   <div class="small">ОЦЕНКА BUY</div>
-   <div class="ai-score" id="aiScore">—</div>
-  </div>
-  <div style="flex:2;min-width:160px">
-   <div class="bar"><div id="aiBar"></div></div>
-   <div class="small" id="aiVerdict" style="margin-top:7px">Ожидание данных</div>
-  </div>
- </div>
- <hr>
- <div class="row">
-  <div class="metric"><small>RSI</small><strong id="rsiValue">—</strong></div>
-  <div class="metric"><small>MACD</small><strong id="macdValue">—</strong></div>
-  <div class="metric"><small>ТРЕНД</small><strong id="trendValue">—</strong></div>
- </div>
- <div class="small" id="aiDetails" style="margin-top:9px">
-  Статистическая оценка будет рассчитана после загрузки котировок.
- </div>
- <div class="small" style="margin-top:8px">
-  AI здесь — локальная математическая модель, работающая в браузере. Это не подключённая нейросеть. Оценка не является гарантированной вероятностью прибыли.
- </div>
-</section>
-
-<section class="panel">
- <strong>НАСТРОЙКИ ЗЕЛЁНОЙ ЛИНИИ</strong>
- <div class="control" style="margin-top:10px">
-  <label>ПЕРИОД: <b id="sliderValue">5</b></label>
-  <input id="periodSlider" type="range" min="2" max="20" value="5">
- </div>
- <div class="controls" style="margin-top:9px">
-  <div class="control"><label>ПЕРИОД</label><input id="period" type="number" min="2" max="50" value="5"></div>
-  <div class="control"><label>СМЕЩЕНИЕ</label><input id="shift" type="number" min="0" max="20" value="3"></div>
-  <div class="control"><label>ТОЛЩИНА ЛИНИИ</label><input id="thickness" type="number" min="1" max="5" value="2"></div>
-  <div class="control"><label>ЦВЕТ</label><input id="lineColor" type="color" value="#35f28a"></div>
- </div>
- <div class="small" style="margin-top:9px">
-  Смещение использует прошлое значение сглаженной линии. В расчётах нет обращения к будущим свечам.
- </div>
-</section>
-
-<section class="panel">
- <strong>ФИЛЬТР QUANT AI</strong>
- <div class="control" style="margin-top:10px">
-  <label>МИНИМАЛЬНАЯ ОЦЕНКА ДЛЯ BUY: <b id="thresholdText">55</b></label>
-  <input id="threshold" type="range" min="0" max="90" value="55">
- </div>
- <div class="small" style="margin-top:8px">
-  При пересечении линии снизу вверх программа проверяет оценку рынка. Если оценка ниже установленного порога, покупка пропускается. SELL закрывает открытую позицию независимо от оценки.
- </div>
- <div class="row" style="margin-top:9px">
-  <button id="filterOn" class="primary">Фильтр включён</button>
-  <button id="filterOff">Фильтр выключен</button>
- </div>
- <div class="small" id="filterStatus">Фильтр включён.</div>
-</section>
-
-<section class="panel">
- <div class="row between">
-  <strong>АВТОПОДБОР СТРАТЕГИИ</strong>
-  <button id="optimize" class="primary">Проверить варианты</button>
- </div>
- <div id="optimizerStatus" class="status">Подбор ещё не запускался.</div>
- <div class="small">
-  История разделяется на обучающую и тестовую части. В таблице варианты ранжируются по результату на тестовом участке. Рабочие настройки автоматически не меняются.
- </div>
- <div class="scroll" style="margin-top:8px">
-  <table>
-   <thead><tr><th>Период / смещение</th><th>Фильтр</th><th>Сделки</th><th>Обучение</th><th>Тест</th><th>Просадка</th></tr></thead>
-   <tbody id="optimizerTable"><tr><td colspan="6" style="text-align:center">Нет результатов</td></tr></tbody>
-  </table>
- </div>
-</section>
-
-<section class="panel">
- <strong>ВИРТУАЛЬНЫЙ СЧЁТ</strong>
- <div class="row">
-  <div class="metric"><small>СТАРТОВЫЙ БАЛАНС</small><strong id="initialBalance">100 000 ₽</strong></div>
-  <div class="metric"><small>ТЕКУЩИЙ КАПИТАЛ</small><strong id="balance">100 000 ₽</strong></div>
-  <div class="metric"><small>РЕЗУЛЬТАТ</small><strong id="profit">0 ₽</strong></div>
- </div>
- <div class="row" style="margin-top:10px">
-  <div class="metric"><small>ЦЕНА ВХОДА</small><strong id="entryPrice">—</strong></div>
-  <div class="metric"><small>ТЕКУЩИЙ РЕЗУЛЬТАТ ПОЗИЦИИ</small><strong id="openPnl">—</strong></div>
- </div>
- <div class="row" style="margin-top:10px">
-  <button id="reset">Сбросить счёт</button>
-  <button id="clearLog">Очистить журнал</button>
- </div>
- <div class="small" style="margin-top:8px">
-  Комиссии и налоги временно не учитываются. Только виртуальные сделки. Реальные ордера не отправляются.
- </div>
- <div id="saveStatus" class="small" style="margin-top:6px">Сохранение включено.</div>
-</section>
-
-<section class="panel">
- <strong>ЖУРНАЛ СДЕЛОК</strong>
- <div class="scroll" style="margin-top:8px">
-  <table>
-   <thead><tr><th>Тип</th><th>Время</th><th>Цена</th><th>Оценка AI</th><th>Результат</th></tr></thead>
-   <tbody id="tradeLog"><tr><td colspan="5" style="text-align:center">Сделок пока нет</td></tr></tbody>
-  </table>
- </div>
-</section>
-
-<div class="small" style="text-align:center;padding:8px">
- SNIPER PRO 2.2 QUANT AI · Виртуальная торговля · Не инвестиционная рекомендация
+<strong>QUANT AI · ОЦЕНКА СИТУАЦИИ</strong>
+<div class="row" style="margin-top:8px">
+<div style="flex:1;min-width:100px">
+<div class="small">ОЦЕНКА BUY</div>
+<div class="ai-score" id="aiScore">—</div>
 </div>
+<div style="flex:2;min-width:160px">
+<div class="bar"><div id="aiBar"></div></div>
+<div class="small" id="aiVerdict" style="margin-top:7px">Ожидание данных</div>
+</div>
+</div>
+<hr>
+<div class="row">
+<div class="metric"><small>RSI</small><strong id="rsiValue">—</strong></div>
+<div class="metric"><small>MACD</small><strong id="macdValue">—</strong></div>
+<div class="metric"><small>ТРЕНД</small><strong id="trendValue">—</strong></div>
+</div>
+<div class="small" id="aiDetails" style="margin-top:9px">Оценка будет рассчитана после загрузки свежих котировок.</div>
+<div class="small" style="margin-top:8px">
+AI — локальная математическая модель в браузере, а не подключённая нейросеть. Оценка не является гарантированной вероятностью прибыли.
+</div>
+</section>
+
+<section class="panel">
+<strong>НАСТРОЙКИ ЗЕЛЁНОЙ ЛИНИИ</strong>
+<div class="control" style="margin-top:10px">
+<label>ПЕРИОД: <b id="sliderValue">5</b></label>
+<input id="periodSlider" type="range" min="2" max="20" value="5">
+</div>
+<div class="controls" style="margin-top:9px">
+<div class="control"><label>ПЕРИОД</label><input id="period" type="number" min="2" max="50" value="5"></div>
+<div class="control"><label>СМЕЩЕНИЕ</label><input id="shift" type="number" min="0" max="20" value="3"></div>
+<div class="control"><label>ТОЛЩИНА ЛИНИИ</label><input id="thickness" type="number" min="1" max="5" value="2"></div>
+<div class="control"><label>ЦВЕТ</label><input id="lineColor" type="color" value="#35f28a"></div>
+</div>
+<div class="small" style="margin-top:9px">Смещение использует только прошлые значения сглаженной линии.</div>
+</section>
+
+<section class="panel">
+<strong>ФИЛЬТР QUANT AI</strong>
+<div class="control" style="margin-top:10px">
+<label>МИНИМАЛЬНАЯ ОЦЕНКА ДЛЯ BUY: <b id="thresholdText">55</b></label>
+<input id="threshold" type="range" min="0" max="90" value="55">
+</div>
+<div class="small" style="margin-top:8px">
+При пересечении снизу вверх программа проверяет оценку рынка. SELL закрывает открытую позицию независимо от оценки.
+</div>
+<div class="row" style="margin-top:9px">
+<button id="filterOn" class="primary">Фильтр включён</button>
+<button id="filterOff">Фильтр выключен</button>
+</div>
+<div class="small" id="filterStatus">Фильтр включён.</div>
+</section>
+
+<section class="panel">
+<div class="row between">
+<strong>АВТОПОДБОР СТРАТЕГИИ</strong>
+<button id="optimize" class="primary">Проверить варианты</button>
+</div>
+<div id="optimizerStatus" class="status">Подбор ещё не запускался.</div>
+<div class="small">
+История делится на обучение, проверку и отдельный финальный участок. Выбор стратегии делается по проверочному участку, а не по финальному тесту.
+</div>
+<div class="scroll" style="margin-top:8px">
+<table>
+<thead><tr><th>Период / смещение</th><th>Фильтр</th><th>Сделки</th><th>Обучение</th><th>Проверка</th><th>Финал</th><th>Просадка</th></tr></thead>
+<tbody id="optimizerTable"><tr><td colspan="7" style="text-align:center">Нет результатов</td></tr></tbody>
+</table>
+</div>
+</section>
+
+<section class="panel">
+<strong>ВИРТУАЛЬНЫЙ СЧЁТ</strong>
+<div class="row">
+<div class="metric"><small>СТАРТОВЫЙ БАЛАНС</small><strong id="initialBalance">100 000 ₽</strong></div>
+<div class="metric"><small>ТЕКУЩИЙ КАПИТАЛ</small><strong id="balance">100 000 ₽</strong></div>
+<div class="metric"><small>РЕЗУЛЬТАТ</small><strong id="profit">0 ₽</strong></div>
+</div>
+<div class="row" style="margin-top:10px">
+<div class="metric"><small>ЦЕНА ВХОДА</small><strong id="entryPrice">—</strong></div>
+<div class="metric"><small>ТЕКУЩИЙ РЕЗУЛЬТАТ ПОЗИЦИИ</small><strong id="openPnl">—</strong></div>
+</div>
+<div class="row" style="margin-top:10px">
+<button id="reset">Сбросить счёт</button>
+<button id="clearLog">Очистить журнал</button>
+</div>
+<div class="small" style="margin-top:8px">Комиссии и налоги временно не учитываются. Только виртуальные сделки. Реальные ордера не отправляются.</div>
+<div id="saveStatus" class="small" style="margin-top:6px">Сохранение включено.</div>
+</section>
+
+<section class="panel">
+<strong>ЖУРНАЛ СДЕЛОК</strong>
+<div class="scroll" style="margin-top:8px">
+<table>
+<thead><tr><th>Тип</th><th>Время</th><th>Цена</th><th>Оценка AI</th><th>Результат</th></tr></thead>
+<tbody id="tradeLog"><tr><td colspan="5" style="text-align:center">Сделок пока нет</td></tr></tbody>
+</table>
+</div>
+</section>
+
+<div class="small" style="text-align:center;padding:8px">SNIPER PRO 2.3 QUANT AI · Виртуальная торговля · Не инвестиционная рекомендация</div>
 </main>
 
 <script>
@@ -213,7 +206,7 @@ const state={
  trades:[],lastProcessed:"",fresh:false,
  settings:{period:5,shift:3,thickness:2,color:"#35f28a"},
  filter:true,threshold:55,ai:null,optimizer:[],
- marketKey:""
+ pages:0,loadedFrom:"",loadedTo:"",loadErrors:[]
 };
 const fmt=n=>Number(n||0).toLocaleString("ru-RU",{maximumFractionDigits:2});
 const timeText=t=>new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -222,7 +215,7 @@ function setStatus(s,k=""){
  $("feedStatus").textContent=s;
  $("feedStatus").className="status "+k;
 }
-function saveKey(){return "SNIPER22_ACCOUNT_"+marketId()}
+function saveKey(){return "SNIPER23_ACCOUNT_"+marketId()}
 function saveAccount(){
  try{
   localStorage.setItem(saveKey(),JSON.stringify({
@@ -248,34 +241,41 @@ function loadAccount(){
 }
 function tfMinutes(){return Number(state.tf)}
 function exchangeTime(t){return new Date(t+3*3600000)}
-function isTradingTime(t){
- const d=exchangeTime(t),day=d.getUTCDay();
- const mins=d.getUTCHours()*60+d.getUTCMinutes();
- return day>=1&&day<=5&&mins>=600&&mins<1130;
+function freshnessLimit(){
+ return Math.max(20,tfMinutes()*2+15)*60000;
 }
 function isFresh(t){
- if(!isTradingTime(Date.now()))return true;
- return Date.now()-t<=8*60000;
+ const age=Date.now()-t;
+ return age>=-60000&&age<=freshnessLimit();
 }
 function boardList(){
  return state.symbol==="OZON"?["TQBR"]:["TQTF","TQTD","TQIF","TQBR"];
 }
 async function fetchOneBoard(board,sec,from){
- let all=[],offset=0;
- for(let page=0;page<20;page++){
-  const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/${board}/securities/${sec}/candles.json?from=${from}&interval=1&start=${offset}&limit=500&iss.meta=off&iss.only=candles&candles.columns=begin,open,high,low,close,volume`;
+ let all=[],offset=0,pages=0,seen=new Set();
+ const maxPages=100,pageSize=500;
+ for(let page=0;page<maxPages;page++){
+  const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/${board}/securities/${sec}/candles.json?from=${from}&interval=1&start=${offset}&limit=${pageSize}&iss.meta=off&iss.only=candles&candles.columns=begin,open,high,low,close,volume`;
   const response=await fetch(url,{cache:"no-store"});
-  if(!response.ok)throw Error("MOEX "+response.status);
-  const json=await response.json(),rows=json.candles?.data||[],cols=json.candles?.columns||[];
+  if(!response.ok)throw Error("MOEX "+response.status+" · "+board);
+  const json=await response.json();
+  const rows=json.candles?.data||[];
+  const cols=json.candles?.columns||[];
   if(!rows.length)break;
+  let added=0;
   for(const row of rows){
    const o={};cols.forEach((c,i)=>o[c]=row[i]);
-   all.push({time:new Date(o.begin).getTime(),open:+o.open,high:+o.high,low:+o.low,close:+o.close,volume:+o.volume||0});
+   const time=new Date(o.begin).getTime();
+   if(!Number.isFinite(time)||seen.has(time))continue;
+   const candle={time,open:+o.open,high:+o.high,low:+o.low,close:+o.close,volume:+o.volume||0};
+   if(![candle.open,candle.high,candle.low,candle.close].every(Number.isFinite))continue;
+   seen.add(time);all.push(candle);added++;
   }
-  if(rows.length<500)break;
+  pages++;
+  if(rows.length<pageSize||added===0)break;
   offset+=rows.length;
  }
- return all;
+ return {rows:all,pages,board};
 }
 function aggregate(rows,minutes){
  if(minutes===1)return rows;
@@ -283,12 +283,7 @@ function aggregate(rows,minutes){
  for(const c of rows){
   const d=exchangeTime(c.time);
   const dayStart=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-3*3600000;
-  let key;
-  if(minutes===1440)key=dayStart;
-  else{
-   const elapsed=Math.floor((c.time-dayStart)/60000);
-   key=dayStart+Math.floor(elapsed/minutes)*minutes*60000;
-  }
+  const key=minutes===1440?dayStart:dayStart+Math.floor((c.time-dayStart)/(minutes*60000))*minutes*60000;
   let b=buckets.get(key);
   if(!b)b={time:key,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
   else{b.high=Math.max(b.high,c.high);b.low=Math.min(b.low,c.low);b.close=c.close;b.volume+=c.volume}
@@ -299,14 +294,19 @@ function aggregate(rows,minutes){
 async function loadCandles(){
  state.symbol=$("symbol").value;state.tf=$("tf").value;
  const from=new Date(Date.now()-45*86400000).toISOString().slice(0,10);
- setStatus("Загружаю исторические свечи MOEX…");
- let rows=[],errors=[];
+ setStatus("Загружаю историю MOEX…");
+ $("dataInfo").textContent="Проверяю доступность торговых режимов и страниц истории.";
+ let result=null,errors=[];
  for(const board of boardList()){
-  try{rows=await fetchOneBoard(board,state.symbol,from);if(rows.length)break}
-  catch(e){errors.push(e.message)}
+  try{
+   const r=await fetchOneBoard(board,state.symbol,from);
+   if(r.rows.length){result=r;break}
+  }catch(e){errors.push(e.message)}
  }
- if(!rows.length)throw Error(errors.join("; ")||"Биржа не вернула свечи");
- rows.sort((a,b)=>a.time-b.time);
+ if(!result||!result.rows.length)throw Error(errors.join(" · ")||"Биржа не вернула свечи");
+ state.pages=result.pages;
+ state.loadErrors=errors;
+ const rows=result.rows.sort((a,b)=>a.time-b.time);
  const unique=new Map();rows.forEach(c=>unique.set(c.time,c));
  state.candles=aggregate([...unique.values()],tfMinutes());
  if(state.candles.length<30)throw Error("Слишком мало свечей: "+state.candles.length);
@@ -315,10 +315,17 @@ async function loadCandles(){
  const last=state.candles[state.candles.length-1];
  state.fresh=isFresh(last.time);
  $("lastPrice").textContent=fmt(last.close);
+ state.loadedFrom=state.candles[0].time;
+ state.loadedTo=last.time;
  const age=Math.max(0,Math.round((Date.now()-last.time)/60000));
- if(state.fresh)setStatus(`${state.symbol} · ${state.tf} мин · ${state.candles.length} свечей · ${timeText(last.time)} · ${age} мин назад`,"ok");
- else setStatus(`КОТИРОВКИ УСТАРЕЛИ · последняя свеча ${timeText(last.time)} · новые входы заблокированы`,"bad");
- drawChart();updateSignalDisplay();updateAI();renderAccount();processLatest();
+ $("dataInfo").textContent=`Режим ${result.board} · страниц: ${result.pages} · свечей после объединения: ${state.candles.length} · период: ${timeText(state.loadedFrom)} — ${timeText(state.loadedTo)} · возраст последней свечи: ${age} мин.`;
+ if(state.fresh){
+  setStatus(`${state.symbol} · ${state.tf} мин · данные доступны · последняя свеча ${timeText(last.time)}`,"ok");
+ }else{
+  setStatus(`НЕТ СВЕЖИХ ДАННЫХ · последняя свеча ${timeText(last.time)} · виртуальные новые входы заблокированы`,"bad");
+ }
+ drawChart();updateSignalDisplay();updateAI();renderAccount();
+ processLatest();
 }
 function makeHeikinAshi(rows){
  const out=[];let po=null,pc=null;
@@ -361,8 +368,7 @@ function sma(values,p){
  return out;
 }
 function ema(values,p){
- const out=Array(values.length).fill(null),k=2/(p+1);
- let prev=null;
+ const out=Array(values.length).fill(null),k=2/(p+1);let prev=null;
  for(let i=0;i<values.length;i++){
   if(!Number.isFinite(values[i]))continue;
   prev=prev===null?values[i]:values[i]*k+prev*(1-k);
@@ -371,8 +377,7 @@ function ema(values,p){
  return out;
 }
 function rsi(values,p=14){
- const out=Array(values.length).fill(null);
- let gain=0,loss=0;
+ const out=Array(values.length).fill(null);let gain=0,loss=0;
  for(let i=1;i<values.length;i++){
   const d=values[i]-values[i-1],g=Math.max(0,d),l=Math.max(0,-d);
   if(i<=p){gain+=g;loss+=l;if(i===p)out[i]=loss===0?100:100-100/(1+gain/loss)}
@@ -383,40 +388,37 @@ function rsi(values,p=14){
  }
  return out;
 }
-function calculateAI(i){
- const c=state.ha,n=c.length;
+function calculateAI(i,data=state.ha){
  if(i<30)return {score:50,rsi:null,macd:null,trend:"НЕДОСТАТОЧНО ДАННЫХ",parts:[]};
- const closes=c.map(x=>x.haClose);
+ const closes=data.map(x=>x.haClose);
  const rs=rsi(closes,14),e12=ema(closes,12),e26=ema(closes,26);
  const mac=e12.map((v,j)=>v!=null&&e26[j]!=null?v-e26[j]:null);
- const avg=sma(closes,21);
- const volAvg=sma(c.map(x=>x.volume),20);
+ const avg=sma(closes,21),volAvg=sma(data.map(x=>x.volume),20);
  let score=50,parts=[];
  const add=(name,points,detail)=>{score+=points;parts.push(name+": "+detail)};
- if(avg[i]!=null){
-  if(closes[i]>avg[i])add("Тренд",12,"выше средней");
-  else add("Тренд",-12,"ниже средней");
- }
- if(mac[i]!=null&&mac[i-1]!=null){
-  if(mac[i]>mac[i-1])add("MACD",10,"растёт");
-  else add("MACD",-10,"снижается");
- }
+ if(avg[i]!=null)add("Тренд",closes[i]>avg[i]?12:-12,closes[i]>avg[i]?"выше средней":"ниже средней");
+ if(mac[i]!=null&&mac[i-1]!=null)add("MACD",mac[i]>mac[i-1]?10:-10,mac[i]>mac[i-1]?"растёт":"снижается");
  if(rs[i]!=null){
   if(rs[i]>=50&&rs[i]<=68)add("RSI",12,"положительная зона");
   else if(rs[i]>72)add("RSI",-12,"перегрев");
   else if(rs[i]<30)add("RSI",-8,"перепроданность");
   else add("RSI",-5,"слабый импульс");
  }
- if(c[i].haClose>c[i].haOpen)add("Свеча",8,"бычья");
- else add("Свеча",-8,"медвежья");
- if(volAvg[i]>0){
-  if(c[i].volume>volAvg[i]*1.2)add("Объём",5,"выше среднего");
-  else add("Объём",0,"обычный");
- }
+ add("Свеча",data[i].haClose>data[i].haOpen?8:-8,data[i].haClose>data[i].haOpen?"бычья":"медвежья");
+ if(volAvg[i]>0)add("Объём",data[i].volume>volAvg[i]*1.2?5:0,data[i].volume>volAvg[i]*1.2?"выше среднего":"обычный");
  score=Math.max(0,Math.min(100,Math.round(score)));
  return {score,rsi:rs[i],macd:mac[i],trend:avg[i]==null?"—":closes[i]>avg[i]?"ВВЕРХ":"ВНИЗ",parts};
 }
 function updateAI(){
+ if(!state.fresh){
+  $("aiScore").textContent="—";$("aiScore").className="ai-score yellow";
+  $("aiBar").style.width="0%";
+  $("aiVerdict").textContent="Нет свежих котировок — оценка отключена";
+  $("rsiValue").textContent="—";$("macdValue").textContent="—";$("trendValue").textContent="—";
+  $("trendValue").className="";
+  $("aiDetails").textContent="Последняя свеча устарела. Не используй предыдущую оценку для принятия решений.";
+  state.ai=null;return;
+ }
  const i=state.ha.length-2;
  if(i<1)return;
  state.ai=calculateAI(i);
@@ -433,8 +435,8 @@ function updateAI(){
 }
 function updateSignalDisplay(){
  const i=state.ha.length-2,sig=i>0?signalAt(i,state.line):"WAIT";
- const el=$("signal");el.textContent=sig;
- el.className="signal "+(sig==="BUY"?"green":sig==="SELL"?"red":"yellow");
+ const el=$("signal");el.textContent=state.fresh?sig:"WAIT";
+ el.className="signal "+(state.fresh&&sig==="BUY"?"green":state.fresh&&sig==="SELL"?"red":"yellow");
  $("position").textContent=state.qty>0?"ПОКУПКА":"НЕТ";
  $("position").className=state.qty>0?"green":"";
 }
@@ -456,9 +458,9 @@ function drawChart(){
  ctx.setTransform(dpr,0,0,dpr,0,0);
  const w=rect.width,h=rect.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle="#091522";ctx.fillRect(0,0,w,h);
- const n=state.ha.length;if(!n){ctx.fillStyle="#91a7bb";ctx.fillText("Нет данных",20,30);return}
- const count=Math.min(n,110),start=n-count;
- const vals=[];
+ const n=state.ha.length;
+ if(!n){ctx.fillStyle="#91a7bb";ctx.fillText("Нет данных",20,30);return}
+ const count=Math.min(n,110),start=n-count,vals=[];
  for(let i=start;i<n;i++){
   const c=state.ha[i];vals.push(c.haHigh,c.haLow);
   if(state.line[i]!=null)vals.push(state.line[i]);
@@ -489,11 +491,10 @@ function drawChart(){
   if(!started){ctx.moveTo(x,y(v));started=true}else ctx.lineTo(x,y(v));
  }
  ctx.stroke();
- // Маркеры виртуальных сделок на основном графике.
  const visibleTrades=state.trades.filter(t=>t.time>=state.candles[start].time);
  const points=[];
  for(const t of visibleTrades){
-  let idx=state.candles.findIndex(c=>c.time===t.time);
+  const idx=state.candles.findIndex(c=>c.time===t.time);
   if(idx<start||idx<0)continue;
   points.push({t,idx,x:left+step*(idx-start+.5),yy:y(t.price)});
  }
@@ -524,25 +525,26 @@ function addTrade(type,price,time,result=0,score=0){
 }
 function processLatest(){
  if(!state.fresh||state.ha.length<3)return;
- const i=state.ha.length-2,candle=state.candles[i];
- if(!candle||state.lastProcessed===candle.time)return;
- state.lastProcessed=candle.time;
+ const i=state.ha.length-2;
+ const signalCandle=state.candles[i],fillCandle=state.candles[i+1];
+ if(!signalCandle||!fillCandle)return;
+ if(state.lastProcessed===signalCandle.time)return;
  const sig=signalAt(i,state.line),ai=calculateAI(i);
+ state.lastProcessed=signalCandle.time;
+ const price=fillCandle.open;
  if(sig==="BUY"&&state.qty===0&&state.cash>0){
   if(state.filter&&ai.score<state.threshold){
    $("filterStatus").textContent=`BUY пропущен: оценка AI ${ai.score}, требуется ${state.threshold}.`;
-  }else{
-   const price=candle.close;
+  }else if(price>0){
    state.entry=price;state.qty=state.cash/price;state.cash=0;
-   addTrade("BUY",price,candle.time,0,ai.score);
-   $("filterStatus").textContent=`Виртуальная покупка выполнена. Оценка AI: ${ai.score}/100.`;
+   addTrade("BUY",price,fillCandle.time,0,ai.score);
+   $("filterStatus").textContent=`Виртуальная покупка по открытию следующей свечи. AI: ${ai.score}/100.`;
   }
- }else if(sig==="SELL"&&state.qty>0){
-  const price=candle.close,proceeds=state.qty*price;
-  const pnl=proceeds-state.qty*state.entry;
+ }else if(sig==="SELL"&&state.qty>0&&price>0){
+  const proceeds=state.qty*price,pnl=proceeds-state.qty*state.entry;
   state.cash=proceeds;state.qty=0;state.entry=0;
-  addTrade("SELL",price,candle.time,pnl,ai.score);
-  $("filterStatus").textContent=`Позиция закрыта по сигналу SELL. Результат: ${fmt(pnl)} ₽.`;
+  addTrade("SELL",price,fillCandle.time,pnl,ai.score);
+  $("filterStatus").textContent=`Позиция закрыта. Результат: ${fmt(pnl)} ₽.`;
  }
  renderAccount();updateSignalDisplay();saveAccount();
 }
@@ -574,17 +576,15 @@ function backtest(data,start,end,p,shift,filter){
  if(end-start<30)return {trades:0,pnl:0,dd:0,score:-999};
  const mid=data.map(c=>(c.haHigh+c.haLow)/2);
  const raw=smma(mid,p),line=raw.map((v,i)=>i-shift>=0?raw[i-shift]:null);
- const avg=sma(data.map(c=>c.haClose),21);
+ const closes=data.map(c=>c.haClose),avg=sma(closes,21);
+ const histAI=filter==="AI"?calculateHistoricalAIArray(data):null;
  let cash=START,qty=0,entry=0,peak=START,maxDD=0,closed=0;
  for(let i=Math.max(start+1,1);i<end-1;i++){
   const sig=signalAt(i,line,data);
   let allowed=true;
   if(filter==="HA")allowed=data[i].haClose>data[i].haOpen;
   if(filter==="SMA21")allowed=avg[i]!=null&&data[i].haClose>avg[i];
-  if(filter==="AI"){
-   const a=calculateHistoricalAI(data,i);
-   allowed=a>=55;
-  }
+  if(filter==="AI")allowed=histAI[i]>=55;
   const fill=data[i+1].open;
   if(sig==="BUY"&&qty===0&&allowed&&fill>0){qty=cash/fill;entry=fill;cash=0}
   else if(sig==="SELL"&&qty>0&&fill>0){cash=qty*fill;qty=0;entry=0;closed++}
@@ -596,41 +596,52 @@ function backtest(data,start,end,p,shift,filter){
  const score=pnl/1000-maxDD*1.5+(closed>=3?closed*.15:0);
  return {trades:closed,pnl,dd:maxDD,score};
 }
-function calculateHistoricalAI(data,i){
- if(i<30)return 50;
- const closes=data.map(c=>c.haClose),avg=sma(closes,21),r= rsi(closes,14);
- const e12=ema(closes,12),e26=ema(closes,26);
- let s=50;
- if(avg[i]!=null)s+=closes[i]>avg[i]?12:-12;
- if(e12[i]!=null&&e26[i]!=null)s+=e12[i]>e26[i]?10:-10;
- if(r[i]!=null)s+=r[i]>=50&&r[i]<=68?12:r[i]>72?-12:r[i]<30?-8:-5;
- s+=data[i].haClose>data[i].haOpen?8:-8;
- return Math.max(0,Math.min(100,s));
+function calculateHistoricalAIArray(data){
+ const closes=data.map(c=>c.haClose),avg=sma(closes,21),r=rsi(closes,14);
+ const e12=ema(closes,12),e26=ema(closes,26),vol=sma(data.map(c=>c.volume),20);
+ const result=Array(data.length).fill(50);
+ for(let i=30;i<data.length;i++){
+  let s=50;
+  if(avg[i]!=null)s+=closes[i]>avg[i]?12:-12;
+  if(e12[i]!=null&&e26[i]!=null)s+=e12[i]>e26[i]?10:-10;
+  if(r[i]!=null)s+=r[i]>=50&&r[i]<=68?12:r[i]>72?-12:r[i]<30?-8:-5;
+  s+=data[i].haClose>data[i].haOpen?8:-8;
+  if(vol[i]>0&&data[i].volume>vol[i]*1.2)s+=5;
+  result[i]=Math.max(0,Math.min(100,s));
+ }
+ return result;
 }
 function optimize(){
- if(state.ha.length<100){$("optimizerStatus").textContent="Недостаточно истории: нужно не менее 100 свечей.";return}
- $("optimize").disabled=true;$("optimizerStatus").textContent="Проверяю варианты…";
+ if(state.ha.length<150){
+  $("optimizerStatus").textContent="Недостаточно истории: нужно не менее 150 свечей.";
+  return;
+ }
+ $("optimize").disabled=true;
+ $("optimizerStatus").textContent="Проверяю стратегии на трёх независимых участках…";
  setTimeout(()=>{
   try{
-   const data=state.ha,n=data.length,split=Math.floor(n*.7),results=[];
+   const data=state.ha,n=data.length;
+   const a=Math.floor(n*.6),b=Math.floor(n*.8),results=[];
    for(const p of [3,5,8,13,18]){
     for(const sh of [1,3,5]){
      for(const f of ["NONE","HA","SMA21","AI"]){
-      const train=backtest(data,0,split,p,sh,f),test=backtest(data,split,n,p,sh,f);
-      results.push({p,sh,f,train,test});
+      const train=backtest(data,0,a,p,sh,f);
+      const validation=backtest(data,a,b,p,sh,f);
+      const test=backtest(data,b,n,p,sh,f);
+      results.push({p,sh,f,train,validation,test});
      }
     }
    }
-   // Сортировка по тестовой части, а не по обучающей.
-   results.sort((a,b)=>b.test.score-a.test.score);
+   // Выбор по проверочному участку. Финальный тест не участвует в выборе.
+   results.sort((x,y)=>y.validation.score-x.validation.score);
    state.optimizer=results;
    $("optimizerTable").innerHTML=results.slice(0,15).map(r=>{
     const cls=r.test.pnl>=0?"green":"red";
-    return `<tr><td>${r.p} / ${r.sh}</td><td>${r.f}</td><td>${r.test.trades}</td><td>${fmt(r.train.pnl)} ₽</td><td class="${cls}">${r.test.pnl>=0?"+":""}${fmt(r.test.pnl)} ₽</td><td>${fmt(r.test.dd)}%</td></tr>`;
+    return `<tr><td>${r.p} / ${r.sh}</td><td>${r.f}</td><td>${r.test.trades}</td><td>${fmt(r.train.pnl)} ₽</td><td>${fmt(r.validation.pnl)} ₽</td><td class="${cls}">${r.test.pnl>=0?"+":""}${fmt(r.test.pnl)} ₽</td><td>${fmt(r.test.dd)}%</td></tr>`;
    }).join("");
    const best=results[0];
-   $("optimizerStatus").textContent=`Проверено ${results.length} комбинаций. Лучший тестовый вариант: период ${best.p}, смещение ${best.sh}, фильтр ${best.f}. Результат теста: ${fmt(best.test.pnl)} ₽.`;
-  }catch(e){$("optimizerStatus").textContent="Ошибка: "+e.message}
+   $("optimizerStatus").textContent=`Проверено ${results.length} комбинаций. Выбрана по проверочному участку: период ${best.p}, смещение ${best.sh}, фильтр ${best.f}. Независимый финальный тест: ${fmt(best.test.pnl)} ₽, сделок ${best.test.trades}, просадка ${fmt(best.test.dd)}%.`;
+  }catch(e){$("optimizerStatus").textContent="Ошибка тестирования: "+e.message}
   finally{$("optimize").disabled=false}
  },50);
 }
@@ -640,7 +651,7 @@ function resetAccount(){
 }
 function saveSettings(){
  try{
-  localStorage.setItem("sniperPro22_settings",JSON.stringify({
+  localStorage.setItem("sniperPro23_settings",JSON.stringify({
    symbol:$("symbol").value,tf:$("tf").value,
    period:$("period").value,shift:$("shift").value,
    thickness:$("thickness").value,color:$("lineColor").value,
@@ -650,7 +661,7 @@ function saveSettings(){
 }
 function restoreSettings(){
  try{
-  const s=JSON.parse(localStorage.getItem("sniperPro22_settings")||"null");
+  const s=JSON.parse(localStorage.getItem("sniperPro23_settings")||"null");
   if(!s)return;
   if(s.symbol)$("symbol").value=s.symbol;
   if(s.tf)$("tf").value=s.tf;
@@ -663,11 +674,15 @@ function restoreSettings(){
  }catch(e){}
 }
 async function refreshAll(){
+ if($("refresh").disabled)return;
  $("refresh").disabled=true;
  try{
   await loadCandles();saveSettings();
- }catch(e){setStatus("Не удалось загрузить данные: "+e.message,"bad")}
- finally{$("refresh").disabled=false}
+ }catch(e){
+  setStatus("Не удалось загрузить данные: "+e.message,"bad");
+  $("dataInfo").textContent="Проверь интернет, доступность MOEX ISS и выбранный инструмент.";
+  state.fresh=false;updateAI();updateSignalDisplay();
+ }finally{$("refresh").disabled=false}
 }
 $("refresh").addEventListener("click",refreshAll);
 $("optimize").addEventListener("click",optimize);
@@ -704,7 +719,8 @@ $("tf").addEventListener("change",changeMarket);
 window.addEventListener("resize",drawChart);
 
 restoreSettings();
-$("threshold").value=state.threshold;$("thresholdText").textContent=state.threshold;
+$("threshold").value=state.threshold;
+$("thresholdText").textContent=state.threshold;
 $("filterOn").className=state.filter?"primary":"";
 $("filterOff").className=state.filter?"":"primary";
 $("filterStatus").textContent=state.filter?"Фильтр включён.":"Фильтр выключен.";
@@ -713,9 +729,6 @@ loadAccount();
 applySettings();
 renderAccount();
 refreshAll();
-
-// Обновление котировок раз в минуту. Сделка обрабатывается только один раз
-// на одну закрытую свечу, повторные загрузки не дублируют входы и выходы.
 setInterval(()=>{if(!document.hidden)refreshAll()},60000);
 </script>
 </body>
