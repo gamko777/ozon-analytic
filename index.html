@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -208,9 +207,9 @@ const last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:2}):"—";
 const now=()=>Date.now(),key=(a,t)=>a+"_"+t;
-function emptyData(){return{bars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0};}
+function emptyData(){return{bars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,quoteUpdated:0};}
 function emptyBook(){return{cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],bricks:[],box:1.9,initialized:false,cursor:0,lastReversal:"—",pending:null};}
-let S={asset:"OZON",tf:5,auto:true,busy:false,voice:true,volume:.8,data:{OZON:emptyData(),TGLD:emptyData()},books:{}};
+let S={asset:"OZON",tf:5,auto:true,busy:false,loading:{OZON:false,TGLD:false},voice:true,volume:.8,data:{OZON:emptyData(),TGLD:emptyData()},books:{}};
 function book(){const k=key(S.asset,S.tf);if(!S.books[k])S.books[k]=emptyBook();return S.books[k];}
 function save(){
  try{S.voice=$("voiceOn")?$("voiceOn").checked:S.voice;S.volume=$("volume")?Number($("volume").value):S.volume;
@@ -227,7 +226,15 @@ restore();
 function moscowDate(d){return new Date(d.getTime()+OFFSET).toISOString().slice(0,10);}
 function parseDate(v){if(!v)return NaN;let s=String(v).trim().replace(" ","T");if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+="+03:00";return new Date(s).getTime();}
 function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн. "+h%24+" ч.";}
-async function json(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);return r.json();}
+async function json(url){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const r=await fetch(url,{cache:"no-store",signal:controller.signal});
+  if(!r.ok)throw Error("HTTP "+r.status);
+  return await r.json();
+ }finally{clearTimeout(timer);}
+}
 function rows(j,k){let t=j&&j[k];if(!t&&j&&k.includes(".")){const p=k.split(".");t=j[p[0]]&&j[p[0]][p[1]];}if(!t||!Array.isArray(t.columns)||!Array.isArray(t.data))return[];return t.data.map(row=>{const o={};t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=row[i]);return o;});}
 function cursorTotal(j){let t=j&&j["candles.cursor"];if(!t&&j&&j.candles)t=j.candles.cursor;if(!t||!t.columns||!t.data||!t.data.length)return null;const o={};t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=t.data[0][i]);return Number.isFinite(+o.total)?+o.total:null;}
 function valid(b){return Number.isFinite(b.time)&&b.time>0&&[b.open,b.high,b.low,b.close].every(Number.isFinite)&&b.open>0&&b.high>=Math.max(b.open,b.close)&&b.low<=Math.min(b.open,b.close)&&b.low>0;}
@@ -250,20 +257,53 @@ async function loadCandles(asset){
  }
  throw error||Error("Не удалось загрузить свечи");
 }
-async function loadQuote(asset){
+ async function loadQuote(asset){
  const c=CFG[asset];
+
+ // Сначала ищем последнюю реальную сделку
  for(const board of c.boards){
   try{
-   const j=await json(`https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}/trades.json?limit=20&reversed=true&iss.meta=off`);
-   const rr=rows(j,"trades").map(r=>({price:+r.price,time:parseDate(r.tradetime||r.systime),board})).filter(x=>x.price>0&&Number.isFinite(x.time)).sort((a,b)=>b.time-a.time);
+   const j=await json(
+    `https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}/trades.json?limit=20&reversed=true&iss.meta=off`
+   );
+   const rr=rows(j,"trades").map(r=>({
+    price:+r.price,
+    time:parseDate(r.tradetime||r.systime),
+    board
+   })).filter(x=>x.price>0&&Number.isFinite(x.time))
+     .sort((a,b)=>b.time-a.time);
    if(rr.length)return rr[0];
   }catch(e){}
  }
+
+ // Если лента сделок пуста — проверяем рыночные данные
  for(const board of c.boards){
-  try{const j=await json(`https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}.json?iss.meta=off`);const r=rows(j,"marketdata")[0];if(r){const p=+(r.last||r.marketprice||r.prevprice);if(p>0)return{price:p,time:null,board};}}catch(e){}
+  try{
+   const j=await json(
+    `https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}.json?iss.meta=off`
+   );
+   const r=rows(j,"marketdata")[0];
+   if(!r)continue;
+
+   const price=+(r.last||r.marketprice||r.prevprice);
+   if(!(price>0))continue;
+
+   let time=null;
+   const date=r.lasttradedate||r.tradedate;
+   const tm=r.lasttradetime||r.tradetime||r.systime;
+
+   if(date&&tm){
+    time=parseDate(String(date).slice(0,10)+" "+String(tm));
+   }else if(tm){
+    time=parseDate(tm);
+   }
+
+   return{price,time,board};
+  }catch(e){}
  }
  return null;
 }
+
 function aggregate(bars,tf){
  if(tf===1)return bars.slice();const out=[];
  for(const b of bars){const t=Math.floor(b.time/(tf*60000))*tf*60000;let x=last(out);
@@ -399,34 +439,90 @@ function freshness(bars,tf){
  const ms=now()-(x.time+tf*60000);
  return{stale:ms>Math.max(tf*4*60000,10*60000),age:ms,bar:x};
 }
+
+/* ОБНОВЛЕНИЕ ЦЕНЫ И СВЕЧЕЙ НЕЗАВИСИМО */
 async function updateAsset(asset){
  const d=S.data[asset];
- try{
-  const x=await loadCandles(asset);
-  d.bars=x.bars;d.pages=x.pages;d.board=x.board;d.complete=x.complete;d.error="";
-  if(!x.complete)d.error="История неполная: достигнут предел загрузки.";
- }catch(e){d.error="Свечи: "+e.message;}
- try{
-  const q=await loadQuote(asset);
-  if(q){d.quote=q;d.price=q.price;d.board=q.board;}
- }catch(e){}
- if(!d.price&&last(d.bars))d.price=last(d.bars).close;
+
+ const results=await Promise.allSettled([
+  loadQuote(asset),
+  loadCandles(asset)
+ ]);
+
+ const quoteResult=results[0];
+ const candleResult=results[1];
+
+ if(quoteResult.status==="fulfilled"&&quoteResult.value){
+  const q=quoteResult.value;
+  d.quote=q;
+  d.price=q.price;
+  d.quoteUpdated=now();
+ }
+
+ if(candleResult.status==="fulfilled"){
+  const x=candleResult.value;
+  d.bars=x.bars;
+  d.pages=x.pages;
+  d.board=x.board;
+  d.complete=x.complete;
+  d.error=x.complete?"":"История неполная: достигнут предел загрузки.";
+ }else{
+  d.error="Свечи: "+(candleResult.reason?.message||"ошибка загрузки");
+ }
+
+ // Не затираем последнюю известную цену при отсутствии новой сделки
+ if(!d.price&&last(d.bars)){
+  d.price=last(d.bars).close;
+ }
+
  d.updated=now();
 }
-async function refreshAll(){
- if(S.busy)return;
- S.busy=true;$("status").textContent="Обновление MOEX ISS...";
+
+/* OZON обновляется независимо от TGLD.
+   У каждого инструмента собственная блокировка запросов. */
+async function refreshAsset(asset){
+ if(S.loading[asset])return;
+ S.loading[asset]=true;
+
  try{
-  await Promise.all(["OZON","TGLD"].map(updateAsset));
-  const d=S.data[S.asset],bars=closedBars(aggregate(d.bars,S.tf),S.tf);
-  const f=freshness(bars,S.tf),b=book();
-  if(!d.error&&!f.stale&&bars.length>=20){
-   if(!b.box)b.box=Number($("boxSelect").value)||1.9;
-   updateRenkoTrades(b,bars,b.box);
+  await updateAsset(asset);
+
+  // Торговые расчёты выполняются для выбранного инструмента
+  if(S.asset===asset){
+   const d=S.data[asset];
+   const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
+   const f=freshness(bars,S.tf);
+   const b=book();
+
+   if(!d.error&&!f.stale&&bars.length>=20){
+    if(!b.box)b.box=Number($("boxSelect").value)||1.9;
+    updateRenkoTrades(b,bars,b.box);
+   }
+   render();
   }
- }catch(e){console.warn(e);}
- finally{S.busy=false;render();}
+ }catch(e){
+  console.warn("Ошибка обновления "+asset,e);
+ }finally{
+  S.loading[asset]=false;
+ }
 }
+
+async function refreshAll(){
+ $("status").textContent="Обновление котировок...";
+
+ // OZON всегда обновляется, даже если открыт экран TGLD
+ const tasks=[refreshAsset("OZON")];
+
+ // TGLD загружается отдельно, только когда выбран
+ if(S.asset==="TGLD"){
+  tasks.push(refreshAsset("TGLD"));
+ }
+
+ await Promise.allSettled(tasks);
+
+ if(S.asset==="OZON"&&!S.loading.OZON)render();
+}
+
 /* ГРАФИК TRADINGVIEW */
 function tvUpdate(){
  const symbol=CFG[S.asset].tv;
@@ -523,21 +619,8 @@ function runBacktest(){
  });
  $("backtestStatus").textContent="Тест завершён · "+S.asset+" · "+S.tf+" мин. · "+bars.length+" закрытых свечей. Лучший результат: "+results[0].size.toFixed(1)+" ₽.";
 }
+
 /* ОТОБРАЖЕНИЕ */
-function renderJournal(b){
- const body=$("journal");body.textContent="";
- if(!b.events.length){
-  const tr=document.createElement("tr"),td=document.createElement("td");
-  td.colSpan=4;td.textContent="Сделок пока нет";tr.append(td);body.append(tr);return;
- }
- b.events.slice(0,50).forEach(e=>{
-  const tr=document.createElement("tr");
-  [new Date(e.time).toLocaleString("ru-RU"),e.type,fmt(e.price),e.pnl?money(e.pnl):"—"].forEach(v=>{
-   const td=document.createElement("td");td.textContent=v;tr.append(td);
-  });
-  body.append(tr);
- });
-}
 function render(){
  const d=S.data[S.asset],bars=closedBars(aggregate(d.bars,S.tf),S.tf),f=freshness(bars,S.tf),b=book();
  const price=d.price||last(bars)?.close;
@@ -588,9 +671,26 @@ function render(){
   "Открытой позиции нет.";
  drawRenko();drawEquity();renderJournal(b);
 }
+function renderJournal(b){
+ const body=$("journal");body.textContent="";
+ if(!b.events.length){
+  const tr=document.createElement("tr"),td=document.createElement("td");
+  td.colSpan=4;td.textContent="Сделок пока нет";tr.append(td);body.append(tr);return;
+ }
+ b.events.slice(0,50).forEach(e=>{
+  const tr=document.createElement("tr");
+  [new Date(e.time).toLocaleString("ru-RU"),e.type,fmt(e.price),e.pnl?money(e.pnl):"—"].forEach(v=>{
+   const td=document.createElement("td");td.textContent=v;tr.append(td);
+  });
+  body.append(tr);
+ });
+}
+
 /* ПЕРЕКЛЮЧЕНИЯ */
 function selectAsset(a){
- S.asset=a;$("ozon").classList.toggle("active",a==="OZON");$("tgld").classList.toggle("active",a==="TGLD");
+ S.asset=a;
+ $("ozon").classList.toggle("active",a==="OZON");
+ $("tgld").classList.toggle("active",a==="TGLD");
  $("boxSelect").value=String(book().box||1.9);
  tvUpdate();save();render();refreshAll();
 }
@@ -611,6 +711,7 @@ function resetCurrent(){
  if(!confirm("Сбросить только виртуальный счёт "+S.asset+" / "+S.tf+" минут?"))return;
  S.books[key(S.asset,S.tf)]=emptyBook();$("boxSelect").value="1.9";save();render();
 }
+
 /* СТАРТ */
 $("voiceOn").checked=S.voice;
 $("volume").value=S.volume;
