@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.5 RENKO</title>
+<title>SNIPER ULTIMATE AI 2.5.1 RENKO</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857;--blue:#55aaff}
 *{box-sizing:border-box}
@@ -44,7 +44,7 @@ input[type=range]{accent-color:var(--green)}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.5</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.5.1</span></h1>
 <div class="sub">RENKO TEST · QUANT INTELLIGENCE · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -63,12 +63,13 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <div class="row"><span class="muted">ПОСЛЕДНЯЯ ЦЕНА MOEX</span><span id="fresh" class="badge yellow">ОЖИДАНИЕ</span></div>
+ <div class="row"><span class="muted">ПОСЛЕДНЯЯ ЦЕНА MOEX · ПО МИНУТНОЙ СВЕЧЕ</span><span id="fresh" class="badge yellow">ОЖИДАНИЕ</span></div>
  <div class="price" id="price">—</div>
  <div class="row small muted">
-  <span>Время сделки: <b id="tradeTime">—</b></span>
-  <span>Возраст свечи: <b id="candleTime">—</b></span>
+  <span>Время данных: <b id="tradeTime">—</b></span>
+  <span>Возраст данных: <b id="candleTime">—</b></span>
  </div>
+ <div class="small muted" id="priceSource" style="margin-top:8px">Цена будет взята из последней доступной минутной свечи MOEX.</div>
 </section>
 
 <section class="panel">
@@ -194,7 +195,7 @@ input[type=range]{accent-color:var(--green)}
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.5 · RENKO VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.5.1 · RENKO VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 
 <script>
@@ -205,6 +206,7 @@ const CFG={
  TGLD:{ticker:"TGLD",market:"shares",boards:["TQTF","TQBR","TQIF"],tv:"MOEX:TGLD"}
 };
 const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100,HISTORY=10,OFFSET=10800000;
+const MAX_DELAY=20*60000;
 const BOXES=[1.9,2.5,3],$=id=>document.getElementById(id);
 const last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
@@ -310,22 +312,6 @@ function parseDate(v){
  const n=new Date(s).getTime();
  return Number.isFinite(n)?n:NaN;
 }
-function parseMoexTradeTime(r){
- const full=[r.systime,r.tradetime,r.lasttradetime].find(v=>
-  v&&(/\d{4}-\d\d-\d\d/.test(String(v))||/[zZ]|[+-]\d\d:\d\d$/.test(String(v)))
- );
- if(full){
-  const n=parseDate(full);
-  if(Number.isFinite(n))return n;
- }
- const date=r.tradedate||r.lasttradedate;
- const tm=r.tradetime||r.lasttradetime;
- if(date&&tm){
-  const n=parseDate(String(date).slice(0,10)+" "+String(tm));
-  if(Number.isFinite(n))return n;
- }
- return NaN;
-}
 function age(ms){
  if(!Number.isFinite(ms)||ms<0)return"—";
  const m=Math.floor(ms/60000);
@@ -423,38 +409,6 @@ async function loadCandles(asset){
   }
  }
  throw error||Error("Не удалось загрузить свечи");
-}
-
-async function loadQuote(asset){
- const c=CFG[asset];
-
- for(const board of c.boards){
-  try{
-   const j=await json(
-    `https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}/trades.json?limit=20&reversed=true&iss.meta=off`
-   );
-   const rr=rows(j,"trades").map(r=>({
-    price:+r.price,time:parseMoexTradeTime(r),board
-   })).filter(x=>x.price>0&&Number.isFinite(x.time))
-    .sort((a,b)=>b.time-a.time);
-   if(rr.length)return rr[0];
-  }catch(e){}
- }
-
- for(const board of c.boards){
-  try{
-   const j=await json(
-    `https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}.json?iss.meta=off`
-   );
-   const r=rows(j,"marketdata")[0];
-   if(!r)continue;
-   const price=+(r.last||r.marketprice||r.prevprice);
-   if(!(price>0))continue;
-   const time=parseMoexTradeTime(r);
-   return{price,time,board};
-  }catch(e){}
- }
- return null;
 }
 
 function aggregate(bars,tf){
@@ -615,7 +569,7 @@ function closeRenko(b,price,time){
  b.position=null;
 }
 
-/* Сигнал на закрытии свечи, исполнение на следующей.
+/* Сигнал на закрытии свечи, исполнение на открытии следующей.
    После большого перерыва старые сигналы не исполняются. */
 function updateRenkoTrades(b,source,box){
  if(!source.length)return;
@@ -689,38 +643,46 @@ function updateRenkoTrades(b,source,box){
 function freshness(bars,tf){
  const x=last(bars);
  if(!x)return{stale:true,age:Infinity,bar:null};
- const ms=now()-(x.time+tf*60000);
- return{stale:ms>Math.max(tf*4*60000,10*60000),age:ms,bar:x};
+ const ageMs=now()-(x.time+tf*60000);
+ return{stale:ageMs>MAX_DELAY,age:ageMs,bar:x};
 }
- /* ОБНОВЛЕНИЕ ЦЕНЫ И СВЕЧЕЙ */
+ /* ЦЕНА ИЗ ПОСЛЕДНЕЙ ДОСТУПНОЙ МИНУТНОЙ СВЕЧИ MOEX.
+   Не используем trades, MARKETPRICE и PREVPRICE:
+   они могли возвращать старую цену отдельно от обновляющихся свечей. */
 async function updateAsset(asset){
  const d=S.data[asset];
- const results=await Promise.allSettled([
-  loadQuote(asset),
-  loadCandles(asset)
- ]);
- const qr=results[0],cr=results[1];
 
- if(qr.status==="fulfilled"&&qr.value){
-  const q=qr.value;
-  d.quote=q;
-  d.price=q.price;
-  d.quoteUpdated=now();
- }
+ try{
+  const x=await loadCandles(asset);
+  const minuteBars=closedBars(x.bars,1);
+  const latest=last(minuteBars);
 
- if(cr.status==="fulfilled"){
-  const x=cr.value;
   d.bars=x.bars;
   d.pages=x.pages;
   d.board=x.board;
   d.complete=x.complete;
   d.error=x.complete?"":"История неполная: достигнут предел загрузки MOEX.";
- }else{
-  d.error="Свечи: "+(cr.reason?.message||"ошибка загрузки");
- }
 
- if(!d.price&&last(d.bars))d.price=last(d.bars).close;
- d.updated=now();
+  if(latest){
+   d.price=latest.close;
+   d.quote={
+    price:latest.close,
+    time:latest.time+60000,
+    board:x.board,
+    candleTime:latest.time
+   };
+   d.quoteUpdated=now();
+  }else{
+   d.price=null;
+   d.quote=null;
+   d.error="MOEX не вернула завершённую минутную свечу.";
+  }
+
+  d.updated=now();
+ }catch(e){
+  d.error="Свечи: "+(e?.message||"ошибка загрузки");
+  d.updated=now();
+ }
 }
 
 /* У каждого инструмента собственная блокировка запросов. */
@@ -734,10 +696,11 @@ async function refreshAsset(asset){
   if(S.asset===asset){
    const d=S.data[asset];
    const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
-   const f=freshness(bars,S.tf);
+   const rawFresh=freshness(closedBars(d.bars,1),1);
    const b=book();
 
-   if(!d.error&&d.complete&&!f.stale&&bars.length>=20){
+   if(!d.error&&d.complete&&!rawFresh.stale&&
+      d.quote&&d.price>0&&bars.length>=20){
     updateRenkoTrades(b,bars,b.box);
    }
    render();
@@ -750,7 +713,7 @@ async function refreshAsset(asset){
 }
 
 async function refreshAll(){
- $("status").textContent="Обновление котировок...";
+ $("status").textContent="Обновление минутных свечей MOEX...";
 
  const tasks=[refreshAsset("OZON")];
  if(S.asset==="TGLD")tasks.push(refreshAsset("TGLD"));
@@ -947,48 +910,56 @@ function runBacktest(){
 /* ОТОБРАЖЕНИЕ */
 function render(){
  const d=S.data[S.asset];
+ const rawBars=closedBars(d.bars,1);
+ const rawFresh=freshness(rawBars,1);
  const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
- const f=freshness(bars,S.tf);
  const b=book();
- const price=d.price||last(bars)?.close;
+ const price=d.quote&&Number.isFinite(d.quote.price)?d.quote.price:null;
+ const stale=!!d.error||!d.complete||rawFresh.stale||!d.quote||!(price>0);
 
  $("price").textContent=price?fmt(price):"—";
  $("tradeTime").textContent=d.quote&&Number.isFinite(d.quote.time)
-  ?age(now()-d.quote.time):"Время не подтверждено";
- $("candleTime").textContent=f.bar?age(f.age):"—";
-
- const stale=!!d.error||!d.complete||f.stale;
+  ?new Date(d.quote.time).toLocaleString("ru-RU")
+  :"Время не подтверждено";
+ $("candleTime").textContent=rawFresh.bar?age(rawFresh.age):"—";
 
  $("fresh").textContent=d.error?"ОШИБКА":
   !d.complete?"ИСТОРИЯ НЕПОЛНАЯ":
-  f.stale?"НЕТ СВЕЖИХ СВЕЧЕЙ":"СВЕЧИ СВЕЖИЕ";
+  !d.quote?"НЕТ ЦЕНЫ":
+  rawFresh.stale?"ДАННЫЕ УСТАРЕЛИ":"ДАННЫЕ С ЗАДЕРЖКОЙ";
  $("fresh").className="badge "+(stale?"red":"green");
+
+ $("priceSource").textContent=d.quote
+  ?"Цена взята из close последней доступной минутной свечи MOEX. Обновление проверяется каждую минуту. Возраст данных: "+age(rawFresh.age)+"."
+  :"Нет подтверждённой минутной цены MOEX.";
 
  $("sourceBadge").textContent=d.error?"ОШИБКА":
   !d.complete?"НЕПОЛНАЯ ИСТОРИЯ":
-  f.stale?"ОЖИДАНИЕ":"ДАННЫЕ ДОСТУПНЫ";
+  !d.quote?"НЕТ ЦЕНЫ":
+  rawFresh.stale?"ДАННЫЕ УСТАРЕЛИ":"ДАННЫЕ ДОСТУПНЫ";
  $("sourceBadge").className="badge "+(stale?"red":"green");
 
  $("board").textContent=d.board;
  $("count").textContent=d.bars.length;
  $("pages").textContent=d.pages||0;
- $("lastBar").textContent=f.bar?new Date(f.bar.time).toLocaleString("ru-RU"):"—";
- $("freshness").textContent=f.bar?age(f.age):"—";
+ $("lastBar").textContent=rawFresh.bar
+  ?new Date(rawFresh.bar.time).toLocaleString("ru-RU"):"—";
+ $("freshness").textContent=rawFresh.bar?age(rawFresh.age):"—";
 
- const allowed=!d.error&&d.complete&&!f.stale&&bars.length>=20&&S.auto;
+ const allowed=!stale&&bars.length>=20&&S.auto;
  $("allowed").textContent=allowed?"ДА":"НЕТ";
  $("allowed").className=allowed?"green":"red";
 
  $("diagnostic").textContent=d.error||
   (!d.bars.length?"MOEX не вернула минутные свечи.":
   !d.complete?"История загружена не полностью. Новые виртуальные входы заблокированы.":
-  !f.bar?"Нет завершённых свечей.":
-  f.stale?"Свечи устарели. Новые виртуальные входы заблокированы.":
-  "Свечи прошли проверку свежести. Торговля использует только закрытые свечи.");
+  !d.quote?"Нет подтверждённой цены из минутной свечи.":
+  rawFresh.stale?"Последняя минутная свеча старше допустимой задержки 20 минут. Виртуальная торговля заблокирована.":
+  "Цена берётся из последней доступной минутной свечи. Источник может запаздывать примерно на 15 минут; обновление проверяется каждую минуту.");
 
  $("status").textContent=d.error?"Ошибка источника":
   !d.complete?"История загружена частично":
-  f.stale?"Ожидание свежих данных":"Данные обновлены";
+  stale?"Ожидание обновления минутных данных":"Минутные данные получены";
 
  $("signalTF").textContent=S.tf===60?"1 час":S.tf+" мин";
  $("boxSize").textContent=fmt(b.box)+" ₽";
@@ -1006,7 +977,8 @@ function render(){
   $("renkoSignal").className="signal yellow";
   $("renkoReason").textContent=d.error||
    (!d.complete?"История загружена не полностью.":
-   "Нет актуальных завершённых свечей.");
+   !d.quote?"Нет подтверждённой цены из минутной свечи.":
+   "Данные старше допустимой задержки. Ожидаем обновления MOEX.");
  }else if(!br){
   $("renkoSignal").textContent="WAIT · ОЖИДАНИЕ";
   $("renkoSignal").className="signal yellow";
