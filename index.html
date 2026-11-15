@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.5.1 RENKO</title>
+<title>SNIPER ULTIMATE AI 2.5.2 RENKO</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857;--blue:#55aaff}
 *{box-sizing:border-box}
@@ -44,8 +44,8 @@ input[type=range]{accent-color:var(--green)}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.5.1</span></h1>
-<div class="sub">RENKO TEST · QUANT INTELLIGENCE · VIRTUAL ONLY</div>
+<h1>SNIPER ULTIMATE AI <span class="green">2.5.2</span></h1>
+<div class="sub">RENKO ENGINE · REAL MOEX CANDLE PRICES · VIRTUAL ONLY</div>
 </header>
 <main>
 <section class="panel">
@@ -63,35 +63,38 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <div class="row"><span class="muted">ПОСЛЕДНЯЯ ЦЕНА MOEX · ПО МИНУТНОЙ СВЕЧЕ</span><span id="fresh" class="badge yellow">ОЖИДАНИЕ</span></div>
+ <div class="row"><span class="muted">ПОСЛЕДНЯЯ ЦЕНА MOEX · ЗАВЕРШЁННАЯ МИНУТНАЯ СВЕЧА</span><span id="fresh" class="badge yellow">ОЖИДАНИЕ</span></div>
  <div class="price" id="price">—</div>
  <div class="row small muted">
   <span>Время данных: <b id="tradeTime">—</b></span>
   <span>Возраст данных: <b id="candleTime">—</b></span>
  </div>
- <div class="small muted" id="priceSource" style="margin-top:8px">Цена будет взята из последней доступной минутной свечи MOEX.</div>
+ <div class="small muted" id="priceSource" style="margin-top:8px">Ожидание минутных свечей MOEX.</div>
 </section>
 
 <section class="panel">
- <b>ЕДИНЫЙ ПЕРЕКЛЮЧАТЕЛЬ ГРАФИКОВ</b>
+ <b>ЕДИНЫЙ ПЕРЕКЛЮЧАТЕЛЬ ИНТЕРВАЛОВ</b>
  <div class="tfbar" style="margin-top:10px">
   <button data-tf="1" onclick="changeTF(1)">1 мин</button>
   <button data-tf="5" onclick="changeTF(5)">5 мин</button>
   <button data-tf="15" onclick="changeTF(15)">15 мин</button>
   <button data-tf="30" onclick="changeTF(30)">30 мин</button>
   <button data-tf="60" onclick="changeTF(60)">1 час</button>
+  <button data-tf="120" onclick="changeTF(120)">2 часа</button>
+  <button data-tf="240" onclick="changeTF(240)">4 часа</button>
+  <button data-tf="1440" onclick="changeTF(1440)">1 день</button>
  </div>
- <div class="small muted" style="margin-top:8px">Оба графика переключаются одновременно.</div>
+ <div class="small muted" style="margin-top:8px">Интервал Renko и графика TradingView меняется одновременно. Старые виртуальные счета сохраняются отдельно.</div>
 </section>
 
 <section class="panel">
  <div class="row"><b>ГРАФИК TRADINGVIEW</b><span class="badge" id="tvTf">5 МИН</span></div>
  <div style="margin-top:10px"><iframe id="tv" title="TradingView" loading="lazy" allowfullscreen></iframe></div>
- <div class="small muted" style="margin-top:7px">TradingView используется для наблюдения. Расчёты выполняются отдельно по MOEX ISS.</div>
+ <div class="small muted" style="margin-top:7px">График для визуального контроля. Расчёты сигналов выполняются отдельным движком по свечам MOEX.</div>
 </section>
 
 <section class="panel">
- <div class="row"><b>ГРАФИК РЕНКО · MOEX ISS</b><span class="badge green" id="renkoState">ЗАГРУЗКА</span></div>
+ <div class="row"><b>ГРАФИК РЕНКО · MOEX</b><span class="badge green" id="renkoState">ЗАГРУЗКА</span></div>
  <canvas id="renkoChart"></canvas>
  <div class="row small muted" style="margin-top:8px">
   <span class="green">■ Зелёный блок</span><span class="red">■ Красный блок</span>
@@ -113,20 +116,20 @@ input[type=range]{accent-color:var(--green)}
   <div class="metric"><span class="muted small">Таймфрейм</span><b id="signalTF">5 мин</b></div>
   <div class="metric"><span class="muted small">Последний разворот</span><b id="reversal">—</b></div>
  </div>
- <div class="small muted" style="margin-top:10px">Покупка — первый завершённый зелёный блок после красных. Продажа — первый завершённый красный блок после зелёных. Шорт не используется.</div>
+ <div class="small muted" style="margin-top:10px">Покупка — подтверждённый разворот вверх. Продажа — подтверждённый разворот вниз. Шорт не используется. Неподтверждённые блоки не торгуются.</div>
 </section>
 
 <section class="panel">
  <div class="row"><b>РАЗМЕР БЛОКА RENKO</b><span class="badge">ТЕСТ</span></div>
  <div class="row" style="margin-top:12px">
-  <span class="small muted">Размер для текущей торговли</span>
+  <span class="small muted">Размер текущего счёта</span>
   <select id="boxSelect" onchange="changeBox()">
    <option value="1.9">1,9 ₽</option>
    <option value="2.5">2,5 ₽</option>
    <option value="3">3,0 ₽</option>
   </select>
  </div>
- <div class="small muted" style="margin-top:8px">Для каждого инструмента, таймфрейма и размера блока ведётся отдельный виртуальный счёт. Переключение не стирает историю.</div>
+ <div class="small muted" style="margin-top:8px">Для каждого инструмента, интервала и размера блока — отдельный виртуальный счёт.</div>
  <button class="wide" onclick="runBacktest()">СРАВНИТЬ 1,9 / 2,5 / 3,0 ₽ НА ИСТОРИИ</button>
  <div id="backtestStatus" class="small muted" style="margin-top:9px">Исторический тест ещё не запускался.</div>
  <div style="overflow-x:auto;margin-top:9px">
@@ -138,20 +141,22 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <div class="row"><b>ВИРТУАЛЬНЫЙ СЧЁТ РЕНКО</b><span class="badge green">ОТДЕЛЬНЫЙ ТЕСТ</span></div>
+ <div class="row"><b>ВИРТУАЛЬНЫЙ СЧЁТ RENKO</b><span class="badge green">АВТОРЕЖИМ</span></div>
  <div class="grid" style="margin-top:10px">
   <div class="metric"><span class="muted small">Капитал</span><b id="capital">—</b></div>
   <div class="metric"><span class="muted small">Свободные средства</span><b id="cash">—</b></div>
-  <div class="metric"><span class="muted small">Результат</span><b id="profit">—</b></div>
+  <div class="metric"><span class="muted small">Реализованный результат</span><b id="profit">—</b></div>
   <div class="metric"><span class="muted small">Закрытые сделки</span><b id="trades">0</b></div>
   <div class="metric"><span class="muted small">Успешность</span><b id="winrate">—</b></div>
   <div class="metric"><span class="muted small">Открытый результат</span><b id="floating">—</b></div>
+  <div class="metric"><span class="muted small">Макс. просадка</span><b id="drawdown">—</b></div>
+  <div class="metric"><span class="muted small">Последняя сделка</span><b id="lastDeal">—</b></div>
  </div>
  <div class="row" style="margin-top:13px">
-  <label><input type="checkbox" class="check" id="auto" checked onchange="toggleAuto()"> Автоторговля Ренко</label>
+  <label><input type="checkbox" class="check" id="auto" checked onchange="toggleAuto()"> Автоматическая покупка/продажа</label>
   <span class="badge green" id="autoLabel">ВКЛЮЧЕНА</span>
  </div>
- <div class="small muted" style="margin-top:8px">Стартовый виртуальный капитал: 1 000 000 ₽. На вход используется до 75% свободных средств. Комиссии и налоги не учитываются.</div>
+ <div class="small muted" style="margin-top:8px">Стартовый виртуальный капитал: 1 000 000 ₽. На покупку — до 75% свободных средств. Комиссии и налоги пока не учитываются для чистой проверки сигналов.</div>
  <button class="wide" onclick="resetCurrent()" style="border-color:var(--red);color:var(--red)">СБРОСИТЬ СЧЁТ ЭТОГО РЕЖИМА</button>
 </section>
 
@@ -161,7 +166,7 @@ input[type=range]{accent-color:var(--green)}
   <span class="small muted">Громкость</span><input id="volume" type="range" min="0" max="1" step=".1" value=".8" onchange="save()">
   <button onclick="testVoice()">Проверить голос</button>
  </div>
- <div class="small muted" style="margin-top:8px">Объявляет инструмент, покупку или продажу, количество, цену и финансовый результат. Требуется поддержка синтеза речи браузером.</div>
+ <div class="small muted" style="margin-top:8px">Объявляет покупку, продажу, количество, цену и результат сделки. В фоне Android может ограничивать работу браузера и синтеза речи.</div>
 </section>
 
 <section class="panel">
@@ -170,16 +175,16 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <div class="row"><b>РЕЗУЛЬТАТ РЕНКО</b><span class="small muted">Накопленная прибыль</span></div>
+ <div class="row"><b>КРИВАЯ КАПИТАЛА</b><span class="small muted">Результат закрытых сделок</span></div>
  <canvas id="equity"></canvas>
- <div class="small muted" id="equityInfo" style="margin-top:6px">Ожидание закрытых сделок.</div>
+ <div class="small muted" id="equityInfo" style="margin-top:6px">Ожидание сделок.</div>
 </section>
 
 <section class="panel">
- <b>ЖУРНАЛ РЕНКО</b>
+ <b>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</b>
  <div style="overflow-x:auto;margin-top:8px">
-  <table><thead><tr><th>Время</th><th>Операция</th><th>Цена</th><th>Результат</th></tr></thead>
-  <tbody id="journal"><tr><td colspan="4">Сделок пока нет</td></tr></tbody></table>
+  <table><thead><tr><th>Время</th><th>Операция</th><th>Цена</th><th>Количество</th><th>Результат</th></tr></thead>
+  <tbody id="journal"><tr><td colspan="5">Сделок пока нет</td></tr></tbody></table>
  </div>
 </section>
 
@@ -195,7 +200,7 @@ input[type=range]{accent-color:var(--green)}
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.5.1 · RENKO VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.5.2 · RENKO VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 
 <script>
@@ -205,938 +210,560 @@ const CFG={
  OZON:{ticker:"OZON",market:"shares",boards:["TQBR"],tv:"MOEX:OZON"},
  TGLD:{ticker:"TGLD",market:"shares",boards:["TQTF","TQBR","TQIF"],tv:"MOEX:TGLD"}
 };
-const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100,HISTORY=10,OFFSET=10800000;
-const MAX_DELAY=20*60000;
-const BOXES=[1.9,2.5,3],$=id=>document.getElementById(id);
+const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100;
+const HISTORY=45,OFFSET=10800000,MAX_DELAY=20*60000;
+const BOXES=[1.9,2.5,3],TFS=[1,5,15,30,60,120,240,1440];
+const $=id=>document.getElementById(id);
 const last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:2}):"—";
 const now=()=>Date.now();
 
-function key(a,t,box){
- return a+"_"+t+"_"+Number(box).toFixed(1);
-}
-function emptyData(){
- return{bars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,quoteUpdated:0,complete:false};
-}
+function key(a,t,box){return a+"_"+t+"_"+Number(box).toFixed(1)}
+function emptyData(){return{bars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,complete:false}}
 function emptyBook(box=1.9){
- return{
-  cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],
-  bricks:[],box:Number(box),initialized:false,cursor:0,
-  lastReversal:"—",pending:null,renkoState:null,lastProcessedAt:0
- };
+ return{cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],
+ bricks:[],box:Number(box),initialized:false,cursor:0,lastReversal:"—",
+ pending:null,renkoState:null,lastProcessedAt:0,peak:CAPITAL,maxDD:0}
 }
-
 let S={
- asset:"OZON",tf:5,box:1.9,auto:true,busy:false,
- loading:{OZON:false,TGLD:false},voice:true,volume:.8,
- data:{OZON:emptyData(),TGLD:emptyData()},books:{}
+ asset:"OZON",tf:5,box:1.9,auto:true,loading:{OZON:false,TGLD:false},
+ voice:true,volume:.8,data:{OZON:emptyData(),TGLD:emptyData()},books:{}
 };
-
-function bookKey(asset=S.asset,tf=S.tf,box=S.box){
- return key(asset,tf,box);
-}
+function bookKey(){return key(S.asset,S.tf,S.box)}
 function book(){
  const k=bookKey();
- if(!S.books[k]){
-  const legacy=S.books[S.asset+"_"+S.tf];
-  if(legacy&&Number(legacy.box||1.9)===Number(S.box)){
-   S.books[k]=legacy;
-   delete S.books[S.asset+"_"+S.tf];
-  }else{
-   S.books[k]=emptyBook(S.box);
-  }
- }
+ if(!S.books[k])S.books[k]=emptyBook(S.box);
  const b=S.books[k];
- if(!Array.isArray(b.bricks))b.bricks=[];
- if(!Array.isArray(b.closed))b.closed=[];
- if(!Array.isArray(b.events))b.events=[];
- if(!Array.isArray(b.marks))b.marks=[];
+ ["bricks","closed","events","marks"].forEach(x=>{if(!Array.isArray(b[x]))b[x]=[]});
  if(!Number.isFinite(+b.box))b.box=S.box;
+ if(!Number.isFinite(+b.peak))b.peak=CAPITAL;
+ if(!Number.isFinite(+b.maxDD))b.maxDD=0;
  return b;
 }
-
-function preferredBox(asset,tf){
- const prefix=asset+"_"+tf+"_";
- const keys=Object.keys(S.books).filter(k=>k.startsWith(prefix));
- if(keys.length){
-  const values=keys.map(k=>Number(k.slice(prefix.length)))
-   .filter(v=>BOXES.includes(v));
-  if(values.length)return values[0];
- }
- const legacy=S.books[asset+"_"+tf];
- if(legacy&&BOXES.includes(Number(legacy.box)))return Number(legacy.box);
- return 1.9;
+function preferredBox(a,t){
+ const p=a+"_"+t+"_";
+ const v=Object.keys(S.books).filter(k=>k.startsWith(p)).map(k=>Number(k.slice(p.length))).find(x=>BOXES.includes(x));
+ return v||1.9;
 }
-
 function save(){
  try{
   if($("voiceOn"))S.voice=$("voiceOn").checked;
   if($("volume"))S.volume=Number($("volume").value);
-  localStorage.setItem("sniper_ultimate_24",JSON.stringify({
+  localStorage.setItem("sniper_ultimate_252",JSON.stringify({
    asset:S.asset,tf:S.tf,box:S.box,auto:S.auto,voice:S.voice,
    volume:S.volume,books:S.books
   }));
- }catch(e){console.warn("Ошибка сохранения",e);}
+ }catch(e){console.warn("Сохранение",e)}
 }
-
 function restore(){
  try{
-  const x=JSON.parse(localStorage.getItem("sniper_ultimate_24")||"null");
+  const x=JSON.parse(localStorage.getItem("sniper_ultimate_252")||"null");
   if(!x)return;
   S.asset=x.asset==="TGLD"?"TGLD":"OZON";
-  S.tf=[1,5,15,30,60].includes(+x.tf)?+x.tf:5;
-  S.auto=x.auto!==false;
-  S.voice=x.voice!==false;
+  S.tf=TFS.includes(+x.tf)?+x.tf:5;
+  S.auto=x.auto!==false;S.voice=x.voice!==false;
   S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
   S.books=x.books&&typeof x.books==="object"?x.books:{};
-  const legacy=S.books[S.asset+"_"+S.tf];
-  S.box=BOXES.includes(+x.box)?+x.box:
-   (legacy&&BOXES.includes(+legacy.box)?+legacy.box:1.9);
- }catch(e){console.warn("Ошибка восстановления",e);}
+  S.box=BOXES.includes(+x.box)?+x.box:preferredBox(S.asset,S.tf);
+ }catch(e){console.warn("Восстановление",e)}
 }
 restore();
 
-function moscowDate(d){
- return new Date(d.getTime()+OFFSET).toISOString().slice(0,10);
-}
+function moscowDate(d){return new Date(d.getTime()+OFFSET).toISOString().slice(0,10)}
 function parseDate(v){
  if(!v)return NaN;
- let s=String(v).trim();
- if(!s)return NaN;
+ let s=String(v).trim();if(!s)return NaN;
  if(/^\d{4}-\d\d-\d\d$/.test(s))s+="T00:00:00+03:00";
- else{
-  s=s.replace(" ","T");
-  if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+="+03:00";
- }
- const n=new Date(s).getTime();
- return Number.isFinite(n)?n:NaN;
+ else{s=s.replace(" ","T");if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+="+03:00"}
+ const n=new Date(s).getTime();return Number.isFinite(n)?n:NaN;
 }
 function age(ms){
  if(!Number.isFinite(ms)||ms<0)return"—";
- const m=Math.floor(ms/60000);
- if(m<1)return"меньше минуты";
+ const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";
  if(m<60)return m+" мин.";
- const h=Math.floor(m/60);
- return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн. "+h%24+" ч.";
+ const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн.";
 }
 async function json(url){
- const controller=new AbortController();
- const timer=setTimeout(()=>controller.abort(),12000);
- try{
-  const r=await fetch(url,{cache:"no-store",signal:controller.signal});
-  if(!r.ok)throw Error("HTTP "+r.status);
-  return await r.json();
- }finally{
-  clearTimeout(timer);
- }
+ const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
+ try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}
+ finally{clearTimeout(timer)}
 }
 function rows(j,k){
- let t=j&&j[k];
- if(!t&&j&&k.includes(".")){
-  const p=k.split(".");
-  t=j[p[0]]&&j[p[0]][p[1]];
- }
+ let t=j&&j[k];if(!t&&j&&k.includes(".")){const p=k.split(".");t=j[p[0]]&&j[p[0]][p[1]]}
  if(!t||!Array.isArray(t.columns)||!Array.isArray(t.data))return[];
- return t.data.map(row=>{
-  const o={};
-  t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=row[i]);
-  return o;
- });
+ return t.data.map(row=>{const o={};t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=row[i]);return o})
 }
 function cursorTotal(j){
- let t=j&&j["candles.cursor"];
- if(!t&&j&&j.candles)t=j.candles.cursor;
+ let t=j&&j["candles.cursor"];if(!t&&j&&j.candles)t=j.candles.cursor;
  if(!t||!t.columns||!t.data||!t.data.length)return null;
- const o={};
- t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=t.data[0][i]);
+ const o={};t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=t.data[0][i]);
  return Number.isFinite(+o.total)?+o.total:null;
 }
 function valid(b){
  return Number.isFinite(b.time)&&b.time>0&&
-  [b.open,b.high,b.low,b.close].every(Number.isFinite)&&
-  b.open>0&&b.high>=Math.max(b.open,b.close)&&
-  b.low<=Math.min(b.open,b.close)&&b.low>0;
+ [b.open,b.high,b.low,b.close].every(Number.isFinite)&&b.open>0&&
+ b.high>=Math.max(b.open,b.close)&&b.low<=Math.min(b.open,b.close)&&b.low>0;
 }
-
 async function loadCandles(asset){
- const c=CFG[asset];
- const from=moscowDate(new Date(now()-HISTORY*86400000));
- const till=moscowDate(new Date());
+ const c=CFG[asset],from=moscowDate(new Date(now()-HISTORY*86400000)),till=moscowDate(new Date());
  let error=null;
-
  for(const board of c.boards){
   try{
    let all=[],start=0,pages=0,total=null,complete=false,previous="";
    for(let i=0;i<MAXPAGES;i++){
     const url=`https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${c.ticker}/candles.json?from=${from}&till=${till}&interval=1&start=${start}&limit=${PAGE}&iss.meta=on`;
-    const j=await json(url);
-    const batch=rows(j,"candles");
-    pages++;
-    const ct=cursorTotal(j);
-    if(ct!==null)total=ct;
-
-    if(!batch.length){
-     complete=total===null||start>=total;
-     break;
-    }
-
+    const j=await json(url),batch=rows(j,"candles");pages++;
+    const ct=cursorTotal(j);if(ct!==null)total=ct;
+    if(!batch.length){complete=total===null||start>=total;break}
     const first=String(batch[0].begin||"");
-    if(first&&first===previous)throw Error("MOEX вернула повтор страницы");
+    if(first&&first===previous)throw Error("Повтор страницы MOEX");
     previous=first;
-
     for(const r of batch){
-     const b={
-      time:parseDate(r.begin),open:+r.open,high:+r.high,
-      low:+r.low,close:+r.close,volume:+r.volume||0
-     };
+     const b={time:parseDate(r.begin),open:+r.open,high:+r.high,low:+r.low,close:+r.close,volume:+r.volume||0};
      if(valid(b))all.push(b);
     }
-
     start+=batch.length;
-    if(total!==null&&start>=total){complete=true;break;}
-    if(batch.length<PAGE){complete=true;break;}
+    if(total!==null&&start>=total){complete=true;break}
+    if(batch.length<PAGE){complete=true;break}
     if(i===MAXPAGES-1)complete=false;
    }
-
-   const m=new Map();
-   all.forEach(b=>m.set(b.time,b));
+   const m=new Map();all.forEach(b=>m.set(b.time,b));
    const bars=[...m.values()].sort((a,b)=>a.time-b.time);
    if(bars.length)return{bars,pages,board,total,complete};
    error=Error("Свечи не найдены на "+board);
-  }catch(e){
-   error=e;
-  }
+  }catch(e){error=e}
  }
- throw error||Error("Не удалось загрузить свечи");
+ throw error||Error("Не удалось загрузить историю MOEX");
 }
-
+function bucketStart(time,tf){
+ const unit=tf*60000;
+ return Math.floor((time+OFFSET)/unit)*unit-OFFSET;
+}
 function aggregate(bars,tf){
  if(tf===1)return bars.slice();
  const out=[];
  for(const b of bars){
-  const t=Math.floor(b.time/(tf*60000))*tf*60000;
-  let x=last(out);
-  if(!x||x.time!==t){
-   out.push({time:t,open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume});
-  }else{
-   x.high=Math.max(x.high,b.high);
-   x.low=Math.min(x.low,b.low);
-   x.close=b.close;
-   x.volume+=b.volume;
-  }
+  const t=bucketStart(b.time,tf);let x=last(out);
+  if(!x||x.time!==t)out.push({time:t,open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume});
+  else{x.high=Math.max(x.high,b.high);x.low=Math.min(x.low,b.low);x.close=b.close;x.volume+=b.volume}
  }
  return out;
 }
 function closedBars(bars,tf){
- const t=now();
- return bars.filter(b=>b.time+tf*60000<=t);
+ const t=now();return bars.filter(b=>b.time+tf*60000<=t)
 }
-function atr(bars,p=14){
- if(bars.length<=p)return 0;
- const tr=[];
- for(let i=1;i<bars.length;i++){
-  const b=bars[i],q=bars[i-1];
-  tr.push(Math.max(b.high-b.low,Math.abs(b.high-q.close),Math.abs(b.low-q.close)));
- }
- const a=tr.slice(-p);
- return a.reduce((s,x)=>s+x,0)/a.length;
+function freshness(bars,tf=1){
+ const x=last(bars);if(!x)return{stale:true,age:Infinity,bar:null};
+ const ms=now()-(x.time+tf*60000);return{stale:ms>MAX_DELAY,age:ms,bar:x}
 }
 
-/* Инкрементальный расчёт Renko: новые свечи обрабатываются по одной. */
+/* Renko: подтверждённые кирпичи, разворот требует движения на два блока. */
 function applyRenkoBar(state,bar,box,out){
- const p=bar.close;
- let anchor=state.anchor,dir=state.dir;
-
- if(!Number.isFinite(anchor)){
-  state.anchor=p;
-  return;
- }
-
- if(!dir){
-  if(p>=anchor+box){
-   while(p>=anchor+box&&out.length<12000){
-    out.push({open:anchor,close:anchor+box,dir:1,time:bar.time,sourceTime:bar.time});
-    anchor+=box;dir=1;
-   }
-  }else if(p<=anchor-box){
-   while(p<=anchor-box&&out.length<12000){
-    out.push({open:anchor,close:anchor-box,dir:-1,time:bar.time,sourceTime:bar.time});
-    anchor-=box;dir=-1;
-   }
-  }
- }else if(dir===1){
-  while(p>=anchor+box&&out.length<12000){
-   out.push({open:anchor,close:anchor+box,dir:1,time:bar.time,sourceTime:bar.time});
-   anchor+=box;
-  }
-  if(p<=anchor-2*box&&out.length<12000){
-   out.push({open:anchor-box,close:anchor-2*box,dir:-1,time:bar.time,sourceTime:bar.time});
-   anchor-=2*box;dir=-1;
-   while(p<=anchor-box&&out.length<12000){
-    out.push({open:anchor,close:anchor-box,dir:-1,time:bar.time,sourceTime:bar.time});
-    anchor-=box;
-   }
+ const p=bar.close;let a=state.anchor,d=state.dir;
+ if(!Number.isFinite(a)){state.anchor=p;return}
+ if(!d){
+  if(p>=a+box){while(p>=a+box&&out.length<20000){out.push({open:a,close:a+box,dir:1,time:bar.time});a+=box;d=1}}
+  else if(p<=a-box){while(p<=a-box&&out.length<20000){out.push({open:a,close:a-box,dir:-1,time:bar.time});a-=box;d=-1}}
+ }else if(d===1){
+  while(p>=a+box&&out.length<20000){out.push({open:a,close:a+box,dir:1,time:bar.time});a+=box}
+  if(p<=a-2*box&&out.length<20000){
+   out.push({open:a-box,close:a-2*box,dir:-1,time:bar.time});a-=2*box;d=-1;
+   while(p<=a-box&&out.length<20000){out.push({open:a,close:a-box,dir:-1,time:bar.time});a-=box}
   }
  }else{
-  while(p<=anchor-box&&out.length<12000){
-   out.push({open:anchor,close:anchor-box,dir:-1,time:bar.time,sourceTime:bar.time});
-   anchor-=box;
-  }
-  if(p>=anchor+2*box&&out.length<12000){
-   out.push({open:anchor+box,close:anchor+2*box,dir:1,time:bar.time,sourceTime:bar.time});
-   anchor+=2*box;dir=1;
-   while(p>=anchor+box&&out.length<12000){
-    out.push({open:anchor,close:anchor+box,dir:1,time:bar.time,sourceTime:bar.time});
-    anchor+=box;
-   }
+  while(p<=a-box&&out.length<20000){out.push({open:a,close:a-box,dir:-1,time:bar.time});a-=box}
+  if(p>=a+2*box&&out.length<20000){
+   out.push({open:a+box,close:a+2*box,dir:1,time:bar.time});a+=2*box;d=1;
+   while(p>=a+box&&out.length<20000){out.push({open:a,close:a+box,dir:1,time:bar.time});a+=box}
   }
  }
- state.anchor=anchor;
- state.dir=dir;
+ state.anchor=a;state.dir=d;
 }
 function buildRenko(bars,box){
- const out=[];
- if(!bars.length||!(box>0))return{bricks:out,state:{anchor:NaN,dir:0}};
+ const out=[];if(!bars.length)return{bricks:out,state:{anchor:NaN,dir:0}};
  const state={anchor:bars[0].close,dir:0};
  for(let i=1;i<bars.length;i++)applyRenkoBar(state,bars[i],box,out);
  return{bricks:out,state};
 }
 
+/* Голосовые объявления */
 function announce(type,price,qty,pnl){
  if(!$("voiceOn")?.checked)return;
  const name=S.asset==="OZON"?"ОЗОН":"Ти Джи Эл Ди";
- const action=type==="BUY"?"Покупка":"Продажа";
  const text=type==="BUY"
-  ?`${name}. ${action}. ${qty} штук. Цена ${fmt(price)} рублей. Виртуальная позиция открыта.`
-  :`${name}. ${action}. ${qty} штук. Цена ${fmt(price)} рублей. Результат сделки ${pnl>=0?"прибыль":"убыток"} ${money(Math.abs(pnl))}.`;
+  ?`${name}. Автоматическая виртуальная покупка. ${qty} штук. Цена ${fmt(price)} рублей.`
+  :`${name}. Автоматическая виртуальная продажа. ${qty} штук. Цена ${fmt(price)} рублей. Результат ${pnl>=0?"прибыль":"убыток"} ${money(Math.abs(pnl))}.`;
  try{
-  if("speechSynthesis" in window){
-   speechSynthesis.cancel();
-   const u=new SpeechSynthesisUtterance(text);
-   u.lang="ru-RU";u.rate=.92;u.volume=Number($("volume").value);
-   speechSynthesis.speak(u);
+  if("speechSynthesis"in window){
+   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);
+   u.lang="ru-RU";u.rate=.92;u.volume=Number($("volume").value);speechSynthesis.speak(u)
   }
  }catch(e){}
 }
 function beep(type){
  try{
-  const C=window.AudioContext||window.webkitAudioContext;
-  if(!C)return;
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
   const c=new C(),o=c.createOscillator(),g=c.createGain();
   o.type="sine";o.frequency.value=type==="BUY"?880:440;
-  g.gain.value=.08*Number($("volume").value);
-  o.connect(g);g.connect(c.destination);o.start();
-  o.stop(c.currentTime+.22);o.onended=()=>c.close();
+  g.gain.value=.07*Number($("volume").value);o.connect(g);g.connect(c.destination);
+  o.start();o.stop(c.currentTime+.2);o.onended=()=>c.close()
  }catch(e){}
 }
 function testVoice(){
- beep("BUY");
- if(!("speechSynthesis" in window)){
-  alert("Голосовой синтез не поддерживается браузером.");
-  return;
- }
- speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance("Снайпер. Голосовой помощник работает.");
- u.lang="ru-RU";u.rate=.9;u.volume=Number($("volume").value);
- speechSynthesis.speak(u);
+ beep("BUY");if(!("speechSynthesis"in window)){alert("Браузер не поддерживает голосовой синтез.");return}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("Снайпер. Голосовой помощник работает.");
+ u.lang="ru-RU";u.rate=.9;u.volume=Number($("volume").value);speechSynthesis.speak(u)
 }
-function event(b,type,price,pnl=0,time=now(),qty=0){
+function logEvent(b,type,price,pnl=0,time=now(),qty=0){
  const e={type,price,pnl,time,qty,asset:S.asset,tf:S.tf,box:S.box};
- b.events.unshift(e);b.events=b.events.slice(0,250);
- b.marks.push(e);b.marks=b.marks.slice(-300);
- save();
+ b.events.unshift(e);b.events=b.events.slice(0,300);b.marks.push(e);b.marks=b.marks.slice(-400);save()
 }
 function openRenko(b,price,time){
- if(!S.auto||b.position||b.cash<=0||!(price>0))return;
- const qty=Math.floor(b.cash*ALLOC/price);
- if(qty<1)return;
- const cost=qty*price;
- if(cost>b.cash)return;
- b.cash-=cost;
- b.position={entry:price,qty,opened:time};
- event(b,"BUY",price,0,time,qty);
- beep("BUY");announce("BUY",price,qty,0);
+ if(!S.auto||b.position||!(price>0)||b.cash<=0)return;
+ const qty=Math.floor(b.cash*ALLOC/price);if(qty<1)return;
+ const cost=qty*price;if(cost>b.cash)return;
+ b.cash-=cost;b.position={entry:price,qty,opened:time};
+ logEvent(b,"BUY",price,0,time,qty);beep("BUY");announce("BUY",price,qty,0)
 }
 function closeRenko(b,price,time){
  if(!b.position||!(price>0))return;
  const p=b.position,pnl=(price-p.entry)*p.qty;
  b.cash+=p.qty*price;b.realized+=pnl;
  b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time});
- b.closed=b.closed.slice(0,300);
- event(b,"SELL",price,pnl,time,p.qty);
- beep("SELL");announce("SELL",price,p.qty,pnl);
- b.position=null;
+ b.closed=b.closed.slice(0,500);logEvent(b,"SELL",price,pnl,time,p.qty);
+ beep("SELL");announce("SELL",price,p.qty,pnl);b.position=null;
 }
-
-/* Сигнал на закрытии свечи, исполнение на открытии следующей.
-   После большого перерыва старые сигналы не исполняются. */
-function updateRenkoTrades(b,source,box){
+ /* Сигналы Renko формируются на закрытии выбранного интервала.
+   Исполнение — по open первой доступной завершённой минутной свечи
+   после времени сигнала. Это историческая модель виртуального исполнения,
+   а не заявка и не гарантия исполнения по текущей биржевой цене. */
+function updateRenkoTrades(b,source,box,minuteBars){
  if(!source.length)return;
 
  if(!b.initialized){
   const built=buildRenko(source,box);
-  b.bricks=built.bricks;
-  b.renkoState=built.state;
-  b.cursor=last(source).time;
-  b.initialized=true;
-  b.pending=null;
-  b.lastProcessedAt=now();
-  save();
-  return;
+  b.bricks=built.bricks;b.renkoState=built.state;
+  b.cursor=last(source).time;b.initialized=true;
+  b.pending=null;b.lastProcessedAt=now();save();return;
  }
 
  const start=source.findIndex(x=>x.time>b.cursor);
- if(start<0)return;
+ if(start<0){
+  executePending(b,minuteBars);
+  return;
+ }
 
  const gap=source[start].time-b.cursor;
  const maxGap=Math.max(30*60000,S.tf*60000*6);
- const backlog=source.length-start>30||gap>maxGap;
-
- if(backlog){
+ if(source.length-start>30||gap>maxGap){
   const built=buildRenko(source,box);
-  b.bricks=built.bricks;
-  b.renkoState=built.state;
-  b.cursor=last(source).time;
-  b.pending=null;
-  b.lastProcessedAt=now();
-  b.lastReversal="СИНХРОНИЗАЦИЯ ПОСЛЕ ПЕРЕРЫВА";
-  save();
-  return;
+  b.bricks=built.bricks;b.renkoState=built.state;
+  b.cursor=last(source).time;b.pending=null;
+  b.lastProcessedAt=now();b.lastReversal="СИНХРОНИЗАЦИЯ ПОСЛЕ ПЕРЕРЫВА";
+  save();return;
  }
 
  if(!b.renkoState){
   const built=buildRenko(source.slice(0,start),box);
-  b.bricks=built.bricks;
-  b.renkoState=built.state;
+  b.bricks=built.bricks;b.renkoState=built.state;
  }
 
+ executePending(b,minuteBars);
+
  for(let i=start;i<source.length;i++){
-  const bar=source[i];
-
-  if(b.pending){
-   if(S.auto){
-    if(b.pending==="BUY"&&!b.position)openRenko(b,bar.open,bar.time);
-    if(b.pending==="SELL"&&b.position)closeRenko(b,bar.open,bar.time);
-   }
-   b.pending=null;
-  }
-
-  const before=b.bricks.length;
+  const bar=source[i],before=b.bricks.length;
   applyRenkoBar(b.renkoState,bar,box,b.bricks);
 
   for(let j=before;j<b.bricks.length;j++){
    const prev=b.bricks[j-1],brick=b.bricks[j];
-   if(prev&&prev.dir!==brick.dir){
-    b.lastReversal=brick.dir===1?"ВВЕРХ":"ВНИЗ";
-    if(brick.dir===1&&!b.position&&S.auto)b.pending="BUY";
-    if(brick.dir===-1&&b.position)b.pending="SELL";
+   if(!prev||prev.dir===brick.dir)continue;
+
+   b.lastReversal=brick.dir===1?"ВВЕРХ":"ВНИЗ";
+   if(!S.auto)continue;
+
+   if(brick.dir===1&&!b.position){
+    b.pending={type:"BUY",afterTime:bar.time+S.tf*60000};
+   }else if(brick.dir===-1&&b.position){
+    b.pending={type:"SELL",afterTime:bar.time+S.tf*60000};
    }
   }
   b.cursor=bar.time;
+  executePending(b,minuteBars);
  }
-
- b.lastProcessedAt=now();
- save();
+ b.lastProcessedAt=now();save();
 }
 
-function freshness(bars,tf){
- const x=last(bars);
- if(!x)return{stale:true,age:Infinity,bar:null};
- const ageMs=now()-(x.time+tf*60000);
- return{stale:ageMs>MAX_DELAY,age:ageMs,bar:x};
+function executePending(b,minuteBars){
+ if(!b.pending)return;
+ if(!S.auto){b.pending=null;save();return}
+ const p=b.pending;
+ const next=minuteBars.find(x=>x.time>=p.afterTime);
+ if(!next)return;
+ if(p.type==="BUY"&&!b.position)openRenko(b,next.open,next.time);
+ if(p.type==="SELL"&&b.position)closeRenko(b,next.open,next.time);
+ b.pending=null;save();
 }
- /* ЦЕНА ИЗ ПОСЛЕДНЕЙ ДОСТУПНОЙ МИНУТНОЙ СВЕЧИ MOEX.
-   Не используем trades, MARKETPRICE и PREVPRICE:
-   они могли возвращать старую цену отдельно от обновляющихся свечей. */
+
 async function updateAsset(asset){
  const d=S.data[asset];
-
  try{
   const x=await loadCandles(asset);
   const minuteBars=closedBars(x.bars,1);
   const latest=last(minuteBars);
-
-  d.bars=x.bars;
-  d.pages=x.pages;
-  d.board=x.board;
-  d.complete=x.complete;
-  d.error=x.complete?"":"История неполная: достигнут предел загрузки MOEX.";
-
+  d.bars=x.bars;d.pages=x.pages;d.board=x.board;
+  d.complete=x.complete;d.error=x.complete?"":"История неполная: достигнут предел загрузки MOEX.";
   if(latest){
    d.price=latest.close;
-   d.quote={
-    price:latest.close,
-    time:latest.time+60000,
-    board:x.board,
-    candleTime:latest.time
-   };
-   d.quoteUpdated=now();
+   d.quote={price:latest.close,time:latest.time+60000,board:x.board,candleTime:latest.time};
   }else{
-   d.price=null;
-   d.quote=null;
-   d.error="MOEX не вернула завершённую минутную свечу.";
+   d.price=null;d.quote=null;d.error="MOEX не вернула завершённую минутную свечу.";
   }
-
   d.updated=now();
  }catch(e){
-  d.error="Свечи: "+(e?.message||"ошибка загрузки");
-  d.updated=now();
+  d.error="Свечи: "+(e?.message||"ошибка загрузки");d.updated=now();
  }
 }
 
-/* У каждого инструмента собственная блокировка запросов. */
 async function refreshAsset(asset){
  if(S.loading[asset])return;
  S.loading[asset]=true;
-
  try{
   await updateAsset(asset);
-
   if(S.asset===asset){
-   const d=S.data[asset];
+   const d=S.data[asset],minuteBars=closedBars(d.bars,1);
    const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
-   const rawFresh=freshness(closedBars(d.bars,1),1);
-   const b=book();
-
-   if(!d.error&&d.complete&&!rawFresh.stale&&
-      d.quote&&d.price>0&&bars.length>=20){
-    updateRenkoTrades(b,bars,b.box);
+   const f=freshness(minuteBars,1),b=book();
+   if(!d.error&&d.complete&&!f.stale&&d.quote&&d.price>0&&bars.length>=2){
+    updateRenkoTrades(b,bars,b.box,minuteBars);
    }
    render();
   }
- }catch(e){
-  console.warn("Ошибка обновления "+asset,e);
- }finally{
-  S.loading[asset]=false;
- }
+ }catch(e){console.warn("Обновление "+asset,e)}
+ finally{S.loading[asset]=false}
 }
-
 async function refreshAll(){
- $("status").textContent="Обновление минутных свечей MOEX...";
-
- const tasks=[refreshAsset("OZON")];
- if(S.asset==="TGLD")tasks.push(refreshAsset("TGLD"));
-
- await Promise.allSettled(tasks);
-
- if(S.asset==="OZON"&&!S.loading.OZON)render();
+ $("status").textContent="Обновление свечей MOEX...";
+ await refreshAsset(S.asset);
 }
 
-/* ГРАФИК TRADINGVIEW */
+/* TradingView: для дневного графика используется D. */
 function tvUpdate(){
  const symbol=CFG[S.asset].tv;
- const interval={1:"1",5:"5",15:"15",30:"30",60:"60"}[S.tf];
-
- $("tvTf").textContent=S.tf===60?"1 ЧАС":S.tf+" МИН";
+ const interval={1:"1",5:"5",15:"15",30:"30",60:"60",120:"120",240:"240",1440:"D"}[S.tf];
+ const names={1:"1 МИН",5:"5 МИН",15:"15 МИН",30:"30 МИН",60:"1 ЧАС",120:"2 ЧАСА",240:"4 ЧАСА",1440:"1 ДЕНЬ"};
+ $("tvTf").textContent=names[S.tf]||"5 МИН";
  $("tv").src="https://www.tradingview.com/widgetembed/?frameElementId=tv_widget&symbol="+encodeURIComponent(symbol)+
  "&interval="+interval+"&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=%2307111d&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1";
 }
 
 function canvas(id,height){
  const c=$(id),w=c.clientWidth||320,d=window.devicePixelRatio||1;
- c.width=Math.round(w*d);
- c.height=Math.round(height*d);
- const x=c.getContext("2d");
- x.setTransform(d,0,0,d,0,0);
+ c.width=Math.round(w*d);c.height=Math.round(height*d);
+ const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);
  return{ctx:x,w,h:height};
 }
-
 function drawRenko(){
- const {ctx,w,h}=canvas("renkoChart",235);
- ctx.clearRect(0,0,w,h);
-
+ const {ctx,w,h}=canvas("renkoChart",235);ctx.clearRect(0,0,w,h);
  const b=book(),br=b.bricks.slice(-70);
  if(!br.length){
-  ctx.fillStyle="#8da3b7";
-  ctx.font="12px Arial";
-  ctx.fillText("Ожидание формирования блоков Ренко",12,30);
-  return;
+  ctx.fillStyle="#8da3b7";ctx.font="12px Arial";
+  ctx.fillText("Ожидание формирования блоков Renko",12,30);return;
  }
-
  const vals=br.flatMap(x=>[x.open,x.close]);
- const min=Math.min(...vals),max=Math.max(...vals);
- const range=max-min||b.box||1;
- const pad=12,y=v=>12+(max-v)/range*(h-24);
- const step=(w-pad*2)/br.length,cw=Math.max(3,step*.72);
-
+ const min=Math.min(...vals),max=Math.max(...vals),range=max-min||b.box||1,pad=12;
+ const y=v=>12+(max-v)/range*(h-24),step=(w-pad*2)/br.length,cw=Math.max(3,step*.72);
  for(let i=0;i<br.length;i++){
   const x=pad+i*step+step/2,q=br[i];
   ctx.fillStyle=q.dir===1?"#20d69a":"#ff6478";
-  const yy=Math.min(y(q.open),y(q.close));
-  const hh=Math.max(2,Math.abs(y(q.open)-y(q.close)));
+  const yy=Math.min(y(q.open),y(q.close)),hh=Math.max(2,Math.abs(y(q.open)-y(q.close)));
   ctx.fillRect(x-cw/2,yy,cw,hh);
  }
-
- ctx.fillStyle="#8da3b7";
- ctx.font="10px Arial";
- ctx.fillText(fmt(max),4,10);
- ctx.fillText(fmt(min),4,h-3);
+ ctx.fillStyle="#8da3b7";ctx.font="10px Arial";
+ ctx.fillText(fmt(max),4,10);ctx.fillText(fmt(min),4,h-3);
 }
-
 function drawEquity(){
- const {ctx,w,h}=canvas("equity",145);
- ctx.clearRect(0,0,w,h);
-
- const b=book(),a=b.closed.slice().reverse(),v=[0];
- let sum=0;
- a.forEach(x=>{sum+=x.pnl;v.push(sum);});
-
- const min=Math.min(0,...v),max=Math.max(0,...v),r=max-min||1;
- const y=n=>10+(max-n)/r*(h-20),zero=y(0);
-
- ctx.strokeStyle="#43586c";
- ctx.setLineDash([4,4]);
- ctx.beginPath();
- ctx.moveTo(0,zero);
- ctx.lineTo(w,zero);
- ctx.stroke();
- ctx.setLineDash([]);
-
+ const {ctx,w,h}=canvas("equity",145);ctx.clearRect(0,0,w,h);
+ const b=book(),a=b.closed.slice().reverse(),v=[0];let sum=0;
+ a.forEach(x=>{sum+=x.pnl;v.push(sum)});
+ const min=Math.min(0,...v),max=Math.max(0,...v),r=max-min||1,y=n=>10+(max-n)/r*(h-20),zero=y(0);
+ ctx.strokeStyle="#43586c";ctx.setLineDash([4,4]);ctx.beginPath();
+ ctx.moveTo(0,zero);ctx.lineTo(w,zero);ctx.stroke();ctx.setLineDash([]);
  if(a.length){
-  ctx.strokeStyle="#20d69a";
-  ctx.lineWidth=2;
-  ctx.beginPath();
-
-  v.forEach((n,i)=>{
-   const x=8+i*(w-16)/Math.max(1,v.length-1);
-   i?ctx.lineTo(x,y(n)):ctx.moveTo(x,y(n));
-  });
-
-  ctx.stroke();
-  $("equityInfo").textContent="Сделок: "+a.length+" · Итог: "+money(sum);
+  ctx.strokeStyle="#20d69a";ctx.lineWidth=2;ctx.beginPath();
+  v.forEach((n,i)=>{const x=8+i*(w-16)/Math.max(1,v.length-1);i?ctx.lineTo(x,y(n)):ctx.moveTo(x,y(n))});
+  ctx.stroke();$("equityInfo").textContent="Сделок: "+a.length+" · Итог: "+money(sum);
  }else{
-  ctx.fillStyle="#8da3b7";
-  ctx.font="11px Arial";
+  ctx.fillStyle="#8da3b7";ctx.font="11px Arial";
   ctx.fillText("Нет закрытых сделок · нулевая линия",10,Math.max(15,zero-8));
-  $("equityInfo").textContent="Результат появится после закрытия первой виртуальной сделки.";
+  $("equityInfo").textContent="Результат появится после закрытия первой сделки.";
  }
 }
 
-/* ИСТОРИЧЕСКИЙ ТЕСТ.
-   Вход и выход на открытии следующей свечи.
-   Тестовый капитал отдельный, текущий счёт не меняется. */
+/* Исторический тест. Вход/выход — по open следующей свечи выбранного интервала.
+   Тест не меняет основной виртуальный счёт. */
 function simulate(source,box){
- let cash=CAPITAL,position=null,pending=null,closed=[];
+ let cash=CAPITAL,pos=null,pending=null,closed=[];
  let bricks=[],state={anchor:source[0]?.close??NaN,dir:0};
- let equity=CAPITAL,peak=CAPITAL,maxDD=0;
-
+ let peak=CAPITAL,maxDD=0;
  for(let i=1;i<source.length;i++){
   const bar=source[i];
-
-  if(pending==="BUY"&&!position){
+  if(pending==="BUY"&&!pos){
    const qty=Math.floor(cash*ALLOC/bar.open);
-   if(qty>0){
-    cash-=qty*bar.open;
-    position={entry:bar.open,qty};
-   }
-  }else if(pending==="SELL"&&position){
-   const pnl=(bar.open-position.entry)*position.qty;
-   cash+=position.qty*bar.open;
-   closed.push(pnl);
-   position=null;
+   if(qty>0){cash-=qty*bar.open;pos={entry:bar.open,qty}}
+  }else if(pending==="SELL"&&pos){
+   const pnl=(bar.open-pos.entry)*pos.qty;
+   cash+=pos.qty*bar.open;closed.push(pnl);pos=null;
   }
-
   pending=null;
-
-  const before=bricks.length;
-  applyRenkoBar(state,bar,box,bricks);
-
+  const before=bricks.length;applyRenkoBar(state,bar,box,bricks);
   for(let j=before;j<bricks.length;j++){
    const prev=bricks[j-1],q=bricks[j];
    if(prev&&prev.dir!==q.dir){
-    if(q.dir===1&&!position)pending="BUY";
-    if(q.dir===-1&&position)pending="SELL";
+    if(q.dir===1&&!pos)pending="BUY";
+    if(q.dir===-1&&pos)pending="SELL";
    }
   }
-
-  equity=cash+(position?position.qty*bar.close:0);
-  peak=Math.max(peak,equity);
-  maxDD=Math.max(maxDD,peak-equity);
+  const equity=cash+(pos?pos.qty*bar.close:0);
+  peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
  }
-
  const wins=closed.filter(x=>x>0).length;
- return{
-  count:closed.length,
-  pnl:closed.reduce((a,b)=>a+b,0),
-  win:closed.length?wins/closed.length*100:0,
-  dd:maxDD
- };
+ return{count:closed.length,pnl:closed.reduce((a,b)=>a+b,0),
+ win:closed.length?wins/closed.length*100:0,dd:maxDD};
 }
-
 function runBacktest(){
- const d=S.data[S.asset];
- const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
-
- if(bars.length<40){
-  $("backtestStatus").textContent="Недостаточно истории для тестирования. Загрузите данные MOEX.";
-  return;
+ const d=S.data[S.asset],bars=closedBars(aggregate(d.bars,S.tf),S.tf);
+ if(bars.length<20){
+  $("backtestStatus").textContent="Недостаточно завершённых свечей. Дождитесь загрузки MOEX.";return;
  }
-
- $("backtestStatus").textContent="Выполняется тест...";
- const body=$("backtest");
- body.textContent="";
-
- const results=[];
- for(const size of BOXES){
-  const r=simulate(bars,size);
-  results.push({size,...r});
- }
-
- results.sort((a,b)=>b.pnl-a.pnl);
-
+ $("backtestStatus").textContent="Выполняется исторический тест...";
+ const body=$("backtest");body.textContent="";
+ const results=BOXES.map(size=>({size,...simulate(bars,size)})).sort((a,b)=>b.pnl-a.pnl);
  results.forEach(r=>{
   const tr=document.createElement("tr");
-  [
-   r.size.toFixed(1)+" ₽",
-   r.count,
-   money(r.pnl),
-   r.win.toFixed(1)+"%",
-   money(r.dd)
-  ].forEach(v=>{
-   const td=document.createElement("td");
-   td.textContent=v;
-   tr.append(td);
+  [r.size.toFixed(1)+" ₽",r.count,money(r.pnl),r.win.toFixed(1)+"%",money(r.dd)].forEach(v=>{
+   const td=document.createElement("td");td.textContent=v;tr.append(td)
   });
   body.append(tr);
  });
-
- $("backtestStatus").textContent=
-  "Тест завершён · "+S.asset+" · "+S.tf+" мин. · "+
-  bars.length+" закрытых свечей. Лучший результат: "+
-  results[0].size.toFixed(1)+" ₽.";
+ $("backtestStatus").textContent="Тест завершён · "+S.asset+" · "+S.tf+" · "+bars.length+
+ " закрытых свечей. Это историческая симуляция без комиссий и налогов.";
 }
 
-/* ОТОБРАЖЕНИЕ */
+/* Отображение интерфейса */
 function render(){
- const d=S.data[S.asset];
- const rawBars=closedBars(d.bars,1);
- const rawFresh=freshness(rawBars,1);
- const bars=closedBars(aggregate(d.bars,S.tf),S.tf);
- const b=book();
- const price=d.quote&&Number.isFinite(d.quote.price)?d.quote.price:null;
- const stale=!!d.error||!d.complete||rawFresh.stale||!d.quote||!(price>0);
-
+ const d=S.data[S.asset],minuteBars=closedBars(d.bars,1);
+ const f=freshness(minuteBars,1),bars=closedBars(aggregate(d.bars,S.tf),S.tf);
+ const b=book(),price=d.quote&&Number.isFinite(d.quote.price)?d.quote.price:null;
+ const stale=!!d.error||!d.complete||f.stale||!d.quote||!(price>0);
  $("price").textContent=price?fmt(price):"—";
- $("tradeTime").textContent=d.quote&&Number.isFinite(d.quote.time)
-  ?new Date(d.quote.time).toLocaleString("ru-RU")
-  :"Время не подтверждено";
- $("candleTime").textContent=rawFresh.bar?age(rawFresh.age):"—";
-
- $("fresh").textContent=d.error?"ОШИБКА":
-  !d.complete?"ИСТОРИЯ НЕПОЛНАЯ":
-  !d.quote?"НЕТ ЦЕНЫ":
-  rawFresh.stale?"ДАННЫЕ УСТАРЕЛИ":"ДАННЫЕ С ЗАДЕРЖКОЙ";
+ $("tradeTime").textContent=d.quote?new Date(d.quote.time).toLocaleString("ru-RU"):"Время не подтверждено";
+ $("candleTime").textContent=f.bar?age(f.age):"—";
+ $("fresh").textContent=d.error?"ОШИБКА":!d.complete?"ИСТОРИЯ НЕПОЛНАЯ":!d.quote?"НЕТ ЦЕНЫ":f.stale?"ДАННЫЕ УСТАРЕЛИ":"КОТИРОВКА ДОСТУПНА";
  $("fresh").className="badge "+(stale?"red":"green");
-
- $("priceSource").textContent=d.quote
-  ?"Цена взята из close последней доступной минутной свечи MOEX. Обновление проверяется каждую минуту. Возраст данных: "+age(rawFresh.age)+"."
+ $("priceSource").textContent=d.quote?
+  "Цена — close последней завершённой минутной свечи MOEX. Возможна задержка публикации данных биржей. Возраст: "+age(f.age)+"."
   :"Нет подтверждённой минутной цены MOEX.";
-
- $("sourceBadge").textContent=d.error?"ОШИБКА":
-  !d.complete?"НЕПОЛНАЯ ИСТОРИЯ":
-  !d.quote?"НЕТ ЦЕНЫ":
-  rawFresh.stale?"ДАННЫЕ УСТАРЕЛИ":"ДАННЫЕ ДОСТУПНЫ";
+ $("sourceBadge").textContent=stale?"НЕТ ДОПУСКА":"ДАННЫЕ ДОСТУПНЫ";
  $("sourceBadge").className="badge "+(stale?"red":"green");
-
- $("board").textContent=d.board;
- $("count").textContent=d.bars.length;
- $("pages").textContent=d.pages||0;
- $("lastBar").textContent=rawFresh.bar
-  ?new Date(rawFresh.bar.time).toLocaleString("ru-RU"):"—";
- $("freshness").textContent=rawFresh.bar?age(rawFresh.age):"—";
-
- const allowed=!stale&&bars.length>=20&&S.auto;
- $("allowed").textContent=allowed?"ДА":"НЕТ";
- $("allowed").className=allowed?"green":"red";
-
- $("diagnostic").textContent=d.error||
-  (!d.bars.length?"MOEX не вернула минутные свечи.":
-  !d.complete?"История загружена не полностью. Новые виртуальные входы заблокированы.":
-  !d.quote?"Нет подтверждённой цены из минутной свечи.":
-  rawFresh.stale?"Последняя минутная свеча старше допустимой задержки 20 минут. Виртуальная торговля заблокирована.":
-  "Цена берётся из последней доступной минутной свечи. Источник может запаздывать примерно на 15 минут; обновление проверяется каждую минуту.");
-
- $("status").textContent=d.error?"Ошибка источника":
-  !d.complete?"История загружена частично":
-  stale?"Ожидание обновления минутных данных":"Минутные данные получены";
-
- $("signalTF").textContent=S.tf===60?"1 час":S.tf+" мин";
- $("boxSize").textContent=fmt(b.box)+" ₽";
- $("brickCount").textContent=b.bricks.length;
-
+ $("board").textContent=d.board;$("count").textContent=d.bars.length;$("pages").textContent=d.pages||0;
+ $("lastBar").textContent=f.bar?new Date(f.bar.time).toLocaleString("ru-RU"):"—";
+ $("freshness").textContent=f.bar?age(f.age):"—";
+ const allowed=!stale&&bars.length>=2&&S.auto;
+ $("allowed").textContent=allowed?"ДА":"НЕТ";$("allowed").className=allowed?"green":"red";
+ $("diagnostic").textContent=d.error||(!d.complete?"История загружена не полностью. Автоторговля заблокирована.":
+  !d.quote?"Нет подтверждённой цены минутной свечи.":
+  f.stale?"Последняя завершённая минутная свеча старше 20 минут. Новые сделки заблокированы.":
+  "Доступны свечи MOEX. ISS может публиковать данные с задержкой. Проверьте возраст котировки перед оценкой сделок.");
+ $("status").textContent=d.error?"Ошибка источника":!d.complete?"История неполная":stale?"Ожидание свежих данных":"Данные получены";
+ $("signalTF").textContent=({1:"1 мин",5:"5 мин",15:"15 мин",30:"30 мин",60:"1 час",120:"2 часа",240:"4 часа",1440:"1 день"})[S.tf];
+ $("boxSize").textContent=fmt(b.box)+" ₽";$("brickCount").textContent=b.bricks.length;
  const br=last(b.bricks);
  $("brickTrend").textContent=br?(br.dir===1?"ВВЕРХ":"ВНИЗ"):"—";
  $("brickLast").textContent=br?(br.dir===1?"ЗЕЛЁНЫЙ":"КРАСНЫЙ"):"—";
  $("reversal").textContent=b.lastReversal;
- $("renkoState").textContent=stale?"НЕТ СВЕЖИХ ДАННЫХ":"ГРАФИК РЕНКО";
- $("renkoInfo").textContent="Размер блока "+fmt(b.box)+" ₽ · "+S.asset+" / "+S.tf+" мин.";
-
+ $("renkoState").textContent=stale?"НЕТ СВЕЖИХ ДАННЫХ":"РАСЧЁТ ПО ЗАКРЫТЫМ СВЕЧАМ";
+ $("renkoInfo").textContent="Размер "+fmt(b.box)+" ₽ · "+S.asset+" · "+$("signalTF").textContent;
  if(stale){
   $("renkoSignal").textContent="WAIT · ВХОД ЗАБЛОКИРОВАН";
   $("renkoSignal").className="signal yellow";
-  $("renkoReason").textContent=d.error||
-   (!d.complete?"История загружена не полностью.":
-   !d.quote?"Нет подтверждённой цены из минутной свечи.":
-   "Данные старше допустимой задержки. Ожидаем обновления MOEX.");
+  $("renkoReason").textContent=d.error||(!d.complete?"История неполная.":!d.quote?"Нет цены.":"Данные устарели. Ждём обновления MOEX.");
  }else if(!br){
-  $("renkoSignal").textContent="WAIT · ОЖИДАНИЕ";
-  $("renkoSignal").className="signal yellow";
+  $("renkoSignal").textContent="WAIT · ОЖИДАНИЕ";$("renkoSignal").className="signal yellow";
   $("renkoReason").textContent="Ренко ещё не сформировал направление.";
  }else{
   $("renkoSignal").textContent=br.dir===1?"BUY · ЗЕЛЁНЫЙ ТРЕНД":"WAIT · КРАСНЫЙ ТРЕНД";
   $("renkoSignal").className="signal "+(br.dir===1?"green":"yellow");
-  $("renkoReason").textContent="Последний завершённый блок "+
-   (br.dir===1?"зелёный.":"красный.")+
-   " Сигнал возникает только при смене цвета.";
+  $("renkoReason").textContent="Последний завершённый блок "+(br.dir===1?"зелёный.":"красный.")+
+   " Сигнал возникает при подтверждённой смене направления.";
  }
-
- const market=price||0;
- const pl=b.position?(market-b.position.entry)*b.position.qty:0;
-
- $("capital").textContent=money(b.cash+(b.position?b.position.qty*market:0));
- $("cash").textContent=money(b.cash);
- $("profit").textContent=money(b.realized);
- $("trades").textContent=b.closed.length;
-
+ const market=price||0,pl=b.position?(market-b.position.entry)*b.position.qty:0;
+ const equity=b.cash+(b.position?b.position.qty*market:0);
+ $("capital").textContent=money(equity);$("cash").textContent=money(b.cash);
+ $("profit").textContent=money(b.realized);$("trades").textContent=b.closed.length;
  const wins=b.closed.filter(x=>x.pnl>0).length;
- $("winrate").textContent=b.closed.length?
-  (wins/b.closed.length*100).toFixed(1)+"%":"—";
- $("floating").textContent=money(pl);
-
- $("auto").checked=S.auto;
- $("autoLabel").textContent=S.auto?"ВКЛЮЧЕНА":"ВЫКЛЮЧЕНА";
-
+ $("winrate").textContent=b.closed.length?(wins/b.closed.length*100).toFixed(1)+"%":"—";
+ $("floating").textContent=money(pl);$("drawdown").textContent=money(b.maxDD);
+ const ev=last(b.events);$("lastDeal").textContent=ev?ev.type+" · "+fmt(ev.price)+" ₽":"—";
+ $("auto").checked=S.auto;$("autoLabel").textContent=S.auto?"ВКЛЮЧЕНА":"ВЫКЛЮЧЕНА";
  $("position").textContent=b.position?
-  "ПОКУПКА · "+b.position.qty+" шт. · Вход "+
-  fmt(b.position.entry)+" ₽ · Сейчас "+fmt(market)+
-  " ₽ · Результат "+money(pl):
+  "ВИРТУАЛЬНАЯ ПОКУПКА · "+b.position.qty+" шт. · Вход "+fmt(b.position.entry)+
+  " ₽ · Текущая цена "+fmt(market)+" ₽ · Открытый результат "+money(pl):
   "Открытой позиции нет.";
-
- drawRenko();
- drawEquity();
- renderJournal(b);
+ drawRenko();drawEquity();renderJournal(b);
 }
-
 function renderJournal(b){
- const body=$("journal");
- body.textContent="";
-
+ const body=$("journal");body.textContent="";
  if(!b.events.length){
-  const tr=document.createElement("tr");
-  const td=document.createElement("td");
-  td.colSpan=4;
-  td.textContent="Сделок пока нет";
-  tr.append(td);
-  body.append(tr);
-  return;
+  const tr=document.createElement("tr"),td=document.createElement("td");
+  td.colSpan=5;td.textContent="Сделок пока нет";tr.append(td);body.append(tr);return;
  }
-
- b.events.slice(0,50).forEach(e=>{
+ b.events.slice(0,60).forEach(e=>{
   const tr=document.createElement("tr");
-  [
-   new Date(e.time).toLocaleString("ru-RU"),
-   e.type,
-   fmt(e.price),
-   e.pnl?money(e.pnl):"—"
-  ].forEach(v=>{
-   const td=document.createElement("td");
-   td.textContent=v;
-   tr.append(td);
-  });
-  body.append(tr);
+  [new Date(e.time).toLocaleString("ru-RU"),e.type,fmt(e.price),e.qty||"—",e.pnl?money(e.pnl):"—"].forEach(v=>{
+   const td=document.createElement("td");td.textContent=v;tr.append(td)
+  });body.append(tr);
  });
 }
 
-/* ПЕРЕКЛЮЧЕНИЯ ИНСТРУМЕНТОВ И ТАЙМФРЕЙМОВ */
+/* Переключения */
 function selectAsset(a){
- if(a!=="OZON"&&a!=="TGLD")return;
-
- S.asset=a;
- S.box=preferredBox(S.asset,S.tf);
-
+ if(!CFG[a])return;
+ S.asset=a;S.box=preferredBox(S.asset,S.tf);
  $("ozon").classList.toggle("active",a==="OZON");
  $("tgld").classList.toggle("active",a==="TGLD");
- $("boxSelect").value=String(S.box);
-
- tvUpdate();
- save();
- render();
- refreshAll();
+ $("boxSelect").value=String(S.box);tvUpdate();save();render();refreshAll();
 }
-
 function changeTF(tf){
- if(![1,5,15,30,60].includes(Number(tf)))return;
-
- S.tf=Number(tf);
- S.box=preferredBox(S.asset,S.tf);
-
+ tf=Number(tf);if(!TFS.includes(tf))return;
+ S.tf=tf;S.box=preferredBox(S.asset,S.tf);
  document.querySelectorAll("[data-tf]").forEach(x=>
-  x.classList.toggle("active",Number(x.dataset.tf)===S.tf)
- );
-
- $("boxSelect").value=String(S.box);
- tvUpdate();
- save();
- render();
- refreshAll();
+  x.classList.toggle("active",Number(x.dataset.tf)===S.tf));
+ $("boxSelect").value=String(S.box);tvUpdate();save();render();refreshAll();
 }
-
 function changeBox(){
- const next=Number($("boxSelect").value);
- if(!BOXES.includes(next))return;
-
- S.box=next;
-
- // Новый размер получает отдельную книгу.
- // Существующие счета и позиции не удаляются.
- const b=book();
- $("boxSelect").value=String(b.box);
-
- save();
- render();
- refreshAll();
+ const v=Number($("boxSelect").value);if(!BOXES.includes(v))return;
+ S.box=v;book();save();render();refreshAll();
 }
-
 function toggleAuto(){
- S.auto=$("auto").checked;
- save();
- render();
+ S.auto=$("auto").checked;save();render();
 }
-
 function resetCurrent(){
- if(!confirm(
-  "Сбросить только виртуальный счёт "+
-  S.asset+" / "+S.tf+" минут / блок "+S.box+" ₽?"
- ))return;
-
- S.books[bookKey()]=emptyBook(S.box);
- save();
- render();
+ if(!confirm("Сбросить только виртуальный счёт "+S.asset+" / "+$("signalTF").textContent+" / блок "+S.box+" ₽?"))return;
+ S.books[bookKey()]=emptyBook(S.box);save();render();
 }
 
-/* СТАРТ */
-$("voiceOn").checked=S.voice;
-$("volume").value=S.volume;
-$("boxSelect").value=String(book().box);
-
+/* Старт */
+$("voiceOn").checked=S.voice;$("volume").value=S.volume;
+$("boxSelect").value=String(S.box);
+$("auto").checked=S.auto;
 document.querySelectorAll("[data-tf]").forEach(x=>
- x.classList.toggle("active",Number(x.dataset.tf)===S.tf)
-);
-
+ x.classList.toggle("active",Number(x.dataset.tf)===S.tf));
 $("ozon").classList.toggle("active",S.asset==="OZON");
 $("tgld").classList.toggle("active",S.asset==="TGLD");
-$("auto").checked=S.auto;
-
-tvUpdate();
-render();
-refreshAll();
-
+tvUpdate();render();refreshAll();
 setInterval(refreshAll,UPDATE);
-window.addEventListener("resize",()=>{
- drawRenko();
- drawEquity();
-});
+window.addEventListener("resize",()=>{drawRenko();drawEquity()});
 </script>
 </body>
 </html>
