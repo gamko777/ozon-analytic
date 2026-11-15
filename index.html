@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.5.3 RENKO ATR</title>
+<title>SNIPER ULTIMATE AI 2.5.4 FIXED RENKO</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -43,8 +43,8 @@ input[type=range]{accent-color:var(--green)}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.5.3</span></h1>
-<div class="sub" id="headerSub">RENKO ATR 7 · MOEX · VIRTUAL ONLY</div>
+<h1>SNIPER ULTIMATE AI <span class="green">2.5.4</span></h1>
+<div class="sub" id="headerSub">FIXED RENKO · MOEX · VIRTUAL ONLY</div>
 </header>
 <main>
 <section class="panel">
@@ -87,11 +87,11 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <div class="row"><b>ГРАФИК РЕНКО · ATR</b><span class="badge green" id="renkoState">ЗАГРУЗКА</span></div>
+ <div class="row"><b>ГРАФИК РЕНКО · ФИКСИРОВАННЫЙ ATR</b><span class="badge green" id="renkoState">ЗАГРУЗКА</span></div>
  <canvas id="renkoChart"></canvas>
  <div class="row small muted" style="margin-top:8px"><span class="green">■ Зелёный блок</span><span class="red">■ Красный блок</span></div>
  <div class="grid" style="margin-top:10px">
-  <div class="metric"><span class="muted small">Текущий ATR-блок</span><b id="boxSize">—</b></div>
+  <div class="metric"><span class="muted small">Фиксированный размер</span><b id="boxSize">—</b></div>
   <div class="metric"><span class="muted small">Блоков Ренко</span><b id="brickCount">0</b></div>
   <div class="metric"><span class="muted small">Направление</span><b id="brickTrend">—</b></div>
   <div class="metric"><span class="muted small">Последний блок</span><b id="brickLast">—</b></div>
@@ -100,7 +100,7 @@ input[type=range]{accent-color:var(--green)}
 </section>
 
 <section class="panel">
- <b id="signalTitle">СИГНАЛ РЕНКО ATR 7</b>
+ <b id="signalTitle">СИГНАЛ РЕНКО FIXED ATR 7</b>
  <div class="signal yellow" id="renkoSignal">WAIT · ОЖИДАНИЕ</div>
  <div class="small muted" id="renkoReason">Загрузка истории.</div>
  <div class="grid" style="margin-top:12px">
@@ -113,22 +113,22 @@ input[type=range]{accent-color:var(--green)}
 <section class="panel">
  <div class="row"><b>ПАРАМЕТРЫ RENKO</b><span class="badge">НАСТРОЙКИ</span></div>
  <div class="row" style="margin-top:12px">
-  <div><b>Длина ATR</b><div class="small muted">Меньше период — чувствительнее Renko</div></div>
+  <div><b>Длина ATR</b><div class="small muted">Период расчёта фиксированного размера</div></div>
   <select id="atrSelect" onchange="changeATR(this.value)">
    <option value="14">ATR 14</option>
    <option value="10">ATR 10</option>
-   <option value="7" selected>ATR 7 · БОЛЬШЕ БЛОКОВ</option>
-   <option value="5">ATR 5 · МАКСИМАЛЬНАЯ ЧУВСТВИТЕЛЬНОСТЬ</option>
+   <option value="7">ATR 7</option>
+   <option value="5" selected>ATR 5 · БОЛЬШЕ БЛОКОВ</option>
   </select>
  </div>
  <div class="grid" style="margin-top:10px">
   <div class="metric"><span class="muted small">Метод</span><b>ATR Уайлдера</b></div>
-  <div class="metric"><span class="muted small">Длина ATR</span><b id="atrValue">7</b></div>
+  <div class="metric"><span class="muted small">Длина ATR</span><b id="atrValue">5</b></div>
   <div class="metric"><span class="muted small">Цена Renko</span><b>Закрытие</b></div>
-  <div class="metric"><span class="muted small">ATR расчёт</span><b>OHLC MOEX</b></div>
+  <div class="metric"><span class="muted small">Размер коробки</span><b>Фиксированный</b></div>
  </div>
- <div class="small muted" style="margin-top:9px">Кирпичик формируется по цене закрытия свечи. Размер кирпичика рассчитывается по ATR выбранного периода. Для дневного графика используется отдельная дневная история MOEX за 365 дней.</div>
- <button class="wide" onclick="runBacktest()">ЗАПУСТИТЬ ИСТОРИЧЕСКИЙ ТЕСТ ATR</button>
+ <div class="small muted" style="margin-top:9px">Размер рассчитывается один раз: половина среднего ATR первых 20 доступных значений после прогрева индикатора. Затем он фиксируется для всей истории и не меняется. Кирпичи строятся только по Close, ATR рассчитывается по OHLC.</div>
+ <button class="wide" onclick="runBacktest()">ЗАПУСТИТЬ ИСТОРИЧЕСКИЙ ТЕСТ</button>
  <div id="backtestStatus" class="small muted" style="margin-top:9px">Исторический тест ещё не запускался.</div>
  <div style="overflow-x:auto;margin-top:9px">
   <table><thead><tr><th>Метод</th><th>Сделок</th><th>Прибыль</th><th>Успешность</th><th>Просадка</th></tr></thead>
@@ -183,7 +183,7 @@ input[type=range]{accent-color:var(--green)}
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.5.3 · RENKO ATR · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.5.4 · FIXED RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 
 <script>
@@ -195,14 +195,15 @@ const CFG={
 const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100;
 const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5];
+const BOX_FACTOR=.5,BOX_SAMPLE=20;
 const $=id=>document.getElementById(id),last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:2}):"—";
 const now=()=>Date.now();
-function key(a,t,p){return a+"_"+t+"_ATR"+p}
+function key(a,t,p){return a+"_"+t+"_ATR"+p+"_FIXED"}
 function emptyData(){return{bars:[],dailyBars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,complete:false,dailyComplete:false,dailyError:""}}
 function emptyBook(){return{cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],bricks:[],box:0,initialized:false,cursor:0,lastReversal:"—",pending:null,renkoState:null,lastProcessedAt:0,peak:CAPITAL,maxDD:0}}
-let S={asset:"OZON",tf:5,atrPeriod:7,auto:true,loading:{OZON:false,TGLD:false},voice:true,volume:.8,data:{OZON:emptyData(),TGLD:emptyData()},books:{}};
+let S={asset:"OZON",tf:5,atrPeriod:5,auto:true,loading:{OZON:false,TGLD:false},voice:true,volume:.8,data:{OZON:emptyData(),TGLD:emptyData()},books:{}};
 function bookKey(){return key(S.asset,S.tf,S.atrPeriod)}
 function book(){const k=bookKey();if(!S.books[k])S.books[k]=emptyBook();const b=S.books[k];["bricks","closed","events","marks"].forEach(x=>{if(!Array.isArray(b[x]))b[x]=[]});return b}
 function save(){
@@ -216,7 +217,7 @@ function restore(){
  try{
   const x=JSON.parse(localStorage.getItem("sniper_ultimate_253")||"null");if(!x)return;
   S.asset=x.asset==="TGLD"?"TGLD":"OZON";S.tf=TFS.includes(+x.tf)?+x.tf:5;
-  S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:7;
+  S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:5;
   S.auto=x.auto!==false;S.voice=x.voice!==false;S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
   S.books=x.books&&typeof x.books==="object"?x.books:{};
  }catch(e){console.warn("Восстановление",e)}
@@ -291,7 +292,7 @@ function freshness(bars,tf=1){
  const x=last(bars);if(!x)return{stale:true,age:Infinity,bar:null};
  const ms=now()-(x.time+tf*60000);return{stale:ms>MAX_DELAY,age:ms,bar:x};
 }
-/* ATR Уайлдера. Период выбирается пользователем. */
+/* ATR Уайлдера по OHLC */
 function addATR(bars,period=S.atrPeriod){
  let prev=null,seed=[],atr=null;const out=[];
  for(const b of bars){
@@ -308,10 +309,16 @@ function sourceBars(d){
  return closedBars(aggregate(d.bars,S.tf),S.tf);
 }
 function tickRound(v){return Math.max(.01,Math.round(v*100)/100)}
-/* Renko: ATR меняется по каждой свече; кирпичи формируются только по close.
-   Для разворота требуется движение на два блока. */
-function applyRenkoBar(state,bar,out){
- const box=bar.atr,cl=bar.close;if(!(box>0)||!Number.isFinite(cl))return;
+/* Размер коробки фиксируется по первым 20 значениям ATR после прогрева.
+   Множитель 0.5 уменьшает коробку и увеличивает количество кирпичей. */
+function calculateFixedBox(bars){
+ const vals=bars.map(x=>x.atr).filter(x=>Number.isFinite(x)&&x>0).slice(0,BOX_SAMPLE);
+ if(!vals.length)return 0;
+ return tickRound(vals.reduce((a,v)=>a+v,0)/vals.length*BOX_FACTOR);
+}
+/* Renko строится только по Close, box всегда один и тот же. */
+function applyRenkoBar(state,bar,out,fixedBox){
+ const box=fixedBox,cl=bar.close;if(!(box>0)||!Number.isFinite(cl))return;
  if(!Number.isFinite(state.anchor)){state.anchor=cl;state.dir=0;return}
  let a=state.anchor,d=state.dir,guard=0;
  if(!d){
@@ -332,10 +339,10 @@ function applyRenkoBar(state,bar,out){
  }
  state.anchor=a;state.dir=d;
 }
-function buildRenko(bars){
- const out=[];if(!bars.length)return{bricks:out,state:{anchor:NaN,dir:0}};
+function buildRenko(bars,fixedBox){
+ const out=[];if(!bars.length||!(fixedBox>0))return{bricks:out,state:{anchor:NaN,dir:0}};
  const first=bars.find(x=>x.atr>0),state={anchor:first?first.close:bars[0].close,dir:0};
- for(const bar of bars)if(bar.atr>0)applyRenkoBar(state,bar,out);
+ for(const bar of bars)if(bar.atr>0)applyRenkoBar(state,bar,out,fixedBox);
  return{bricks:out,state};
 }
  function announce(type,price,qty,pnl){
@@ -361,7 +368,7 @@ function testVoice(){
  u.lang="ru-RU";u.rate=.9;u.volume=Number($("volume").value);speechSynthesis.speak(u);
 }
 function logEvent(b,type,price,pnl=0,time=now(),qty=0){
- const e={type,price,pnl,time,qty,asset:S.asset,tf:S.tf,atr:S.atrPeriod};
+ const e={type,price,pnl,time,qty,asset:S.asset,tf:S.tf,atr:S.atrPeriod,box:b.box};
  b.events.unshift(e);b.events=b.events.slice(0,300);b.marks.push(e);b.marks=b.marks.slice(-400);save();
 }
 function openRenko(b,price,time){
@@ -379,32 +386,36 @@ function closeRenko(b,price,time){
  b.closed=b.closed.slice(0,500);logEvent(b,"SELL",price,pnl,time,p.qty);
  beep("SELL");announce("SELL",price,p.qty,pnl);b.position=null;
 }
-/* Сигнал на закрытии свечи. Исполнение виртуальное по open следующей минутной свечи. */
+/* Виртуальная торговля использует тот же фиксированный размер коробки,
+   что и исторический график. */
 function updateRenkoTrades(b,source,minuteBars){
  if(!source.length)return;
  if(!b.initialized){
-  const built=buildRenko(source);
+  b.box=calculateFixedBox(source);
+  if(!(b.box>0))return;
+  const built=buildRenko(source,b.box);
   b.bricks=built.bricks;b.renkoState=built.state;
-  b.box=last(source)?.atr||0;b.cursor=last(source).time;
-  b.initialized=true;b.pending=null;b.lastProcessedAt=now();save();return;
+  b.cursor=last(source).time;b.initialized=true;
+  b.pending=null;b.lastProcessedAt=now();save();return;
  }
+ if(!(b.box>0))b.box=calculateFixedBox(source);
  const start=source.findIndex(x=>x.time>b.cursor);
  if(start<0){executePending(b,minuteBars);return}
  const gap=source[start].time-b.cursor,maxGap=Math.max(30*60000,S.tf*60000*6);
  if(source.length-start>30||gap>maxGap){
-  const built=buildRenko(source);
+  const built=buildRenko(source,b.box);
   b.bricks=built.bricks;b.renkoState=built.state;
   b.cursor=last(source).time;b.pending=null;b.lastProcessedAt=now();
   b.lastReversal="СИНХРОНИЗАЦИЯ ПОСЛЕ ПЕРЕРЫВА";save();return;
  }
  if(!b.renkoState){
-  const built=buildRenko(source.slice(0,start));
+  const built=buildRenko(source.slice(0,start),b.box);
   b.bricks=built.bricks;b.renkoState=built.state;
  }
  executePending(b,minuteBars);
  for(let i=start;i<source.length;i++){
   const bar=source[i],before=b.bricks.length;
-  applyRenkoBar(b.renkoState,bar,b.bricks);b.box=bar.atr||b.box;
+  applyRenkoBar(b.renkoState,bar,b.bricks,b.box);
   for(let j=before;j<b.bricks.length;j++){
    const prev=b.bricks[j-1],brick=b.bricks[j];
    if(!prev||prev.dir===brick.dir)continue;
@@ -469,7 +480,7 @@ async function refreshAll(){
  $("status").textContent="Обновление свечей MOEX...";
  await refreshAsset(S.asset);
 }
-/* Встроенный TradingView показывает обычные свечи, не Renko. */
+/* TradingView показывает обычные свечи, не Renko. */
 function tvUpdate(){
  const symbol=CFG[S.asset].tv;
  const interval={1:"1",5:"5",15:"15",30:"30",60:"60",120:"120",240:"240",1440:"D"}[S.tf];
@@ -486,7 +497,7 @@ function canvas(id,height){
 function drawRenko(){
  const {ctx,w,h}=canvas("renkoChart",235);ctx.clearRect(0,0,w,h);
  const b=book(),br=b.bricks.slice(-100);
- if(!br.length){ctx.fillStyle="#8da3b7";ctx.font="12px Arial";ctx.fillText("Ожидание формирования блоков Renko ATR",12,30);return}
+ if(!br.length){ctx.fillStyle="#8da3b7";ctx.font="12px Arial";ctx.fillText("Ожидание формирования блоков Renko",12,30);return}
  const vals=br.flatMap(x=>[x.open,x.close]),min=Math.min(...vals),max=Math.max(...vals),range=max-min||1,pad=12;
  const y=v=>12+(max-v)/range*(h-24),step=(w-pad*2)/br.length,cw=Math.max(3,step*.72);
  for(let i=0;i<br.length;i++){
@@ -512,8 +523,11 @@ function drawEquity(){
   $("equityInfo").textContent="Результат появится после закрытия первой сделки.";
  }
 }
-/* Историческая симуляция. Кирпичи строятся по close, вход/выход по open следующей свечи. */
+/* Исторический тест использует один фиксированный размер коробки
+   на всём выбранном отрезке. */
 function simulate(source){
+ const fixedBox=calculateFixedBox(source);
+ if(!(fixedBox>0))return{count:0,pnl:0,win:0,dd:0,box:0};
  let cash=CAPITAL,pos=null,pending=null,closed=[],bricks=[];
  const state={anchor:source[0]?.close??NaN,dir:0};let peak=CAPITAL,maxDD=0;
  for(let i=1;i<source.length;i++){
@@ -523,7 +537,8 @@ function simulate(source){
   }else if(pending==="SELL"&&pos){
    const pnl=(bar.open-pos.entry)*pos.qty;cash+=pos.qty*bar.open;closed.push(pnl);pos=null;
   }
-  pending=null;const before=bricks.length;applyRenkoBar(state,bar,bricks);
+  pending=null;const before=bricks.length;
+  applyRenkoBar(state,bar,bricks,fixedBox);
   for(let j=before;j<bricks.length;j++){
    const prev=bricks[j-1],q=bricks[j];
    if(prev&&prev.dir!==q.dir){if(q.dir===1&&!pos)pending="BUY";if(q.dir===-1&&pos)pending="SELL"}
@@ -531,7 +546,7 @@ function simulate(source){
   const equity=cash+(pos?pos.qty*bar.close:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
  }
  const wins=closed.filter(x=>x>0).length;
- return{count:closed.length,pnl:closed.reduce((a,b)=>a+b,0),win:closed.length?wins/closed.length*100:0,dd:maxDD};
+ return{count:closed.length,pnl:closed.reduce((a,b)=>a+b,0),win:closed.length?wins/closed.length*100:0,dd:maxDD,box:fixedBox};
 }
 function runBacktest(){
  const d=S.data[S.asset],bars=addATR(sourceBars(d),S.atrPeriod).filter(x=>x.atr>0);
@@ -539,9 +554,9 @@ function runBacktest(){
  $("backtestStatus").textContent="Выполняется исторический тест...";
  const r=simulate(bars),body=$("backtest");body.textContent="";
  const tr=document.createElement("tr");
- ["ATR "+S.atrPeriod,r.count,money(r.pnl),r.win.toFixed(1)+"%",money(r.dd)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
+ ["ATR "+S.atrPeriod+" FIXED",r.count,money(r.pnl),r.win.toFixed(1)+"%",money(r.dd)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
  body.append(tr);
- $("backtestStatus").textContent="Тест завершён · "+S.asset+" · "+$("signalTF").textContent+" · ATR "+S.atrPeriod+" · "+bars.length+" свечей. Без комиссий и налогов.";
+ $("backtestStatus").textContent="Тест завершён · "+S.asset+" · "+$("signalTF").textContent+" · ATR "+S.atrPeriod+" · фиксированный блок "+fmt(r.box)+" ₽ · "+bars.length+" свечей. Без комиссий и налогов.";
 }
 /* Отображение */
 function render(){
@@ -561,20 +576,20 @@ function render(){
  $("lastBar").textContent=f.bar?new Date(f.bar.time).toLocaleString("ru-RU"):"—";$("freshness").textContent=f.bar?age(f.age):"—";
  const allowed=!stale&&source.length>=S.atrPeriod+2&&S.auto;
  $("allowed").textContent=allowed?"ДА":"НЕТ";$("allowed").className=allowed?"green":"red";
- $("diagnostic").textContent=d.error||(!historyOK?(S.tf===1440?(d.dailyError||"Дневная история MOEX неполная."):"История минутных свечей неполная.") :!d.quote?"Нет подтверждённой цены минутной свечи.":f.stale?"Последняя завершённая минутная свеча старше 20 минут. Новые сделки заблокированы.":"Доступны свечи MOEX. Для дневного Renko используется отдельная история за 365 дней.");
+ $("diagnostic").textContent=d.error||(!historyOK?(S.tf===1440?(d.dailyError||"Дневная история MOEX неполная."):"История минутных свечей неполная.") :!d.quote?"Нет подтверждённой цены минутной свечи.":f.stale?"Последняя завершённая минутная свеча старше 20 минут. Новые сделки заблокированы.":"Доступны свечи MOEX. Renko использует фиксированный размер коробки.");
  $("status").textContent=d.error?"Ошибка источника":!historyOK?"История неполная":stale?"Ожидание свежих данных":"Данные получены";
  const tfName=({1:"1 мин",5:"5 мин",15:"15 мин",30:"30 мин",60:"1 час",120:"2 часа",240:"4 часа",1440:"1 день"})[S.tf];
  $("signalTF").textContent=tfName;
- const br=last(b.bricks),currentATR=last(source)?.atr||b.box||0;
- $("boxSize").textContent=currentATR?fmt(currentATR)+" ₽":"—";
+ const br=last(b.bricks),box=b.box||calculateFixedBox(source);
+ $("boxSize").textContent=box?fmt(box)+" ₽":"—";
  $("brickCount").textContent=b.bricks.length;
  $("brickTrend").textContent=br?(br.dir===1?"ВВЕРХ":"ВНИЗ"):"—";
  $("brickLast").textContent=br?(br.dir===1?"ЗЕЛЁНЫЙ":"КРАСНЫЙ"):"—";
  $("reversal").textContent=b.lastReversal;
- $("renkoState").textContent=stale?"НЕТ СВЕЖИХ ДАННЫХ":"ATR "+S.atrPeriod;
- $("renkoInfo").textContent="ATR "+S.atrPeriod+" · "+S.asset+" · "+tfName+" · кирпичи по close · ATR по OHLC.";
- $("signalTitle").textContent="СИГНАЛ РЕНКО ATR "+S.atrPeriod;
- $("headerSub").textContent="RENKO ATR "+S.atrPeriod+" · MOEX · VIRTUAL ONLY";
+ $("renkoState").textContent=stale?"НЕТ СВЕЖИХ ДАННЫХ":"FIXED ATR "+S.atrPeriod;
+ $("renkoInfo").textContent="Фиксированный блок "+fmt(box)+" ₽ · ATR "+S.atrPeriod+" · "+S.asset+" · "+tfName+" · кирпичи по close · ATR по OHLC.";
+ $("signalTitle").textContent="СИГНАЛ RENKO FIXED ATR "+S.atrPeriod;
+ $("headerSub").textContent="FIXED RENKO ATR "+S.atrPeriod+" · MOEX · VIRTUAL ONLY";
  $("atrValue").textContent=S.atrPeriod;
  $("atrSelect").value=String(S.atrPeriod);
  if(stale){
@@ -626,7 +641,7 @@ function changeATR(value){
 }
 function toggleAuto(){S.auto=$("auto").checked;save();render()}
 function resetCurrent(){
- if(!confirm("Сбросить только виртуальный счёт "+S.asset+" / "+$("signalTF").textContent+" / ATR "+S.atrPeriod+"?"))return;
+ if(!confirm("Сбросить только виртуальный счёт "+S.asset+" / "+$("signalTF").textContent+" / ATR "+S.atrPeriod+" FIXED?"))return;
  S.books[bookKey()]=emptyBook();save();render();
 }
 /* Старт */
