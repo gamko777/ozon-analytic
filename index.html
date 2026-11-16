@@ -29,6 +29,7 @@ select{min-width:100px}
 .metric{background:#0b1927;padding:10px;border-radius:9px;min-width:0}
 .metric b{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere}
 canvas{display:block;width:100%;height:260px;background:#091522;border-radius:9px}
+#renkoChart{height:310px}
 #equity{height:145px}
 iframe{width:100%;height:330px;border:0;border-radius:9px;background:#091522}
 table{width:100%;border-collapse:collapse;font-size:11px}
@@ -659,7 +660,8 @@ function tvUpdate(){
  $("tv").src="https://www.tradingview.com/widgetembed/?frameElementId=tv_widget&symbol="+encodeURIComponent(symbol)+
  "&interval="+interval+"&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=%2307111d&theme=dark&style=1&timezone=Europe%2FMoscow&withdateranges=1&hideideas=1";
 }
- /* Адаптивный canvas */
+
+/* Адаптивный canvas */
 function canvas(id,height){
  const c=$(id),w=c.clientWidth||320,d=window.devicePixelRatio||1;
  c.width=Math.round(w*d);c.height=Math.round(height*d);
@@ -668,15 +670,18 @@ function canvas(id,height){
  return{ctx:x,w,h:height};
 }
 
-/* График Renko + непрерывная линия реальной цены + виртуальные сделки */
+/* График Renko: кирпичи равномерные, цена и сделки поверх */
 function drawRenko(){
- const {ctx,w,h}=canvas("renkoChart",260);
+ const {ctx,w,h}=canvas("renkoChart",310);
  ctx.clearRect(0,0,w,h);
  const d=S.data[S.asset],b=book();
- const bricks=b.bricks.slice(-100);
+ const allBricks=b.bricks||[];
+ const bricks=allBricks.slice(-90);
  const minute=closedBars(d.bars,1).slice(-2500);
- const marks=b.marks.filter(x=>x.asset===S.asset).slice(-100);
+ const marks=(b.marks||[]).filter(x=>x.asset===S.asset).slice(-100);
  const current=d.quote&&d.quote.price>0?d.quote.price:null;
+ const left=49,right=12,top=17,bottom=24;
+ const chartW=Math.max(10,w-left-right),chartH=h-top-bottom;
 
  if(!bricks.length){
   ctx.fillStyle="#8da3b7";ctx.font="12px Arial";
@@ -685,112 +690,130 @@ function drawRenko(){
   return;
  }
 
- const counts={};
- bricks.forEach(q=>counts[q.time]=(counts[q.time]||0)+1);
- const used={};
- const plotted=bricks.map(q=>{
-  const n=used[q.time]||0;used[q.time]=n+1;
-  return{...q,plotTime:q.time+(n+.5)/counts[q.time]*S.tf*60000};
+ /* Каждому кирпичу назначается отдельная равномерная позиция X.
+    Минутные цены привязываются к временным отметкам кирпичей. */
+ const groups=[];
+ bricks.forEach((q,i)=>{
+  const prev=last(groups);
+  if(!prev||prev.time!==q.time)groups.push({time:q.time,first:i,last:i});
+  else prev.last=i;
  });
+ const timeToIndex=t=>{
+  if(!groups.length)return 0;
+  if(t<=groups[0].time)return groups[0].first;
+  if(t>=last(groups).time)return last(groups).last;
+  let lo=0,hi=groups.length-1;
+  while(hi-lo>1){
+   const mid=(lo+hi)>>1;
+   if(groups[mid].time<=t)lo=mid;else hi=mid;
+  }
+  const a=groups[lo],z=groups[hi];
+  const f=(t-a.time)/Math.max(1,z.time-a.time);
+  return a.last+(z.first-a.last)*f;
+ };
 
- const start=Math.min(plotted[0].plotTime,minute.length?minute[0].time:plotted[0].plotTime);
- const end=Math.max(last(plotted).plotTime,minute.length?last(minute).time:0);
- const span=Math.max(1,end-start);
- const left=43,right=12,top=15,bottom=22;
- const chartW=w-left-right,chartH=h-top-bottom;
+ const visibleStart=groups[0].time,visibleEnd=last(groups).time;
+ const visibleMinute=minute.filter(q=>q.time+60000>=visibleStart&&q.time<=visibleEnd+S.tf*60000);
+ const visibleMarks=marks.filter(q=>q.time>=visibleStart&&q.time<=visibleEnd+S.tf*60000);
 
  const values=[];
- plotted.forEach(q=>values.push(q.open,q.close));
- minute.forEach(q=>values.push(q.close));
- marks.forEach(q=>{if(q.time>=start&&q.time<=end)values.push(q.price)});
+ bricks.forEach(q=>values.push(q.open,q.close));
+ visibleMinute.forEach(q=>values.push(q.close));
+ visibleMarks.forEach(q=>values.push(q.price));
  if(current)values.push(current);
  if(b.position)values.push(b.position.entry);
+
  let min=Math.min(...values),max=Math.max(...values);
- const extra=Math.max((max-min)*.12,(b.box||1)*1.5);
+ const extra=Math.max((max-min)*.13,(b.box||1)*1.8);
  min-=extra;max+=extra;
  const range=max-min||1;
- const X=t=>left+(t-start)/span*chartW;
  const Y=v=>top+(max-v)/range*chartH;
+ const count=bricks.length;
+ const step=chartW/Math.max(1,count);
+ const X=i=>left+(i+.5)*step;
+ const brickW=Math.max(3,Math.min(17,step*.76));
 
- /* Горизонтальная сетка и шкала реальных цен */
+ /* Сетка и ценовая шкала */
  ctx.font="10px Arial";
- for(let i=0;i<=4;i++){
-  const v=max-(max-min)*i/4,y=Y(v);
+ for(let i=0;i<=5;i++){
+  const v=max-(max-min)*i/5,y=Y(v);
   ctx.strokeStyle="#203447";ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
-  ctx.fillStyle="#8da3b7";
+  ctx.fillStyle="#9bb0c3";
   ctx.fillText(fmt(v),2,y+3);
  }
 
- /* Кирпичи Renko */
- const brickW=Math.max(3,Math.min(13,chartW/Math.max(30,plotted.length)*.72));
- plotted.forEach(q=>{
-  const x=X(q.plotTime),y1=Y(q.open),y2=Y(q.close);
+ /* Кирпичи: строго одинаковый горизонтальный шаг */
+ bricks.forEach((q,i)=>{
+  const x=X(i),y1=Y(q.open),y2=Y(q.close);
   const color=q.dir===1?"#20d69a":"#ff6478";
-  ctx.fillStyle=color;ctx.strokeStyle=color;
+  ctx.fillStyle=color;
   ctx.fillRect(x-brickW/2,Math.min(y1,y2),brickW,Math.max(2,Math.abs(y2-y1)));
+  ctx.strokeStyle=color;ctx.lineWidth=.7;
+  ctx.strokeRect(x-brickW/2,Math.min(y1,y2),brickW,Math.max(2,Math.abs(y2-y1)));
  });
 
- /* Реальная цена — отдельная непрерывная линия по минутным close */
- if(minute.length>1){
-  const visible=minute.filter(q=>q.time>=start&&q.time<=end);
-  if(visible.length>1){
-   ctx.beginPath();ctx.strokeStyle="#ffc857";ctx.lineWidth=2;
-   visible.forEach((q,i)=>{
-    const x=X(q.time+60000),y=Y(q.close);
-    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-   });
-   ctx.stroke();
-  }
+ /* Реальная цена MOEX поверх Renko */
+ if(visibleMinute.length>1){
+  ctx.beginPath();ctx.strokeStyle="#ffc857";ctx.lineWidth=2;
+  let started=false;
+  visibleMinute.forEach(q=>{
+   const idx=timeToIndex(q.time+60000);
+   const x=X(Math.max(0,Math.min(count-1,idx)));
+   const y=Y(q.close);
+   if(!started){ctx.moveTo(x,y);started=true}
+   else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
  }
 
- /* Цена входа открытой позиции */
+ /* Линия входа открытой виртуальной позиции */
  if(b.position){
   const y=Y(b.position.entry);
   ctx.save();ctx.setLineDash([5,4]);
-  ctx.strokeStyle="#65a9ff";ctx.lineWidth=1.5;
+  ctx.strokeStyle="#65a9ff";ctx.lineWidth=1.6;
   ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
-  ctx.setLineDash([]);ctx.fillStyle="#65a9ff";
+  ctx.setLineDash([]);ctx.fillStyle="#65a9ff";ctx.font="bold 10px Arial";
   ctx.fillText("ВХОД "+fmt(b.position.entry),left+5,Math.max(11,y-5));
   ctx.restore();
  }
 
- /* Метки BUY / SELL по фактической цене исполнения */
- marks.filter(q=>q.time>=start&&q.time<=end).forEach(q=>{
-  const x=X(q.time),y=Y(q.price);
+ /* Метки BUY / SELL в точке виртуального исполнения */
+ visibleMarks.forEach(q=>{
+  const idx=timeToIndex(q.time);
+  const x=X(Math.max(0,Math.min(count-1,idx))),y=Y(q.price);
   const buy=q.type==="BUY";
   ctx.fillStyle=buy?"#20d69a":"#ff6478";
   ctx.beginPath();
   if(buy){
-   ctx.moveTo(x,y-11);ctx.lineTo(x-6,y-2);ctx.lineTo(x+6,y-2);
+   ctx.moveTo(x,y-12);ctx.lineTo(x-6,y-3);ctx.lineTo(x+6,y-3);
   }else{
-   ctx.moveTo(x,y+11);ctx.lineTo(x-6,y+2);ctx.lineTo(x+6,y+2);
+   ctx.moveTo(x,y+12);ctx.lineTo(x-6,y+3);ctx.lineTo(x+6,y+3);
   }
   ctx.closePath();ctx.fill();
   ctx.font="bold 9px Arial";
-  ctx.fillText(buy?"BUY":"SELL",Math.min(w-35,Math.max(left,x-12)),buy?y-14:y+22);
+  ctx.fillText(buy?"BUY":"SELL",Math.min(w-36,Math.max(left,x-12)),buy?y-15:y+23);
  });
 
- /* Текущая реальная цена */
+ /* Последняя реальная цена */
  if(current){
   const y=Y(current);
   ctx.save();ctx.setLineDash([3,3]);
-  ctx.strokeStyle="#ffc857";ctx.lineWidth=1.3;
+  ctx.strokeStyle="#ffc857";ctx.lineWidth=1.4;
   ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle="#ffc857";ctx.font="bold 10px Arial";
   ctx.fillText("РЫНОК "+fmt(current),left+5,Math.max(11,y-5));
   ctx.restore();
  }
- ctx.fillStyle="#8da3b7";ctx.font="9px Arial";
- ctx.fillText("Ренко: "+plotted.length+" блоков",left,h-5);
- $("chartTradeInfo").textContent=
-  "Жёлтая линия — реальные минутные цены MOEX · "+
-  "BUY/SELL — фактические цены виртуального исполнения · "+
-  "меток: "+marks.length;
-}
 
-function drawPriceOnly(ctx,w,h,minute,current){
+ ctx.fillStyle="#8da3b7";ctx.font="9px Arial";
+ ctx.fillText("Кирпичи расположены равномерно · "+count+" блоков",left,h-6);
+ $("chartTradeInfo").textContent=
+  "Кирпичи Renko — равномерные · жёлтая линия — реальные минутные цены MOEX · "+
+  "BUY/SELL — виртуальное исполнение · меток на графике: "+visibleMarks.length;
+}
+ function drawPriceOnly(ctx,w,h,minute,current){
  if(minute.length<2)return;
  const a=minute.slice(-100),vals=a.map(x=>x.close);
  if(current)vals.push(current);
@@ -1014,12 +1037,13 @@ function render(){
   $("renkoReason").textContent="Renko ещё не сформировал направление.";
  }else{
   $("renkoSignal").textContent=br.dir===1?
-   "BUY · ЗЕЛЁНЫЙ ТРЕНД":"WAIT · КРАСНЫЙ ТРЕНД";
-  $("renkoSignal").className="signal "+(br.dir===1?"green":"yellow");
+   "ТРЕНД ВВЕРХ · ОЖИДАНИЕ СИГНАЛА":
+   "ТРЕНД ВНИЗ · ОЖИДАНИЕ СИГНАЛА";
+  $("renkoSignal").className="signal "+(br.dir===1?"green":"red");
   $("renkoReason").textContent=
    "Последний блок "+(br.dir===1?"зелёный.":"красный.")+
-   " Направление тренда не является командой немедленного входа. "+
-   "Автоматическая сделка открывается только после нового подтверждённого разворота.";
+   " Это направление текущего тренда, а не команда немедленной покупки или продажи. "+
+   "Автоматическая виртуальная сделка выполняется только после подтверждённого разворота и на следующей свече.";
  }
 
  const market=price||0;
@@ -1037,7 +1061,7 @@ function render(){
  $("floating").textContent=money(pl);
  $("drawdown").textContent=money(b.maxDD);
 
- const ev=last(b.events);
+ const ev=b.events[0];
  $("lastDeal").textContent=ev?
   ev.type+" · "+(ev.source==="MANUAL"?"РУЧНАЯ":"АВТО")+" · "+fmt(ev.price)+" ₽":"—";
 
