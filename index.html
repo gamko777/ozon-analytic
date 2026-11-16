@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.5.7 FIXED RENKO</title>
+<title>SNIPER ULTIMATE AI 2.5.8 FIXED RENKO</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -53,7 +52,7 @@ input[type=range]{accent-color:var(--green)}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.5.7</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.5.8</span></h1>
 <div class="sub" id="headerSub">FIXED RENKO · MOEX · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -102,7 +101,7 @@ input[type=range]{accent-color:var(--green)}
  <div class="legend">
   <span><i class="dot" style="background:#20d69a"></i>Зелёный блок / BUY</span>
   <span><i class="dot" style="background:#ff6478"></i>Красный блок / SELL</span>
-  <span><i class="dot" style="background:#ffc857"></i>Реальная цена</span>
+  <span><i class="dot" style="background:#ffc857"></i>Текущая цена MOEX</span>
   <span><i class="dot" style="background:#65a9ff"></i>Цена входа</span>
  </div>
  <div class="grid" style="margin-top:10px">
@@ -112,7 +111,7 @@ input[type=range]{accent-color:var(--green)}
   <div class="metric"><span class="muted small">Последний блок</span><b id="brickLast">—</b></div>
  </div>
  <div class="small muted" id="renkoInfo" style="margin-top:9px">Ожидание данных.</div>
- <div class="small muted" id="chartTradeInfo" style="margin-top:7px">Линия цены и сделки появятся после загрузки данных.</div>
+ <div class="small muted" id="chartTradeInfo" style="margin-top:7px">Пунктирная линия цены и сделки появятся после загрузки данных.</div>
 </section>
 
 <section class="panel">
@@ -210,7 +209,7 @@ input[type=range]{accent-color:var(--green)}
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.5.7 · FIXED RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.5.8 · FIXED RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 
 <script>
@@ -670,8 +669,7 @@ function canvas(id,height){
  x.setTransform(d,0,0,d,0,0);
  return{ctx:x,w,h:height};
 }
-
-/* НОВЫЙ ГРАФИК RENKO 2.5.7 */
+ /* ГРАФИК RENKO 2.5.8 — БЕЗ НЕПРЕРЫВНОЙ ЛИНИИ ЦЕНЫ */
 function drawRenko(){
  const {ctx,w,h}=canvas("renkoChart",370);
  ctx.clearRect(0,0,w,h);
@@ -679,7 +677,6 @@ function drawRenko(){
  const d=S.data[S.asset],b=book();
  const all=b.bricks||[];
  const bricks=all.slice(-60);
- const minute=closedBars(d.bars,1).slice(-2500);
  const marks=(b.marks||[]).filter(x=>x.asset===S.asset).slice(-100);
  const current=d.quote?.price>0?d.quote.price:null;
 
@@ -690,7 +687,28 @@ function drawRenko(){
   ctx.fillStyle="#8da3b7";
   ctx.font="13px Arial";
   ctx.fillText("Ожидание формирования Renko",15,35);
-  if(minute.length>1)drawPriceOnly(ctx,w,h,minute,current);
+
+  // Горизонтальная пунктирная цена видна даже до появления кирпичей
+  if(current){
+   const y=75;
+   ctx.save();
+   ctx.setLineDash([4,3]);
+   ctx.strokeStyle="#ffc857";
+   ctx.lineWidth=1.5;
+   ctx.beginPath();
+   ctx.moveTo(L,y);
+   ctx.lineTo(w-R,y);
+   ctx.stroke();
+   ctx.setLineDash([]);
+   ctx.fillStyle="#ffc857";
+   ctx.font="bold 11px Arial";
+   ctx.fillText("РЫНОК "+fmt(current),L+5,y-7);
+   ctx.restore();
+  }
+
+  $("chartTradeInfo").textContent=current?
+   "Жёлтый пунктир — текущая цена MOEX. Ожидание первых кирпичей Renko.":
+   "Ожидание данных MOEX.";
   return;
  }
 
@@ -718,16 +736,13 @@ function drawRenko(){
 
  const start=groups[0].time;
  const end=last(groups).time;
- const visible=minute.filter(q=>
-  q.time+60000>=start&&q.time<=end+S.tf*60000
- );
  const visibleMarks=marks.filter(q=>
   q.time>=start&&q.time<=end+S.tf*60000
  );
 
+ // Масштаб строится по кирпичам, текущей цене и отметкам сделок
  const values=[];
  bricks.forEach(q=>values.push(q.open,q.close));
- visible.forEach(q=>values.push(q.close));
  visibleMarks.forEach(q=>values.push(q.price));
  if(current)values.push(current);
  if(b.position)values.push(b.position.entry);
@@ -777,25 +792,7 @@ function drawRenko(){
   ctx.strokeRect(x-brickW/2,top,brickW,height);
  });
 
- // Непрерывная линия реальной цены
- if(visible.length>1){
-  ctx.beginPath();
-  ctx.strokeStyle="#ffc857";
-  ctx.lineWidth=2.2;
-  ctx.lineJoin="round";
-  ctx.lineCap="round";
-
-  visible.forEach((q,i)=>{
-   const idx=indexAt(q.time+60000);
-   const x=X(Math.max(0,Math.min(bricks.length-1,idx)));
-   const y=Y(q.close);
-   if(i===0)ctx.moveTo(x,y);
-   else ctx.lineTo(x,y);
-  });
-  ctx.stroke();
- }
-
- // Цена входа виртуальной позиции
+ // Цена входа виртуальной позиции — синяя пунктирная линия
  if(b.position){
   const y=Y(b.position.entry);
   ctx.save();
@@ -842,7 +839,7 @@ function drawRenko(){
   ctx.textAlign="left";
  });
 
- // Последняя реальная цена
+ // Текущая цена MOEX — только горизонтальный жёлтый пунктир
  if(current){
   const y=Y(current);
   ctx.save();
@@ -865,22 +862,9 @@ function drawRenko(){
  ctx.fillText("RENKO · "+bricks.length+" БЛОКОВ",L,h-7);
 
  $("chartTradeInfo").textContent=
-  "60 последних кирпичей · жёлтая линия — реальная цена MOEX · "+
-  "BUY/SELL — виртуальные сделки · меток: "+visibleMarks.length;
-}
-
-function drawPriceOnly(ctx,w,h,minute,current){
- if(minute.length<2)return;
- const a=minute.slice(-100),vals=a.map(x=>x.close);
- if(current)vals.push(current);
- const min=Math.min(...vals),max=Math.max(...vals),r=max-min||1;
- ctx.beginPath();ctx.strokeStyle="#ffc857";ctx.lineWidth=2;
- a.forEach((q,i)=>{
-  const x=10+i*(w-20)/Math.max(1,a.length-1);
-  const y=15+(max-q.close)/r*(h-35);
-  if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
- });
- ctx.stroke();
+  "60 последних кирпичей Renko · жёлтый пунктир — текущая цена MOEX · "+
+  "синий пунктир — цена входа · BUY/SELL — виртуальные сделки · меток: "+
+  visibleMarks.length;
 }
 
 /* Кривая реализованного капитала */
