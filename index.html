@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.5.6 FIXED RENKO</title>
+<title>SNIPER ULTIMATE AI 2.5.7 FIXED RENKO</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -29,7 +30,7 @@ select{min-width:100px}
 .metric{background:#0b1927;padding:10px;border-radius:9px;min-width:0}
 .metric b{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere}
 canvas{display:block;width:100%;height:260px;background:#091522;border-radius:9px}
-#renkoChart{height:310px}
+#renkoChart{height:370px}
 #equity{height:145px}
 iframe{width:100%;height:330px;border:0;border-radius:9px;background:#091522}
 table{width:100%;border-collapse:collapse;font-size:11px}
@@ -52,7 +53,7 @@ input[type=range]{accent-color:var(--green)}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.5.6</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.5.7</span></h1>
 <div class="sub" id="headerSub">FIXED RENKO · MOEX · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -209,10 +210,11 @@ input[type=range]{accent-color:var(--green)}
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.5.6 · FIXED RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.5.7 · FIXED RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 
 <script>
+
 "use strict";
 const CFG={
  OZON:{ticker:"OZON",market:"shares",boards:["TQBR"],tv:"MOEX:OZON"},
@@ -385,8 +387,7 @@ function calculateFixedBox(bars){
  return tickRound(vals.reduce((a,v)=>a+v,0)/vals.length*BOX_FACTOR);
 }
 
-/* Renko: классическая логика разворота на два блока.
-   Размер блока фиксирован до начала построения. */
+/* Renko: классическая логика разворота на два блока. */
 function applyRenkoBar(state,bar,out,fixedBox){
  const box=fixedBox,cl=bar.close;
  if(!(box>0)||!Number.isFinite(cl))return;
@@ -564,7 +565,7 @@ function executePending(b,minuteBars){
  b.pending=null;save();
 }
 
-/* Виртуальная торговля. Обычные перерывы торгов не вызывают сброс Renko. */
+/* Виртуальная торговля */
 function updateRenkoTrades(b,source,minuteBars){
  if(!source.length)return;
  if(!b.initialized){
@@ -670,150 +671,205 @@ function canvas(id,height){
  return{ctx:x,w,h:height};
 }
 
-/* График Renko: кирпичи равномерные, цена и сделки поверх */
+/* НОВЫЙ ГРАФИК RENKO 2.5.7 */
 function drawRenko(){
- const {ctx,w,h}=canvas("renkoChart",310);
+ const {ctx,w,h}=canvas("renkoChart",370);
  ctx.clearRect(0,0,w,h);
+
  const d=S.data[S.asset],b=book();
- const allBricks=b.bricks||[];
- const bricks=allBricks.slice(-90);
+ const all=b.bricks||[];
+ const bricks=all.slice(-60);
  const minute=closedBars(d.bars,1).slice(-2500);
  const marks=(b.marks||[]).filter(x=>x.asset===S.asset).slice(-100);
- const current=d.quote&&d.quote.price>0?d.quote.price:null;
- const left=49,right=12,top=17,bottom=24;
- const chartW=Math.max(10,w-left-right),chartH=h-top-bottom;
+ const current=d.quote?.price>0?d.quote.price:null;
+
+ const L=55,R=12,T=20,B=25;
+ const CW=w-L-R,CH=h-T-B;
 
  if(!bricks.length){
-  ctx.fillStyle="#8da3b7";ctx.font="12px Arial";
-  ctx.fillText("Ожидание формирования блоков Renko",12,30);
+  ctx.fillStyle="#8da3b7";
+  ctx.font="13px Arial";
+  ctx.fillText("Ожидание формирования Renko",15,35);
   if(minute.length>1)drawPriceOnly(ctx,w,h,minute,current);
   return;
  }
 
- /* Каждому кирпичу назначается отдельная равномерная позиция X.
-    Минутные цены привязываются к временным отметкам кирпичей. */
  const groups=[];
  bricks.forEach((q,i)=>{
-  const prev=last(groups);
-  if(!prev||prev.time!==q.time)groups.push({time:q.time,first:i,last:i});
-  else prev.last=i;
+  let g=last(groups);
+  if(!g||g.time!==q.time)
+   groups.push({time:q.time,first:i,last:i});
+  else g.last=i;
  });
- const timeToIndex=t=>{
-  if(!groups.length)return 0;
+
+ function indexAt(t){
   if(t<=groups[0].time)return groups[0].first;
   if(t>=last(groups).time)return last(groups).last;
   let lo=0,hi=groups.length-1;
   while(hi-lo>1){
-   const mid=(lo+hi)>>1;
-   if(groups[mid].time<=t)lo=mid;else hi=mid;
+   const m=(lo+hi)>>1;
+   if(groups[m].time<=t)lo=m;
+   else hi=m;
   }
   const a=groups[lo],z=groups[hi];
   const f=(t-a.time)/Math.max(1,z.time-a.time);
   return a.last+(z.first-a.last)*f;
- };
+ }
 
- const visibleStart=groups[0].time,visibleEnd=last(groups).time;
- const visibleMinute=minute.filter(q=>q.time+60000>=visibleStart&&q.time<=visibleEnd+S.tf*60000);
- const visibleMarks=marks.filter(q=>q.time>=visibleStart&&q.time<=visibleEnd+S.tf*60000);
+ const start=groups[0].time;
+ const end=last(groups).time;
+ const visible=minute.filter(q=>
+  q.time+60000>=start&&q.time<=end+S.tf*60000
+ );
+ const visibleMarks=marks.filter(q=>
+  q.time>=start&&q.time<=end+S.tf*60000
+ );
 
  const values=[];
  bricks.forEach(q=>values.push(q.open,q.close));
- visibleMinute.forEach(q=>values.push(q.close));
+ visible.forEach(q=>values.push(q.close));
  visibleMarks.forEach(q=>values.push(q.price));
  if(current)values.push(current);
  if(b.position)values.push(b.position.entry);
 
- let min=Math.min(...values),max=Math.max(...values);
- const extra=Math.max((max-min)*.13,(b.box||1)*1.8);
- min-=extra;max+=extra;
- const range=max-min||1;
- const Y=v=>top+(max-v)/range*chartH;
- const count=bricks.length;
- const step=chartW/Math.max(1,count);
- const X=i=>left+(i+.5)*step;
- const brickW=Math.max(3,Math.min(17,step*.76));
+ let min=Math.min(...values);
+ let max=Math.max(...values);
+ const padding=Math.max((max-min)*.15,(b.box||1)*2);
+ min-=padding;
+ max+=padding;
 
- /* Сетка и ценовая шкала */
+ const range=max-min||1;
+ const Y=v=>T+(max-v)/range*CH;
+ const step=CW/bricks.length;
+ const X=i=>L+(i+.5)*step;
+ const brickW=Math.max(4,Math.min(19,step*.78));
+
+ // Фоновая сетка
  ctx.font="10px Arial";
- for(let i=0;i<=5;i++){
-  const v=max-(max-min)*i/5,y=Y(v);
-  ctx.strokeStyle="#203447";ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
-  ctx.fillStyle="#9bb0c3";
+ for(let i=0;i<=6;i++){
+  const v=max-(max-min)*i/6;
+  const y=Y(v);
+  ctx.strokeStyle="#203447";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(L,y);
+  ctx.lineTo(w-R,y);
+  ctx.stroke();
+
+  ctx.fillStyle="#a5b8c9";
   ctx.fillText(fmt(v),2,y+3);
  }
 
- /* Кирпичи: строго одинаковый горизонтальный шаг */
+ // Кирпичи Renko
  bricks.forEach((q,i)=>{
-  const x=X(i),y1=Y(q.open),y2=Y(q.close);
-  const color=q.dir===1?"#20d69a":"#ff6478";
-  ctx.fillStyle=color;
-  ctx.fillRect(x-brickW/2,Math.min(y1,y2),brickW,Math.max(2,Math.abs(y2-y1)));
-  ctx.strokeStyle=color;ctx.lineWidth=.7;
-  ctx.strokeRect(x-brickW/2,Math.min(y1,y2),brickW,Math.max(2,Math.abs(y2-y1)));
+  const x=X(i);
+  const y1=Y(q.open);
+  const y2=Y(q.close);
+  const top=Math.min(y1,y2);
+  const height=Math.max(2,Math.abs(y2-y1));
+  const up=q.dir===1;
+
+  ctx.fillStyle=up?"#20d69a":"#ff6478";
+  ctx.fillRect(x-brickW/2,top,brickW,height);
+
+  ctx.strokeStyle=up?"#65f0c0":"#ff9aa7";
+  ctx.lineWidth=1;
+  ctx.strokeRect(x-brickW/2,top,brickW,height);
  });
 
- /* Реальная цена MOEX поверх Renko */
- if(visibleMinute.length>1){
-  ctx.beginPath();ctx.strokeStyle="#ffc857";ctx.lineWidth=2;
-  let started=false;
-  visibleMinute.forEach(q=>{
-   const idx=timeToIndex(q.time+60000);
-   const x=X(Math.max(0,Math.min(count-1,idx)));
+ // Непрерывная линия реальной цены
+ if(visible.length>1){
+  ctx.beginPath();
+  ctx.strokeStyle="#ffc857";
+  ctx.lineWidth=2.2;
+  ctx.lineJoin="round";
+  ctx.lineCap="round";
+
+  visible.forEach((q,i)=>{
+   const idx=indexAt(q.time+60000);
+   const x=X(Math.max(0,Math.min(bricks.length-1,idx)));
    const y=Y(q.close);
-   if(!started){ctx.moveTo(x,y);started=true}
+   if(i===0)ctx.moveTo(x,y);
    else ctx.lineTo(x,y);
   });
   ctx.stroke();
  }
 
- /* Линия входа открытой виртуальной позиции */
+ // Цена входа виртуальной позиции
  if(b.position){
   const y=Y(b.position.entry);
-  ctx.save();ctx.setLineDash([5,4]);
-  ctx.strokeStyle="#65a9ff";ctx.lineWidth=1.6;
-  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
-  ctx.setLineDash([]);ctx.fillStyle="#65a9ff";ctx.font="bold 10px Arial";
-  ctx.fillText("ВХОД "+fmt(b.position.entry),left+5,Math.max(11,y-5));
+  ctx.save();
+  ctx.setLineDash([6,4]);
+  ctx.strokeStyle="#65a9ff";
+  ctx.lineWidth=1.8;
+  ctx.beginPath();
+  ctx.moveTo(L,y);
+  ctx.lineTo(w-R,y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle="#65a9ff";
+  ctx.font="bold 11px Arial";
+  ctx.fillText("ВХОД "+fmt(b.position.entry),L+5,y-7);
   ctx.restore();
  }
 
- /* Метки BUY / SELL в точке виртуального исполнения */
+ // Отметки виртуальных сделок
  visibleMarks.forEach(q=>{
-  const idx=timeToIndex(q.time);
-  const x=X(Math.max(0,Math.min(count-1,idx))),y=Y(q.price);
+  const idx=indexAt(q.time);
+  const x=X(Math.max(0,Math.min(bricks.length-1,idx)));
+  const y=Y(q.price);
   const buy=q.type==="BUY";
+
   ctx.fillStyle=buy?"#20d69a":"#ff6478";
   ctx.beginPath();
+
   if(buy){
-   ctx.moveTo(x,y-12);ctx.lineTo(x-6,y-3);ctx.lineTo(x+6,y-3);
+   ctx.moveTo(x,y-13);
+   ctx.lineTo(x-7,y-3);
+   ctx.lineTo(x+7,y-3);
   }else{
-   ctx.moveTo(x,y+12);ctx.lineTo(x-6,y+3);ctx.lineTo(x+6,y+3);
+   ctx.moveTo(x,y+13);
+   ctx.lineTo(x-7,y+3);
+   ctx.lineTo(x+7,y+3);
   }
-  ctx.closePath();ctx.fill();
-  ctx.font="bold 9px Arial";
-  ctx.fillText(buy?"BUY":"SELL",Math.min(w-36,Math.max(left,x-12)),buy?y-15:y+23);
+
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.font="bold 10px Arial";
+  ctx.textAlign="center";
+  ctx.fillText(buy?"BUY":"SELL",x,buy?y-17:y+25);
+  ctx.textAlign="left";
  });
 
- /* Последняя реальная цена */
+ // Последняя реальная цена
  if(current){
   const y=Y(current);
-  ctx.save();ctx.setLineDash([3,3]);
-  ctx.strokeStyle="#ffc857";ctx.lineWidth=1.4;
-  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
+  ctx.save();
+  ctx.setLineDash([4,3]);
+  ctx.strokeStyle="#ffc857";
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(L,y);
+  ctx.lineTo(w-R,y);
+  ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle="#ffc857";ctx.font="bold 10px Arial";
-  ctx.fillText("РЫНОК "+fmt(current),left+5,Math.max(11,y-5));
+  ctx.fillStyle="#ffc857";
+  ctx.font="bold 11px Arial";
+  ctx.fillText("РЫНОК "+fmt(current),L+5,Math.max(12,y-7));
   ctx.restore();
  }
 
- ctx.fillStyle="#8da3b7";ctx.font="9px Arial";
- ctx.fillText("Кирпичи расположены равномерно · "+count+" блоков",left,h-6);
+ ctx.fillStyle="#8da3b7";
+ ctx.font="10px Arial";
+ ctx.fillText("RENKO · "+bricks.length+" БЛОКОВ",L,h-7);
+
  $("chartTradeInfo").textContent=
-  "Кирпичи Renko — равномерные · жёлтая линия — реальные минутные цены MOEX · "+
-  "BUY/SELL — виртуальное исполнение · меток на графике: "+visibleMarks.length;
+  "60 последних кирпичей · жёлтая линия — реальная цена MOEX · "+
+  "BUY/SELL — виртуальные сделки · меток: "+visibleMarks.length;
 }
- function drawPriceOnly(ctx,w,h,minute,current){
+
+function drawPriceOnly(ctx,w,h,minute,current){
  if(minute.length<2)return;
  const a=minute.slice(-100),vals=a.map(x=>x.close);
  if(current)vals.push(current);
@@ -868,11 +924,9 @@ function simulate(source){
  const calibrationBar=source[calibrationIndex];
  const state={anchor:calibrationBar.close,dir:0};
 
- /* До конца калибровки сделки и кирпичи не учитываются */
  for(let i=calibrationIndex+1;i<source.length;i++){
   const bar=source[i];
 
-  /* Сигнал исполняется только на следующей свече */
   if(pending==="BUY"&&!pos){
    const qty=Math.floor(cash*ALLOC/bar.open);
    if(qty>0){
