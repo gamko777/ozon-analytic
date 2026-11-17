@@ -1,0 +1,71 @@
+
+name: Build SNIPER Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare application
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          mkdir -p www
+          echo '<html><body>SNIPER</body></html>' > www/index.html
+
+      - name: Configure Capacitor
+        run: |
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.gamko777.sniper",
+            "appName": "SNIPER ULTIMATE AI",
+            "webDir": "www",
+            "server": {
+              "url": "https://gamko777.github.io/ozon-analytic/",
+              "cleartext": false,
+              "allowNavigation": [
+                "gamko777.github.io"
+              ]
+            }
+          }
+          EOF
+
+      - name: Create Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SNIPER-ANDROID-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
