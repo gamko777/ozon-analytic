@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.6.0 MULTI-ASSET</title>
+<title>SNIPER ULTIMATE AI 2.6.1 MULTI-ASSET FIXED</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px Arial,sans-serif}
@@ -42,7 +42,7 @@ th{color:var(--muted);font-weight:normal}.check{accent-color:var(--green);width:
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.6.0</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.6.1</span></h1>
 <div class="sub" id="headerSub">MULTI-ASSET AUTO RENKO · MOEX · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -201,7 +201,7 @@ th{color:var(--muted);font-weight:normal}.check{accent-color:var(--green);width:
  </div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.6.0 · MULTI-ASSET AUTO RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.6.1 · MULTI-ASSET AUTO RENKO · VIRTUAL TEST<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 <script>
 "use strict";
@@ -345,7 +345,18 @@ function buildRenko(bars,box){
  for(const bar of bars)if(Number.isFinite(bar.atr))applyRenkoBar(state,bar,out,box);
  return{bricks:out,state};
 }
- const speechQueue=[];let speaking=false;
+ function findCalibrationIndex(bars){
+ let count=0;
+ for(let i=0;i<bars.length;i++){
+  if(Number.isFinite(bars[i].atr)&&bars[i].atr>0){
+   count++;
+   if(count===BOX_SAMPLE)return i;
+  }
+ }
+ return-1;
+}
+
+const speechQueue=[];let speaking=false;
 function speak(text){
  if(!S.voice||!$("voiceOn")?.checked||!("speechSynthesis"in window))return;
  speechQueue.push(text);if(speechQueue.length>100)speechQueue.shift();runSpeechQueue();
@@ -427,57 +438,94 @@ function checkPreWarning(b,asset,price){
   }
  }else if(distance>b.box||distance<0)b.preWarn[id]=false;
 }
+
 function processAsset(asset){
  const d=S.data[asset],minuteBars=closedBars(d.bars,1),f=freshness(minuteBars,1);
+ const price=d.quote?.price>0?d.quote.price:null;
+ const priceFresh=!!price&&!f.stale&&!d.error;
  const historyOK=S.tf===1440?d.dailyComplete:d.complete;
- const source=addATR(sourceBars(d,S.tf),S.atrPeriod),b=book(asset);
- const price=d.quote?.price>0?d.quote.price:last(minuteBars)?.close:null;
- if(price)updateEquity(b,price);
- if(d.error||!historyOK||f.stale||!price){return}
+ const historyError=S.tf===1440?d.dailyError:d.error;
+ const source=addATR(sourceBars(d,S.tf),S.atrPeriod);
  const usable=source.filter(x=>Number.isFinite(x.atr)&&x.atr>0);
- if(usable.length<BOX_SAMPLE)return;
- b.atrNow=last(usable).atr;
- if(!b.initialized){
-  const cal=calculateFixedBox(source);if(!(cal.box>0))return;
-  b.box=cal.box;b.boxRaw=cal.raw;
-  const built=buildRenko(source,b.box);
-  b.bricks=built.bricks;b.renkoState=built.state;
-  b.cursor=last(source).time;b.initialized=true;b.pending=null;
-  b.calibrationEnd=source[BOX_SAMPLE-1]?.time||0;
-  b.preWarn={};updateEquity(b,price);save();return;
+ const b=book(asset);
+
+ if(b.renkoVersion!==2){
+  b.bricks=[];b.box=0;b.boxRaw=0;b.atrNow=0;
+  b.initialized=false;b.cursor=0;b.renkoState=null;b.pending=null;
+  b.lastReversal="—";b.preWarn={};b.calibrationEnd=0;b.renkoVersion=2;
+  save();
  }
+
+ if(price)updateEquity(b,price);
+ if(!historyOK||!source.length)return;
+ if(usable.length<BOX_SAMPLE)return;
+
+ b.atrNow=last(usable).atr;
+
+ if(!b.initialized){
+  const cal=calculateFixedBox(source),ci=findCalibrationIndex(source);
+  if(!(cal.box>0)||ci<0)return;
+
+  const calibrationBar=source[ci];
+  b.box=cal.box;b.boxRaw=cal.raw;
+  b.bricks=[];
+  b.renkoState={anchor:calibrationBar.close,dir:0};
+
+  // До завершения калибровки кирпичи и торговые сигналы не строятся.
+  // После неё обрабатываются только последующие свечи.
+  for(let i=ci+1;i<source.length;i++){
+   applyRenkoBar(b.renkoState,source[i],b.bricks,b.box);
+  }
+
+  b.cursor=last(source).time;
+  b.initialized=true;b.pending=null;
+  b.calibrationEnd=calibrationBar.time;
+  b.preWarn={};updateEquity(b,price||0);save();return;
+ }
+
  if(!(b.box>0)||!b.renkoState)return;
- executePending(b,asset,minuteBars);
+
+ // Даже при выключенном Auto открытая позиция продолжает сопровождаться.
+ // Исполнение отложенных сигналов разрешено только при свежих минутных данных.
+ if(priceFresh)executePending(b,asset,minuteBars);
+
  const start=source.findIndex(x=>x.time>b.cursor);
  if(start>=0){
   for(let i=start;i<source.length;i++){
    const bar=source[i],before=b.bricks.length;
    applyRenkoBar(b.renkoState,bar,b.bricks,b.box);
+
    for(let j=before;j<b.bricks.length;j++){
     const prev=b.bricks[j-1],brick=b.bricks[j];
     if(!prev||prev.dir===brick.dir)continue;
+
     b.lastReversal=brick.dir===1?"ВВЕРХ":"ВНИЗ";
     announceReversal(asset,brick.dir);
+
     if(brick.dir===1&&!b.position&&S.auto[asset]){
      b.pending={type:"BUY",afterTime:bar.time+S.tf*60000};
     }else if(brick.dir===-1&&b.position){
      b.pending={type:"SELL",afterTime:bar.time+S.tf*60000};
     }
    }
+
    b.cursor=bar.time;
-   executePending(b,asset,minuteBars);
+   if(priceFresh)executePending(b,asset,minuteBars);
   }
  }
- checkPreWarning(b,asset,price);
- updateEquity(b,price);save();
+
+ if(priceFresh)checkPreWarning(b,asset,price);
+ updateEquity(b,price||0);save();
 }
+
 function resetRenkoAll(){
  assets.forEach(a=>{
   const b=book(a);b.bricks=[];b.box=0;b.boxRaw=0;b.atrNow=0;
   b.initialized=false;b.cursor=0;b.renkoState=null;b.pending=null;
-  b.lastReversal="—";b.preWarn={};b.calibrationEnd=0;
+  b.lastReversal="—";b.preWarn={};b.calibrationEnd=0;b.renkoVersion=2;
  });
 }
+
 async function updateAsset(asset){
  const d=S.data[asset];
  try{
@@ -488,13 +536,20 @@ async function updateAsset(asset){
   else{d.price=null;d.quote=null;d.error="MOEX не вернула завершённую минутную свечу."}
   d.updated=now();
  }catch(e){d.error="Минутные свечи: "+(e?.message||"ошибка загрузки");d.updated=now()}
- if(!d.dailyBars.length||now()-(d.dailyUpdated||0)>6*3600000){
+
+ const retryDaily=!d.dailyComplete&&now()-(d.dailyUpdated||0)>10*60000;
+ if(!d.dailyBars.length||retryDaily||now()-(d.dailyUpdated||0)>6*3600000){
   try{
    const day=await loadCandles(asset,24,DAILY_HISTORY);
    d.dailyBars=day.bars;d.dailyComplete=day.complete;d.dailyError="";d.dailyUpdated=now();
-  }catch(e){if(!d.dailyBars.length)d.dailyComplete=false;d.dailyError="Дневная история: "+(e?.message||"ошибка")}
+  }catch(e){
+   if(!d.dailyBars.length)d.dailyComplete=false;
+   d.dailyError="Дневная история: "+(e?.message||"ошибка");
+   d.dailyUpdated=now();
+  }
  }
 }
+
 async function refreshAsset(asset){
  if(S.loading[asset])return;S.loading[asset]=true;
  try{await updateAsset(asset);processAsset(asset)}
@@ -511,14 +566,20 @@ async function refreshAll(){
   await Promise.all(assets.map(a=>refreshAsset(a)));
  }finally{
   refreshBusy=false;updateLamps();render();
-  const bad=assets.filter(a=>S.data[a].error).length;
+  const bad=assets.filter(a=>S.tf===1440?!!S.data[a].dailyError:!!S.data[a].error).length;
   $("status").textContent=bad?`Обновление завершено. Ошибок инструментов: ${bad}`:"Все пять инструментов обновлены";
  }
 }
+
 function renkoDirection(asset){
- const d=S.data[asset],b=book(asset),minute=closedBars(d.bars,1),f=freshness(minute,1);
+ const d=S.data[asset],b=book(asset);
  const historyOK=S.tf===1440?d.dailyComplete:d.complete;
- if(d.error||!historyOK||f.stale||!b.initialized||!b.bricks.length)return"neutral";
+ const historyError=S.tf===1440?d.dailyError:d.error;
+ if(historyError||!historyOK||!b.initialized||!b.bricks.length)return"neutral";
+ if(S.tf!==1440){
+  const minute=closedBars(d.bars,1),f=freshness(minute,1);
+  if(f.stale)return"neutral";
+ }
  const q=last(b.bricks);return q.dir===1?"up":q.dir===-1?"down":"neutral";
 }
 function updateLamps(){
@@ -540,61 +601,123 @@ function canvas(id,height){
  c.width=Math.round(w*d);c.height=Math.round(height*d);
  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{ctx:x,w,h:height};
 }
+
 function drawRenko(){
  const {ctx,w,h}=canvas("renkoChart",370);ctx.clearRect(0,0,w,h);
  const d=S.data[S.asset],b=book(),all=b.bricks||[],bricks=all.slice(-60);
- const marks=(b.marks||[]).filter(x=>x.asset===S.asset).slice(-100),current=d.quote?.price>0?d.quote.price:null;
+ const marks=(b.marks||[]).filter(x=>x.asset===S.asset).slice(-100);
+ const current=d.quote?.price>0?d.quote.price:null;
+ const minuteBars=closedBars(d.bars,1);
  const L=55,R=12,T=20,B=25,CW=w-L-R,CH=h-T-B;
+
  if(!bricks.length){
   ctx.fillStyle="#8da3b7";ctx.font="13px Arial";ctx.fillText("Ожидание формирования Renko",15,35);
-  if(current){ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle="#ffc857";ctx.beginPath();ctx.moveTo(L,75);ctx.lineTo(w-R,75);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#ffc857";ctx.fillText("РЫНОК "+fmt(current),L+5,68);ctx.restore()}
-  $("chartTradeInfo").textContent="Жёлтый пунктир — текущая цена MOEX. Ожидание первых кирпичей Renko.";return;
+  if(current){
+   ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle="#ffc857";
+   ctx.beginPath();ctx.moveTo(L,75);ctx.lineTo(w-R,75);ctx.stroke();
+   ctx.setLineDash([]);ctx.fillStyle="#ffc857";ctx.fillText("РЫНОК "+fmt(current),L+5,68);ctx.restore();
+  }
+  $("chartTradeInfo").textContent="Жёлтый пунктир — текущая цена MOEX. Ожидание первых кирпичей Renko.";
+  return;
  }
+
  const groups=[];
- bricks.forEach((q,i)=>{let g=last(groups);if(!g||g.time!==q.time)groups.push({time:q.time,first:i,last:i});else g.last=i});
+ bricks.forEach((q,i)=>{
+  let g=last(groups);
+  if(!g||g.time!==q.time)groups.push({time:q.time,first:i,last:i});
+  else g.last=i;
+ });
+
  function indexAt(t){
-  if(t<=groups[0].time)return groups[0].first;if(t>=last(groups).time)return last(groups).last;
-  let lo=0,hi=groups.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(groups[m].time<=t)lo=m;else hi=m}
-  const a=groups[lo],z=groups[hi],f=(t-a.time)/Math.max(1,z.time-a.time);return a.last+(z.first-a.last)*f;
+  if(t<=groups[0].time)return groups[0].first;
+  if(t>=last(groups).time)return last(groups).last;
+  let lo=0,hi=groups.length-1;
+  while(hi-lo>1){
+   const m=(lo+hi)>>1;
+   if(groups[m].time<=t)lo=m;else hi=m;
+  }
+  const a=groups[lo],z=groups[hi];
+  const f=(t-a.time)/Math.max(1,z.time-a.time);
+  return a.last+(z.first-a.last)*f;
  }
+
  const start=groups[0].time,end=last(groups).time;
  const visibleMarks=marks.filter(q=>q.time>=start&&q.time<=end+S.tf*60000);
- const values=[];bricks.forEach(q=>values.push(q.open,q.close));visibleMarks.forEach(q=>values.push(q.price));
- if(current)values.push(current);if(b.position)values.push(b.position.entry);
- let min=Math.min(...values),max=Math.max(...values),padding=Math.max((max-min)*.15,(b.box||1)*2);
- min-=padding;max+=padding;const range=max-min||1,Y=v=>T+(max-v)/range*CH;
- const step=CW/bricks.length,X=i=>L+(i+.5)*step,brickW=Math.max(4,Math.min(19,step*.78));
+ const priceLine=minuteBars.filter(q=>q.time>=start&&q.time<=end+S.tf*60000);
+ const values=[];
+ bricks.forEach(q=>values.push(q.open,q.close));
+ visibleMarks.forEach(q=>values.push(q.price));
+ priceLine.forEach(q=>values.push(q.close));
+ if(current)values.push(current);
+ if(b.position)values.push(b.position.entry);
+
+ let min=Infinity,max=-Infinity;
+ values.forEach(v=>{if(Number.isFinite(v)){min=Math.min(min,v);max=Math.max(max,v)}});
+ if(!Number.isFinite(min)||!Number.isFinite(max)){min=0;max=1}
+ const padding=Math.max((max-min)*.15,(b.box||1)*2);
+ min-=padding;max+=padding;
+ const range=max-min||1,Y=v=>T+(max-v)/range*CH;
+ const step=CW/bricks.length,X=i=>L+(i+.5)*step;
+ const Xtime=t=>L+(Math.max(0,Math.min(bricks.length-1,indexAt(t)))+.5)*step;
+ const brickW=Math.max(4,Math.min(19,step*.78));
+
  ctx.font="10px Arial";
  for(let i=0;i<=6;i++){
-  const v=max-(max-min)*i/6,y=Y(v);ctx.strokeStyle="#203447";ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();
+  const v=max-(max-min)*i/6,y=Y(v);
+  ctx.strokeStyle="#203447";ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();
   ctx.fillStyle="#a5b8c9";ctx.fillText(fmt(v),2,y+3);
  }
+
  bricks.forEach((q,i)=>{
-  const x=X(i),y1=Y(q.open),y2=Y(q.close),top=Math.min(y1,y2),height=Math.max(2,Math.abs(y2-y1)),up=q.dir===1;
-  ctx.fillStyle=up?"#20d69a":"#ff6478";ctx.fillRect(x-brickW/2,top,brickW,height);
-  ctx.strokeStyle=up?"#65f0c0":"#ff9aa7";ctx.strokeRect(x-brickW/2,top,brickW,height);
+  const x=X(i),y1=Y(q.open),y2=Y(q.close);
+  const top=Math.min(y1,y2),height=Math.max(2,Math.abs(y2-y1)),up=q.dir===1;
+  ctx.fillStyle=up?"#20d69a":"#ff6478";
+  ctx.fillRect(x-brickW/2,top,brickW,height);
+  ctx.strokeStyle=up?"#65f0c0":"#ff9aa7";
+  ctx.strokeRect(x-brickW/2,top,brickW,height);
  });
- if(b.position){
-  const y=Y(b.position.entry);ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle="#65a9ff";ctx.lineWidth=1.8;
-  ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle="#65a9ff";ctx.font="bold 11px Arial";ctx.fillText("ВХОД "+fmt(b.position.entry),L+5,y-7);ctx.restore();
+
+ // Непрерывная линия реальной цены по минутным свечам MOEX.
+ if(priceLine.length>1){
+  ctx.save();ctx.strokeStyle="#ffc857";ctx.lineWidth=1.8;
+  ctx.lineJoin="round";ctx.lineCap="round";ctx.beginPath();
+  priceLine.forEach((q,i)=>{
+   const x=Xtime(q.time),y=Y(q.close);
+   if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();ctx.restore();
  }
+
+ if(b.position){
+  const y=Y(b.position.entry);
+  ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle="#65a9ff";ctx.lineWidth=1.8;
+  ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();
+  ctx.setLineDash([]);ctx.fillStyle="#65a9ff";ctx.font="bold 11px Arial";
+  ctx.fillText("ВХОД "+fmt(b.position.entry),L+5,y-7);ctx.restore();
+ }
+
  visibleMarks.forEach(q=>{
-  const idx=indexAt(q.time),x=X(Math.max(0,Math.min(bricks.length-1,idx))),y=Y(q.price),buy=q.type==="BUY";
+  const x=Xtime(q.time),y=Y(q.price),buy=q.type==="BUY";
   ctx.fillStyle=buy?"#20d69a":"#ff6478";ctx.beginPath();
   if(buy){ctx.moveTo(x,y-13);ctx.lineTo(x-7,y-3);ctx.lineTo(x+7,y-3)}
   else{ctx.moveTo(x,y+13);ctx.lineTo(x-7,y+3);ctx.lineTo(x+7,y+3)}
   ctx.closePath();ctx.fill();ctx.font="bold 10px Arial";ctx.textAlign="center";
   ctx.fillText(buy?"BUY":"SELL",x,buy?y-17:y+25);ctx.textAlign="left";
  });
+
  if(current){
-  const y=Y(current);ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle="#ffc857";ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle="#ffc857";ctx.font="bold 11px Arial";ctx.fillText("РЫНОК "+fmt(current),L+5,Math.max(12,y-7));ctx.restore();
+  const y=Y(current);
+  ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle="#ff9b42";ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();
+  ctx.setLineDash([]);ctx.fillStyle="#ffc857";ctx.font="bold 11px Arial";
+  ctx.fillText("ТЕКУЩАЯ "+fmt(current),L+5,Math.max(12,y-7));ctx.restore();
  }
- ctx.fillStyle="#8da3b7";ctx.font="10px Arial";ctx.fillText("RENKO · "+bricks.length+" БЛОКОВ",L,h-7);
- $("chartTradeInfo").textContent="60 последних кирпичей Renko · жёлтый пунктир — цена MOEX · синий пунктир — вход · BUY/SELL — виртуальные сделки · меток: "+visibleMarks.length;
+
+ ctx.fillStyle="#8da3b7";ctx.font="10px Arial";
+ ctx.fillText("RENKO · "+bricks.length+" БЛОКОВ",L,h-7);
+ $("chartTradeInfo").textContent="60 последних кирпичей Renko · жёлтая сплошная линия — история реальной цены MOEX · оранжевый пунктир — текущая цена · синий пунктир — вход · BUY/SELL — виртуальные сделки · меток: "+visibleMarks.length;
 }
+
 function drawEquity(){
  const {ctx,w,h}=canvas("equity",145);ctx.clearRect(0,0,w,h);
  const b=book(),a=b.closed.slice().reverse(),v=[0];let sum=0;
@@ -610,21 +733,33 @@ function drawEquity(){
   $("equityInfo").textContent="Результат появится после закрытия первой сделки.";
  }
 }
+
 function simulate(source){
  const cal=calculateFixedBox(source),fixedBox=cal.box;
- if(!(fixedBox>0)||source.length<=BOX_SAMPLE+2)return{count:0,pnl:0,win:0,dd:0,box:fixedBox,raw:cal.raw,atr:cal.atr,open:0,equity:CAPITAL,pos:null,pending:null,calibration:0,tested:0};
- let cash=CAPITAL,pos=null,pending=null;const closed=[],bricks=[];
+ const ci=findCalibrationIndex(source);
+ if(!(fixedBox>0)||ci<0||source.length<=ci+2){
+  return{count:0,pnl:0,win:0,dd:0,box:fixedBox,raw:cal.raw,atr:cal.atr,open:0,equity:CAPITAL,pos:null,pending:null,calibration:0,tested:0};
+ }
+ let cash=CAPITAL,pos=null,pending=null;
+ const closed=[],bricks=[];
  let peak=CAPITAL,maxDD=0;
- const calibrationBar=source[BOX_SAMPLE-1],state={anchor:calibrationBar.close,dir:0};
- for(let i=BOX_SAMPLE;i<source.length;i++){
+ const calibrationBar=source[ci],state={anchor:calibrationBar.close,dir:0};
+
+ for(let i=ci+1;i<source.length;i++){
   const bar=source[i];
+
   if(pending==="BUY"&&!pos){
    const qty=Math.floor(cash*ALLOC/bar.open);
    if(qty>0){cash-=qty*bar.open;pos={entry:bar.open,qty,opened:bar.time}}
   }else if(pending==="SELL"&&pos){
-   const pnl=(bar.open-pos.entry)*pos.qty;cash+=pos.qty*bar.open;closed.push(pnl);pos=null;
+   const pnl=(bar.open-pos.entry)*pos.qty;
+   cash+=pos.qty*bar.open;closed.push(pnl);pos=null;
   }
-  pending=null;const before=bricks.length;applyRenkoBar(state,bar,bricks,fixedBox);
+
+  pending=null;
+  const before=bricks.length;
+  applyRenkoBar(state,bar,bricks,fixedBox);
+
   for(let j=before;j<bricks.length;j++){
    const prev=bricks[j-1],q=bricks[j];
    if(prev&&prev.dir!==q.dir){
@@ -632,15 +767,30 @@ function simulate(source){
     if(q.dir===-1&&pos)pending="SELL";
    }
   }
-  const equity=cash+(pos?pos.qty*bar.close:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
+
+  const equity=cash+(pos?pos.qty*bar.close:0);
+  peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
  }
- const lastPrice=last(source).close,open=pos?(lastPrice-pos.entry)*pos.qty:0;
- const equity=cash+(pos?pos.qty*lastPrice:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
+
+ const lastPrice=last(source).close;
+ const open=pos?(lastPrice-pos.entry)*pos.qty:0;
+ const equity=cash+(pos?pos.qty*lastPrice:0);
+ peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
  const wins=closed.filter(x=>x>0).length;
- return{count:closed.length,pnl:closed.reduce((a,v)=>a+v,0),win:closed.length?wins/closed.length*100:0,dd:maxDD,box:fixedBox,raw:cal.raw,atr:cal.atr,open,equity,pos:pos?{entry:pos.entry,qty:pos.qty}:null,pending:pending||null,calibration:calibrationBar.time,tested:source.length-BOX_SAMPLE};
+
+ return{
+  count:closed.length,pnl:closed.reduce((a,v)=>a+v,0),
+  win:closed.length?wins/closed.length*100:0,dd:maxDD,
+  box:fixedBox,raw:cal.raw,atr:cal.atr,open,equity,
+  pos:pos?{entry:pos.entry,qty:pos.qty}:null,
+  pending:pending||null,calibration:calibrationBar.time,
+  tested:source.length-ci-1
+ };
 }
+
 function runBacktest(){
- const d=S.data[S.asset],source=addATR(sourceBars(d,S.tf),S.atrPeriod).filter(x=>Number.isFinite(x.atr)&&x.atr>0);
+ const d=S.data[S.asset];
+ const source=addATR(sourceBars(d,S.tf),S.atrPeriod).filter(x=>Number.isFinite(x.atr)&&x.atr>0);
  if(source.length<BOX_SAMPLE+3){
   $("backtestStatus").textContent="Недостаточно истории. Нужно не менее 20 значений ATR после прогрева и ещё несколько свечей.";return;
  }
@@ -655,11 +805,12 @@ function runBacktest(){
  $("btPending").textContent=r.pending||"Нет";
  $("backtestStatus").textContent=`Тест: ${S.asset} · ${$("signalTF").textContent} · ATR ${S.atrPeriod} · ATR калибровки ${fmt(r.atr)} ₽ · коробка до округления ${fmt(r.raw)} ₽ · фактическая коробка ${fmt(r.box)} ₽ · калибровка по 20 значениям · дата начала теста ${r.calibration?new Date(r.calibration).toLocaleString("ru-RU"):"—"} · свечей после калибровки ${r.tested} · без комиссий и налогов.`;
 }
+
 function manualMarketCheck(){
  const d=S.data[S.asset],minute=closedBars(d.bars,1),f=freshness(minute,1);
  const historyOK=S.tf===1440?d.dailyComplete:d.complete,price=d.quote?.price||0;
  if(d.error)return{ok:false,reason:d.error};
- if(!historyOK)return{ok:false,reason:"История MOEX ещё не загружена полностью."};
+ if(!historyOK)return{ok:false,reason:S.tf===1440?(d.dailyError||"Дневная история MOEX ещё не загружена полностью."):"История MOEX ещё не загружена полностью."};
  if(f.stale)return{ok:false,reason:"Последняя минутная свеча устарела. Обнови данные."};
  if(!(price>0))return{ok:false,reason:"Нет подтверждённой цены MOEX."};
  return{ok:true,price,time:d.quote.time};
@@ -672,7 +823,8 @@ function manualBuy(){
  const qty=Math.floor(b.cash*ALLOC/m.price),cost=qty*m.price;
  if(qty<1){alert("Недостаточно виртуальных средств для покупки.");return}
  const msg=`Подтверди РУЧНУЮ ВИРТУАЛЬНУЮ ПОКУПКУ\n\nИнструмент: ${S.asset}\nЦена: ${fmt(m.price)} ₽\nКоличество: ${qty} шт.\nСумма: ${money(cost)}\nОстаток: ${money(b.cash-cost)}\n\nРеальная заявка не отправляется.`;
- if(!confirm(msg))return;const check=manualMarketCheck();
+ if(!confirm(msg))return;
+ const check=manualMarketCheck();
  if(!check.ok){alert("Покупка отменена: "+check.reason);return}
  if(b.position){alert("Позиция уже открыта.");return}
  if(openRenko(b,S.asset,check.price,check.time,"MANUAL")){
@@ -685,17 +837,20 @@ function manualSell(){
  if(!b.position){alert("Нет открытой виртуальной позиции для продажи.");return}
  const p=b.position,pnl=(m.price-p.entry)*p.qty;
  const msg=`Подтверди РУЧНУЮ ВИРТУАЛЬНУЮ ПРОДАЖУ\n\nИнструмент: ${S.asset}\nЦена: ${fmt(m.price)} ₽\nКоличество: ${p.qty} шт.\nПредварительный результат: ${money(pnl)}\n\nРеальная заявка не отправляется.`;
- if(!confirm(msg))return;const check=manualMarketCheck();
+ if(!confirm(msg))return;
+ const check=manualMarketCheck();
  if(!check.ok){alert("Продажа отменена: "+check.reason);return}
  if(!b.position){alert("Открытая позиция уже отсутствует.");return}
  if(closeRenko(b,S.asset,check.price,check.time,"MANUAL")){
   $("manualStatus").textContent="Ручная виртуальная продажа выполнена по "+fmt(check.price)+" ₽.";render();
  }else alert("Не удалось закрыть виртуальную позицию.");
 }
+
 function renderJournal(b){
  const body=$("journal");body.textContent="";
  if(!b.events.length){
-  const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="Сделок пока нет";tr.append(td);body.append(tr);return;
+  const tr=document.createElement("tr"),td=document.createElement("td");
+  td.colSpan=5;td.textContent="Сделок пока нет";tr.append(td);body.append(tr);return;
  }
  b.events.slice(0,60).forEach(e=>{
   const tr=document.createElement("tr"),operation=e.type+" · "+(e.source==="MANUAL"?"РУЧНАЯ":"АВТО");
@@ -704,13 +859,17 @@ function renderJournal(b){
   });body.append(tr);
  });
 }
+
 function render(){
  const d=S.data[S.asset],minute=closedBars(d.bars,1),f=freshness(minute,1);
  const source=addATR(sourceBars(d,S.tf),S.atrPeriod).filter(x=>Number.isFinite(x.atr)&&x.atr>0);
  const b=book(),price=d.quote?.price>0?d.quote.price:null;
  const historyOK=S.tf===1440?d.dailyComplete:d.complete;
+ const historyError=S.tf===1440?d.dailyError:d.error;
  const stale=!!d.error||!historyOK||f.stale||!price;
+ const renkoStale=!historyOK||!!historyError;
  if(price)updateEquity(b,price);
+
  $("accountAsset").textContent=S.asset;$("journalAsset").textContent=S.asset;
  $("price").textContent=price?fmt(price):"—";
  $("tradeTime").textContent=d.quote?new Date(d.quote.time).toLocaleString("ru-RU"):"Время не подтверждено";
@@ -718,39 +877,51 @@ function render(){
  $("fresh").textContent=d.error?"ОШИБКА":!historyOK?"ИСТОРИЯ НЕПОЛНАЯ":!price?"НЕТ ЦЕНЫ":f.stale?"ДАННЫЕ УСТАРЕЛИ":"КОТИРОВКА ДОСТУПНА";
  $("fresh").className="badge "+(stale?"red":"green");
  $("priceSource").textContent=d.quote?"Цена — close последней завершённой минутной свечи MOEX. Возраст: "+age(f.age)+".":"Нет подтверждённой минутной цены MOEX.";
- $("sourceBadge").textContent=stale?"НЕТ ДОПУСКА":"ДАННЫЕ ДОСТУПНЫ";$("sourceBadge").className="badge "+(stale?"red":"green");
+ $("sourceBadge").textContent=stale?"НЕТ ДОПУСКА":"ДАННЫЕ ДОСТУПНЫ";
+ $("sourceBadge").className="badge "+(stale?"red":"green");
  $("board").textContent=d.board;$("count").textContent=d.bars.length;$("pages").textContent=d.pages||0;
  $("lastBar").textContent=f.bar?new Date(f.bar.time).toLocaleString("ru-RU"):"—";
  $("freshness").textContent=f.bar?age(f.age):"—";
+
  const allowed=!stale&&source.length>=BOX_SAMPLE&&S.auto[S.asset];
  $("allowed").textContent=allowed?"ДА":"НЕТ";$("allowed").className=allowed?"green":"red";
- $("diagnostic").textContent=d.error||(!historyOK?(S.tf===1440?(d.dailyError||"Дневная история MOEX неполная."):"История минутных свечей неполная."):!price?"Нет подтверждённой цены минутной свечи.":f.stale?"Последняя завершённая минутная свеча старше 20 минут. Новые сделки заблокированы.":"Данные MOEX доступны. Все пять активов обрабатываются независимо, пока страница активна.");
- $("status").textContent=d.error?"Ошибка источника":!historyOK?"История неполная":stale?"Ожидание свежих данных":"Данные получены";
+
+ $("diagnostic").textContent=historyError||
+  (d.error?"Минутные котировки недоступны. Новые виртуальные сделки заблокированы. Renko дневного интервала может продолжать обновляться по дневной истории.":!historyOK?"История MOEX неполная.":!price?"Нет подтверждённой цены минутной свечи.":f.stale?"Последняя завершённая минутная свеча старше 20 минут. Новые сделки заблокированы.":"Данные MOEX доступны. Все пять активов обрабатываются независимо, пока страница активна.");
+ $("status").textContent=historyError?"Ошибка источника":!historyOK?"История неполная":stale?"Ожидание свежих минутных данных":"Данные получены";
+
  const tfName=({1:"1 мин",5:"5 мин",15:"15 мин",30:"30 мин",60:"1 час",120:"2 часа",240:"4 часа",1440:"1 день"})[S.tf];
  $("signalTF").textContent=tfName;
  const br=last(b.bricks),box=b.box||calculateFixedBox(source).box,raw=b.boxRaw||calculateFixedBox(source).raw;
- $("boxSize").textContent=box?fmt(box)+" ₽":"—";$("boxRaw").textContent=raw?fmt(raw)+" ₽":"—";
+ $("boxSize").textContent=box?fmt(box)+" ₽":"—";
+ $("boxRaw").textContent=raw?fmt(raw)+" ₽":"—";
  $("atrActual").textContent=b.atrNow?fmt(b.atrNow)+" ₽":"—";
  $("brickCount").textContent=b.bricks.length;
  $("brickTrend").textContent=br?(br.dir===1?"ВВЕРХ":"ВНИЗ"):"—";
  $("brickLast").textContent=br?(br.dir===1?"ЗЕЛЁНЫЙ":"КРАСНЫЙ"):"—";
  $("reversal").textContent=b.lastReversal;
- $("renkoState").textContent=stale?"НЕТ СВЕЖИХ ДАННЫХ":b.initialized?"FIXED ATR "+S.atrPeriod:"КАЛИБРОВКА";
+ $("renkoState").textContent=renkoStale?"НЕТ ИСТОРИИ":b.initialized?"FIXED ATR "+S.atrPeriod:"КАЛИБРОВКА";
  $("renkoInfo").textContent=`Фиксированный блок ${fmt(box)} ₽ · до округления ${fmt(raw)} ₽ · текущий ATR ${fmt(b.atrNow)} ₽ · период ${S.atrPeriod} · ${S.asset} · ${tfName} · кирпичи по Close · ATR по OHLC.`;
  $("signalTitle").textContent="СИГНАЛ RENKO FIXED ATR "+S.atrPeriod;
  $("headerSub").textContent="MULTI-ASSET AUTO RENKO ATR "+S.atrPeriod+" · MOEX · VIRTUAL ONLY";
  $("atrValue").textContent=S.atrPeriod;$("atrSelect").value=String(S.atrPeriod);
- if(stale){
-  $("renkoSignal").textContent="WAIT · ВХОД ЗАБЛОКИРОВАН";$("renkoSignal").className="signal yellow";
-  $("renkoReason").textContent=d.error||(!historyOK?(d.dailyError||"История неполная."):!price?"Нет цены.":"Данные устарели.");
+
+ if(renkoStale){
+  $("renkoSignal").textContent="WAIT · НЕТ ИСТОРИИ";
+  $("renkoSignal").className="signal yellow";
+  $("renkoReason").textContent=historyError||"История для выбранного таймфрейма ещё не загружена.";
  }else if(!br){
-  $("renkoSignal").textContent="WAIT · ОЖИДАНИЕ";$("renkoSignal").className="signal yellow";
+  $("renkoSignal").textContent="WAIT · ОЖИДАНИЕ";
+  $("renkoSignal").className="signal yellow";
   $("renkoReason").textContent="Renko ещё не сформировал направление.";
  }else{
   $("renkoSignal").textContent=br.dir===1?"ТРЕНД ВВЕРХ · ОЖИДАНИЕ СИГНАЛА":"ТРЕНД ВНИЗ · ОЖИДАНИЕ СИГНАЛА";
   $("renkoSignal").className="signal "+(br.dir===1?"green":"red");
-  $("renkoReason").textContent="Последний кирпич "+(br.dir===1?"зелёный.":"красный.")+" Это направление тренда, а не команда немедленной сделки. Вход/выход выполняется после подтверждённого разворота и на следующей доступной минутной свече.";
+  $("renkoReason").textContent="Последний кирпич "+(br.dir===1?"зелёный.":"красный.")+
+   " Это направление тренда, а не команда немедленной сделки. Вход/выход выполняется после подтверждённого разворота и на следующей доступной минутной свече."+
+   (stale?" Минутная котировка устарела: исполнение новых виртуальных сделок заблокировано.":"");
  }
+
  const market=price||0,pl=b.position?(market-b.position.entry)*b.position.qty:0;
  const equity=b.cash+(b.position?b.position.qty*market:0);
  $("capital").textContent=money(equity);$("cash").textContent=money(b.cash);
@@ -758,17 +929,22 @@ function render(){
  const wins=b.closed.filter(x=>x.pnl>0).length;
  $("winrate").textContent=b.closed.length?(wins/b.closed.length*100).toFixed(1)+"%":"—";
  $("floating").textContent=money(pl);$("drawdown").textContent=money(b.maxDD);
- const ev=b.events[0];$("lastDeal").textContent=ev?ev.type+" · "+(ev.source==="MANUAL"?"РУЧНАЯ":"АВТО")+" · "+fmt(ev.price)+" ₽":"—";
+ const ev=b.events[0];
+ $("lastDeal").textContent=ev?ev.type+" · "+(ev.source==="MANUAL"?"РУЧНАЯ":"АВТО")+" · "+fmt(ev.price)+" ₽":"—";
+
  assets.forEach(a=>{const e=$("auto-"+a);if(e)e.checked=!!S.auto[a]});
  $("position").textContent=b.position
   ?`ВИРТУАЛЬНАЯ ПОКУПКА · ${b.position.qty} шт. · Вход ${fmt(b.position.entry)} ₽ · Текущая цена ${fmt(market)} ₽ · Открытый результат ${money(pl)} · Вход: ${b.position.source==="MANUAL"?"РУЧНОЙ":"АВТОМАТИЧЕСКИЙ"}`
   :"Открытой позиции нет.";
+
  const manualOK=!stale&&price>0;
  $("manualBuy").disabled=!manualOK||!!b.position||b.cash<=0;
  $("manualSell").disabled=!manualOK||!b.position;
  $("manualStatus").textContent=!manualOK?"Ручные действия заблокированы: нужна свежая подтверждённая цена MOEX.":b.position?"Позиция открыта. Можно закрыть её кнопкой «Продать виртуально».":"Можно открыть виртуальную позицию независимо от автоматического режима и направления Renko.";
+
  drawRenko();drawEquity();renderJournal(b);updateLamps();
 }
+
 function selectAsset(a){
  if(!CFG[a])return;S.asset=a;
  document.querySelectorAll("[data-asset]").forEach(x=>x.classList.toggle("active",x.dataset.asset===a));
