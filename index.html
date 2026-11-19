@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.6.2</title>
+<title>SNIPER ULTIMATE AI 2.6.3</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -71,7 +71,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.6.2</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.6.3</span></h1>
 <div class="sub" id="headerSub">MULTI-ASSET AUTO RENKO ATR · MOEX · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -152,6 +152,7 @@ th{color:var(--muted);font-weight:normal}
   <span><i class="dot" style="background:#20d69a"></i>Зелёный блок — BUY</span>
   <span><i class="dot" style="background:#ff6478"></i>Красный блок — SELL</span>
   <span><i class="dot" style="background:#65a9ff"></i>Цена входа</span>
+  <span><i class="dot" style="background:#48c7ff"></i>Реальная цена MOEX</span>
  </div>
  <div class="grid" style="margin-top:10px">
   <div class="metric"><span class="muted small">Размер коробки</span><b id="boxSize">—</b></div>
@@ -162,7 +163,7 @@ th{color:var(--muted);font-weight:normal}
   <div class="metric"><span class="muted small">Коробка до округления</span><b id="boxRaw">—</b></div>
  </div>
  <div class="small muted" id="renkoInfo" style="margin-top:9px">Ожидание данных.</div>
- <div class="small muted" id="chartTradeInfo" style="margin-top:7px">График без жёлтых линий цены.</div>
+ <div class="small muted" id="chartTradeInfo" style="margin-top:7px">Ожидание данных Renko и цены MOEX.</div>
 </section>
 
 <section class="panel">
@@ -275,7 +276,7 @@ th{color:var(--muted);font-weight:normal}
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
 
-<div class="footer">SNIPER ULTIMATE AI 2.6.2 · MULTI-ASSET AUTO RENKO · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.6.3 · MULTI-ASSET AUTO RENKO · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 </main>
 <script>
  "use strict";
@@ -890,22 +891,41 @@ function canvas(id,height){
  x.setTransform(d,0,0,d,0,0);
  return{ctx:x,w,h:height};
 }
-
-function drawRenko(){
+ function drawRenko(){
  const {ctx,w,h}=canvas("renkoChart",370);
  ctx.clearRect(0,0,w,h);
  const b=book(),bricks=b.bricks.slice(-60);
- const L=55,R=12,T=20,B=25,CW=w-L-R,CH=h-T-B;
+ const marketPrice=S.data[S.asset].quote?.price;
+ const hasMarketPrice=Number.isFinite(marketPrice)&&marketPrice>0;
+ const L=55,R=78,T=20,B=25,CW=w-L-R,CH=h-T-B;
+
  if(!bricks.length){
   ctx.fillStyle="#8da3b7";
   ctx.font="13px Arial";
   ctx.fillText("Ожидание формирования Renko",15,35);
-  $("chartTradeInfo").textContent="Ожидание завершённых кирпичей Renko.";
+  if(hasMarketPrice){
+   const y=Math.round(T+CH/2);
+   ctx.strokeStyle="#48c7ff";
+   ctx.lineWidth=1.8;
+   ctx.beginPath();
+   ctx.moveTo(L,y);
+   ctx.lineTo(w-R,y);
+   ctx.stroke();
+   ctx.fillStyle="#48c7ff";
+   ctx.font="bold 11px Arial";
+   ctx.fillText("MOEX "+fmt(marketPrice),L+5,y-8);
+  }
+  $("chartTradeInfo").textContent=hasMarketPrice
+   ?"Реальная цена MOEX показана бирюзовой линией. Ожидание первых кирпичей Renko."
+   :"Ожидание завершённых кирпичей Renko и цены MOEX.";
   return;
  }
+
  const values=[];
  bricks.forEach(q=>values.push(q.open,q.close));
  if(b.position)values.push(b.position.entry);
+ if(hasMarketPrice)values.push(marketPrice);
+
  let min=Math.min(...values),max=Math.max(...values);
  const padding=Math.max((max-min)*.15,(b.box||1)*2);
  min-=padding;max+=padding;
@@ -922,6 +942,7 @@ function drawRenko(){
   ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();
   ctx.fillStyle="#a5b8c9";ctx.fillText(fmt(v),2,y+3);
  }
+
  bricks.forEach((q,i)=>{
   const x=X(i),y1=Y(q.open),y2=Y(q.close);
   const top=Math.min(y1,y2),height=Math.max(2,Math.abs(y2-y1));
@@ -931,6 +952,37 @@ function drawRenko(){
   ctx.strokeStyle=up?"#65f0c0":"#ff9aa7";
   ctx.strokeRect(x-brickW/2,top,brickW,height);
  });
+
+ // Непрерывная линия реальной рыночной цены MOEX.
+ // Без жёлтого свечения, тени и размытия.
+ if(hasMarketPrice){
+  const y=Y(marketPrice);
+  ctx.save();
+  ctx.shadowBlur=0;
+  ctx.shadowColor="transparent";
+  ctx.strokeStyle="#48c7ff";
+  ctx.lineWidth=1.8;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(L,y);
+  ctx.lineTo(w-R,y);
+  ctx.stroke();
+
+  // Ценовая метка справа от графика.
+  const label=" "+fmt(marketPrice)+" ";
+  ctx.font="bold 10px Arial";
+  const labelW=Math.min(72,ctx.measureText(label).width+5);
+  const labelX=w-labelW-3;
+  const labelY=Math.max(T,Math.min(h-B-15,y-8));
+  ctx.fillStyle="#12334a";
+  ctx.fillRect(labelX,labelY,labelW,16);
+  ctx.fillStyle="#48c7ff";
+  ctx.textAlign="center";
+  ctx.fillText(label,labelX+labelW/2,labelY+11);
+  ctx.textAlign="left";
+  ctx.restore();
+ }
+
  if(b.position){
   const y=Y(b.position.entry);
   ctx.save();
@@ -942,6 +994,7 @@ function drawRenko(){
   ctx.fillText("ВХОД "+fmt(b.position.entry),L+5,y-7);
   ctx.restore();
  }
+
  const marks=b.marks.filter(q=>q.time>=bricks[0].time&&q.time<=last(bricks).time+S.tf*60000);
  marks.forEach(q=>{
   const x=L+(Math.max(0,Math.min(bricks.length-1,bricks.findIndex(z=>z.time>=q.time)))+.5)*step;
@@ -955,10 +1008,13 @@ function drawRenko(){
   ctx.fillText(buy?"BUY":"SELL",x,buy?y-17:y+25);
   ctx.textAlign="left";
  });
+
  ctx.fillStyle="#8da3b7";ctx.font="10px Arial";
  ctx.fillText("RENKO · "+bricks.length+" БЛОКОВ",L,h-7);
- $("chartTradeInfo").textContent="Кирпичи Renko · синий пунктир — цена входа · BUY/SELL — виртуальные сделки. Жёлтые линии и тени цены отключены.";
+ $("chartTradeInfo").textContent=
+  "Бирюзовая линия — реальная цена MOEX без свечения · синий пунктир — цена входа · BUY/SELL — виртуальные сделки.";
 }
+
 function drawEquity(){
  const {ctx,w,h}=canvas("equity",145);
  ctx.clearRect(0,0,w,h);
