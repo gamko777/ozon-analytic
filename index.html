@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.7.1</title>
+<title>SNIPER ULTIMATE AI 2.7.2 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -66,7 +66,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.7.1</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.7.2 FIX</span></h1>
 <div class="sub" id="headerSub">MOEX MARKET SCANNER · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -78,17 +78,21 @@ th{color:var(--muted);font-weight:normal}
 </section>
 <section class="panel">
  <div class="row"><b>СКАНЕР АКЦИЙ MOEX</b><span class="badge green" id="scanBadge">ГОТОВ К ЗАПУСКУ</span></div>
- <div class="small muted" style="margin-top:8px">Сканер проверяет акции основного рынка MOEX по дневным свечам. Восходящий тренд определяется по росту последнего закрытия относительно закрытия 5 торговых сессий назад и положительному наклону средней цены за 5 сессий.</div>
- <div class="row" style="margin-top:10px"><button onclick="startMarketScan(true)">СКАНИРОВАТЬ РЫНОК</button><span class="small muted" id="scanTime">Сканирование ещё не выполнялось</span></div>
+ <div class="small muted" style="margin-top:8px">Сканер проходит страницы списка акций основного рынка MOEX и проверяет дневные свечи. Восходящий тренд: последнее закрытие выше закрытия пять сессий назад и средняя цена последних пяти сессий выше средней предыдущих пяти.</div>
+ <div class="row" style="margin-top:10px"><button id="scanButton" onclick="startMarketScan(true)">СКАНИРОВАТЬ РЫНОК</button><span class="small muted" id="scanTime">Сканирование ещё не выполнялось</span></div>
  <div class="grid" style="margin-top:10px">
   <div class="metric"><span class="muted small">Найдено инструментов</span><b id="scanTotal">—</b></div>
   <div class="metric"><span class="muted small">В восходящем тренде</span><b id="scanGrowing" class="green">—</b></div>
   <div class="metric"><span class="muted small">Проверено</span><b id="scanChecked">—</b></div>
   <div class="metric"><span class="muted small">Статус</span><b id="scanProgress">Ожидание</b></div>
  </div>
+ <div class="grid" style="margin-top:8px">
+  <div class="metric"><span class="muted small">Нет истории</span><b id="scanNoHistory">—</b></div>
+  <div class="metric"><span class="muted small">Ошибки запросов</span><b id="scanErrors">—</b></div>
+ </div>
  <div class="small muted" id="scanInfo" style="margin-top:9px">Сканер пока не запускался. Для проверки используется MOEX ISS. Сканирование большого списка может занять несколько минут.</div>
  <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Акция</th><th>Последняя цена</th><th>Изменение за 5 сессий</th><th>Тренд</th><th>Действие</th></tr></thead><tbody id="scanResults"><tr><td colspan="5">Нажми «Сканировать рынок».</td></tr></tbody></table></div>
- <div class="small muted" style="margin-top:9px">Кнопка «Добавить» включает найденную акцию в список наблюдения и виртуальной торговли. Автоматическая торговля для нового инструмента изначально выключена. Сканер не открывает сделки самостоятельно.</div>
+ <div class="small muted" style="margin-top:9px">«Добавить» включает акцию в список наблюдения. Автоматическая торговля для нового инструмента изначально выключена. Сканер не открывает сделки самостоятельно.</div>
 </section>
 <section class="panel">
  <div class="row"><b>НЕЗАВИСИМАЯ ТОРГОВЛЯ ПО ИНТЕРВАЛАМ</b><span class="badge green">8 ИНТЕРВАЛОВ</span></div>
@@ -141,14 +145,14 @@ th{color:var(--muted);font-weight:normal}
  <b id="signalTitle">СИГНАЛ RENKO FIXED ATR</b>
  <div class="signal yellow" id="renkoSignal">WAIT · ОЖИДАНИЕ</div><div class="small muted" id="renkoReason">Загрузка истории.</div>
  <div class="grid" style="margin-top:12px"><div class="metric"><span class="muted small">Таймфрейм просмотра</span><b id="signalTF">5 мин</b></div><div class="metric"><span class="muted small">Последний разворот</span><b id="reversal">—</b></div></div>
- <div class="small muted" style="margin-top:10px">Первый завершённый зелёный кирпич — покупка. Первый завершённый красный кирпич — закрытие позиции. Второй кирпич ждать не нужно. Шорт не используется.</div>
+ <div class="small muted" style="margin-top:10px">Первый завершённый зелёный кирпич — покупка. Первый завершённый красный кирпич — закрытие позиции. Шорт не используется.</div>
 </section>
 <section class="panel">
  <div class="row"><b>ПАРАМЕТРЫ RENKO</b><span class="badge">НАСТРОЙКИ</span></div>
  <div class="row" style="margin-top:12px"><div><b>Длина ATR</b><div class="small muted">Период расчёта размера кирпича</div></div><select id="atrSelect" onchange="changeATR(this.value)"><option value="14">ATR 14</option><option value="10">ATR 10</option><option value="7">ATR 7</option><option value="5">ATR 5 · БОЛЬШЕ БЛОКОВ</option></select></div>
  <div class="row" style="margin-top:12px"><div><b>Множитель ATR</b><div class="small muted">Настройка размера кирпича Renko</div></div><select id="boxMultiplier" onchange="changeBoxMultiplier(this.value)"><option value="0.25">0,25 × ATR</option><option value="0.5">0,50 × ATR</option><option value="0.75">0,75 × ATR</option><option value="1">1,00 × ATR</option><option value="1.25">1,25 × ATR</option><option value="1.5">1,50 × ATR</option><option value="2">2,00 × ATR</option></select></div>
  <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Метод</span><b>ATR Уайлдера</b></div><div class="metric"><span class="muted small">Период ATR</span><b id="atrValue">5</b></div><div class="metric"><span class="muted small">Множитель</span><b id="boxMultiplierValue">0,50 × ATR</b></div><div class="metric"><span class="muted small">Фиксированный кирпич</span><b id="fixedBoxValue">—</b></div></div>
- <div class="small muted" style="margin-top:9px">Размер кирпича — среднее последних 20 доступных ATR × множитель. При изменении настроек график перестраивается, но виртуальные счета и история сохраняются.</div>
+ <div class="small muted" style="margin-top:9px">Размер кирпича — среднее последних 20 доступных ATR × множитель. При изменении настроек график перестраивается, виртуальные счета и история сохраняются.</div>
  <button class="wide" onclick="runBacktest()">ЗАПУСТИТЬ ИСТОРИЧЕСКИЙ ТЕСТ</button><div id="backtestStatus" class="small muted" style="margin-top:9px">Исторический тест ещё не запускался.</div>
  <div style="overflow-x:auto;margin-top:9px"><table><thead><tr><th>Метод</th><th>Сделок</th><th>Прибыль</th><th>Успешность</th><th>Просадка</th></tr></thead><tbody id="backtest"><tr><td colspan="5">Ожидание теста</td></tr></tbody></table></div>
  <div class="grid" style="margin-top:9px"><div class="metric"><span class="muted small">Открытый результат теста</span><b id="btOpen">—</b></div><div class="metric"><span class="muted small">Итоговый капитал теста</span><b id="btEquity">—</b></div><div class="metric"><span class="muted small">Открытая позиция теста</span><b id="btPosition">—</b></div><div class="metric"><span class="muted small">Ожидающий сигнал</span><b id="btPending">—</b></div></div>
@@ -188,7 +192,7 @@ th{color:var(--muted);font-weight:normal}
  <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Режим</span><b id="board">—</b></div><div class="metric"><span class="muted small">Минутных свечей</span><b id="count">0</b></div><div class="metric"><span class="muted small">Страниц</span><b id="pages">0</b></div><div class="metric"><span class="muted small">Последняя свеча</span><b id="lastBar">—</b></div><div class="metric"><span class="muted small">Свежесть</span><b id="freshness">—</b></div><div class="metric"><span class="muted small">Вход разрешён</span><b id="allowed">НЕТ</b></div></div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.7.1 · MOEX MARKET SCANNER · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.7.2 FIX · MOEX MARKET SCANNER · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 <script>
 "use strict";
 const CFG={
@@ -203,6 +207,7 @@ const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100;
 const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5];
 const BOX_SAMPLE=20,BOX_VERSION=6,BOX_MULTIPLIERS=[.25,.5,.75,1,1.25,1.5,2];
+const STORE_KEY="sniper_ultimate_272",LEGACY_KEYS=["sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
 const $=id=>document.getElementById(id),last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:4}):"—";
@@ -230,21 +235,53 @@ function book(asset=S.asset,tf=S.tf){
  if(b.pending&&b.pending.type){b.pendingQueue.unshift(b.pending);b.pending=null}
  return b;
 }
+function compactState(maxBricks=500,maxClosed=10000){
+ const books={};
+ Object.keys(S.books||{}).forEach(k=>{
+  const b=S.books[k];if(!b||typeof b!=="object")return;
+  books[k]={...b,
+   bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),
+   closed:(Array.isArray(b.closed)?b.closed:[]).slice(0,maxClosed),
+   events:(Array.isArray(b.events)?b.events:[]).slice(0,300),
+   marks:(Array.isArray(b.marks)?b.marks:[]).slice(-400),
+   pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-1000),
+   preWarn:{}
+  };
+ });
+ const custom={};
+ assets.forEach(a=>{if(!["OZON","TGLD","LKOH","ROSN","PLZL"].includes(a)&&CFG[a])custom[a]={ticker:a,market:"shares",boards:CFG[a].boards,tv:CFG[a].tv,name:CFG[a].name}});
+ return{version:"2.7.2",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books,assets,custom};
+}
+let saveBusy=false,saveAgain=false,lastSaveError="";
 function save(){
  try{
   if($("voiceOn"))S.voice=$("voiceOn").checked;
   if($("volume"))S.volume=Number($("volume").value);
   assets.forEach(a=>{const e=$("auto-"+a);if(e)S.auto[a]=e.checked});
-  const custom={};
-  assets.forEach(a=>{if(!["OZON","TGLD","LKOH","ROSN","PLZL"].includes(a)&&CFG[a])custom[a]={ticker:CFG[a].ticker,market:CFG[a].market,boards:CFG[a].boards,tv:CFG[a].tv,name:CFG[a].name}});
-  const data=JSON.stringify({version:"2.7.1",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books:S.books,assets,custom});
-  ["sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"].forEach(k=>localStorage.setItem(k,data));
- }catch(e){console.warn("Сохранение",e);setStatusError("Ошибка сохранения: "+e.message)}
+  if(saveBusy){saveAgain=true;return}
+  saveBusy=true;saveAgain=false;
+  let saved=false,error=null;
+  for(const limits of [[500,10000],[300,5000],[150,2000],[80,1000]]){
+   try{
+    const data=JSON.stringify(compactState(limits[0],limits[1]));
+    localStorage.setItem(STORE_KEY,data);
+    saved=true;lastSaveError="";break;
+   }catch(e){error=e}
+  }
+  if(saved){
+   LEGACY_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  }else{
+   lastSaveError=error?.message||"Недостаточно места";
+   console.warn("Сохранение не выполнено",error);
+   setStatusError("Не удалось сохранить данные: "+lastSaveError+". Старые данные не удалены.");
+  }
+ }catch(e){lastSaveError=e.message;console.warn("Сохранение",e);setStatusError("Ошибка сохранения: "+e.message)}
+ finally{saveBusy=false;if(saveAgain){saveAgain=false;save()}}
 }
 function restore(){
  try{
-  let raw=null;
-  for(const k of ["sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"]){raw=localStorage.getItem(k);if(raw)break}
+  let raw=localStorage.getItem(STORE_KEY),source=STORE_KEY;
+  if(!raw){for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v){raw=v;source=k;break}}}
   const x=JSON.parse(raw||"null");if(!x)return;
   if(x.custom&&typeof x.custom==="object")Object.keys(x.custom).forEach(a=>{
    const c=x.custom[a];if(/^[A-Z0-9-]{1,20}$/.test(a)&&c&&c.ticker===a)CFG[a]={ticker:a,market:"shares",boards:Array.isArray(c.boards)&&c.boards.length?c.boards:["TQBR"],tv:String(c.tv||"MOEX:"+a),name:String(c.name||a)};
@@ -257,6 +294,7 @@ function restore(){
   S.books=x.books&&typeof x.books==="object"?x.books:{};
   (x.assets||[]).forEach(a=>{if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]))});
   assets.forEach(a=>{registerAsset(a,!!S.auto[a]);TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true})});
+  if(source!==STORE_KEY){console.log("Восстановлены старые данные; будет выполнена миграция в 2.7.2")}
  }catch(e){console.warn("Восстановление",e)}
 }
 function setStatusError(message){const el=$("status");if(el)el.textContent=message}
@@ -407,7 +445,7 @@ function openPosition(b,asset,tf,price,time,source="AUTO"){
 function closePosition(b,asset,tf,price,time,source="AUTO"){
  if(!b.position||!(price>0))return false;
  const p=b.position,pnl=(price-p.entry)*p.qty;b.cash+=p.qty*price;b.realized+=pnl;
- b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,500);
+ b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,10000);
  logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
 }
 function queueBrickSignal(b,brick,bar,tf){
@@ -433,12 +471,15 @@ function processStrategy(asset,tf){
   const cal=calculateFixedBox(source);if(!(cal.box>0))return;const first=source.find(x=>Number.isFinite(x.close)&&x.close>0);if(!first)return;
   b.box=cal.box;b.boxRaw=cal.raw;b.bricks=[];b.renkoState={anchor:first.close,dir:0};
   for(let i=0;i<source.length;i++)if(source[i].time!==first.time)applyRenkoBar(b.renkoState,source[i],b.bricks,b.box);
-  b.cursor=last(source).time;b.initialized=true;b.pending=null;b.pendingQueue=[];b.calibrationEnd=first.time;b.lastReversal="—";updateEquity(b,price||0);save();return;
+  b.cursor=last(source).time;b.initialized=true;b.pending=null;b.pendingQueue=[];b.calibrationEnd=first.time;b.lastReversal="—";
+  if(b.bricks.length>600)b.bricks=b.bricks.slice(-600);
+  updateEquity(b,price||0);save();return;
  }
  if(!(b.box>0)||!b.renkoState)return;
  executePendingQueue(b,asset,tf,minuteBars,priceFresh);
  const start=source.findIndex(x=>x.time>b.cursor);
  if(start>=0){for(let i=start;i<source.length;i++){const bar=source[i],before=b.bricks.length;applyRenkoBar(b.renkoState,bar,b.bricks,b.box);for(let j=before;j<b.bricks.length;j++)queueBrickSignal(b,b.bricks[j],bar,tf);b.cursor=bar.time;executePendingQueue(b,asset,tf,minuteBars,priceFresh)}}
+ if(b.bricks.length>600)b.bricks=b.bricks.slice(-600);
  updateEquity(b,price||0);save();
 }
 function processAsset(asset){TFS.forEach(tf=>processStrategy(asset,tf))}
@@ -629,52 +670,130 @@ function restoreControls(){
  $("voiceOn").checked=S.voice;$("volume").value=S.volume;$("atrSelect").value=String(S.atrPeriod);$("boxMultiplier").value=String(S.boxMultiplier);
  document.querySelectorAll("[data-tf]").forEach(x=>x.classList.toggle("active",Number(x.dataset.tf)===S.tf));renderAssetControls();
 }
-// ===== СКАНЕР РЫНКА MOEX =====
+ // ===== СКАНЕР РЫНКА MOEX 2.7.2 =====
 let scanBusy=false,scanResults=[];
-const SCAN_INTERVAL=30*60000,SCAN_CONCURRENCY=6,SCAN_MAX=500;
-async function loadMarketSecurities(){
- const url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&iss.only=securities&securities.columns=secid,shortname,prevprice";
- const j=await json(url),list=rows(j,"securities");
- return list.filter(x=>x.secid&&/^[A-Z0-9-]{1,20}$/.test(String(x.secid))&&x.secid!=="");
+const SCAN_INTERVAL=30*60000,SCAN_CONCURRENCY=4,SCAN_PAGE=500,SCAN_MAX_PAGES=200;
+function genericCursorTotal(j,key){
+ let t=j&&j[key+".cursor"];if(!t&&j&&j[key])t=j[key].cursor;
+ if(!t||!Array.isArray(t.columns)||!Array.isArray(t.data)||!t.data.length)return null;
+ const o={};t.columns.forEach((c,i)=>o[String(c).toLowerCase()]=t.data[0][i]);
+ return Number.isFinite(+o.total)?+o.total:null;
 }
+async function loadMarketSecurities(){
+ const all=[];let start=0,total=null,pages=0;
+ for(let i=0;i<SCAN_MAX_PAGES;i++){
+  const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=on&iss.only=securities,securities.cursor&securities.columns=secid,shortname,prevprice&start=${start}&limit=${SCAN_PAGE}`;
+  const j=await json(url),batch=rows(j,"securities");
+  pages++;
+  const ct=genericCursorTotal(j,"securities");if(ct!==null)total=ct;
+  if(!batch.length)break;
+  batch.forEach(x=>{
+   const ticker=String(x.secid||"").trim();
+   if(ticker&&/^[A-Z0-9-]{1,20}$/.test(ticker)&&!all.some(y=>y.secid===ticker))all.push({...x,secid:ticker});
+  });
+  start+=batch.length;
+  scanProgressText(`Список MOEX: загружено ${all.length}${total!==null?" из "+total:""} · страниц ${pages}`);
+  if(total!==null&&start>=total)break;
+  if(batch.length<SCAN_PAGE&&total===null)break;
+ }
+ if(!all.length)throw Error("MOEX вернула пустой список акций TQBR.");
+ return all;
+}
+function scanProgressText(s){const e=$("scanInfo");if(e)e.textContent=s}
 function trendCheck(bars){
- const x=bars.filter(b=>b.close>0);if(x.length<7)return null;
- const recent=x.slice(-5),old=x[x.length-6],change=(recent[4].close/old.close-1)*100;
- const avgRecent=recent.reduce((s,b)=>s+b.close,0)/5,avgPrevious=x.slice(-10,-5).reduce((s,b)=>s+b.close,0)/5;
- return{up:recent[4].close>old.close&&avgRecent>avgPrevious,change,price:recent[4].close,avgRecent,avgPrevious};
+ const x=bars.filter(b=>Number.isFinite(b.close)&&b.close>0);
+ if(x.length<10)return{status:"history",count:x.length};
+ const recent=x.slice(-5),previous=x.slice(-10,-5);
+ const old=x[x.length-6],lastBar=x[x.length-1];
+ const change=(lastBar.close/old.close-1)*100;
+ const avgRecent=recent.reduce((s,b)=>s+b.close,0)/5;
+ const avgPrevious=previous.reduce((s,b)=>s+b.close,0)/5;
+ return{status:"ok",up:lastBar.close>old.close&&avgRecent>avgPrevious,change,price:lastBar.close,avgRecent,avgPrevious,count:x.length};
+}
+async function scanOneRequest(sec){
+ const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/${encodeURIComponent(sec.secid)}/candles.json?interval=24&from=${moscowDate(new Date(now()-60*86400000))}&till=${moscowDate(new Date())}&iss.meta=off`;
+ const j=await json(url);
+ const bars=rows(j,"candles").map(r=>({time:parseDate(r.begin),open:+r.open,high:+r.high,low:+r.low,close:+r.close})).filter(valid).sort((a,b)=>a.time-b.time);
+ const t=trendCheck(bars);
+ if(t.status!=="ok")return{status:"history",ticker:sec.secid,count:t.count};
+ return{status:"ok",ticker:sec.secid,name:sec.shortname||sec.secid,price:t.price,change:t.change,up:t.up,count:t.count};
 }
 async function scanOne(sec){
- try{
-  const url=`https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/${encodeURIComponent(sec.secid)}/candles.json?interval=24&from=${moscowDate(new Date(now()-35*86400000))}&till=${moscowDate(new Date())}&iss.meta=off`;
-  const j=await json(url),bars=rows(j,"candles").map(r=>({time:parseDate(r.begin),open:+r.open,high:+r.high,low:+r.low,close:+r.close})).filter(valid).sort((a,b)=>a.time-b.time);
-  const t=trendCheck(bars);if(!t)return null;return{ticker:sec.secid,name:sec.shortname||sec.secid,price:t.price,change:t.change,up:t.up};
- }catch(e){return null}
+ try{return await scanOneRequest(sec)}
+ catch(first){
+  await new Promise(r=>setTimeout(r,350));
+  try{return await scanOneRequest(sec)}
+  catch(second){return{status:"error",ticker:sec.secid,error:second?.message||first?.message||"Ошибка запроса"}}
+ }
 }
 async function startMarketScan(force=false){
- if(scanBusy)return;scanBusy=true;$("scanBadge").textContent="СКАНИРОВАНИЕ";$("scanBadge").className="badge yellow";
- $("scanInfo").textContent="Получение списка акций и проверка дневных свечей...";$("scanProgress").textContent="Запуск";$("scanResults").innerHTML="<tr><td colspan='5'>Сканирование...</td></tr>";
+ if(scanBusy)return;
+ scanBusy=true;
+ const btn=$("scanButton");if(btn)btn.disabled=true;
+ $("scanBadge").textContent="СКАНИРОВАНИЕ";$("scanBadge").className="badge yellow";
+ $("scanInfo").textContent="Получение полного списка акций MOEX...";
+ $("scanProgress").textContent="Запуск";
+ $("scanResults").innerHTML="<tr><td colspan='5'>Загрузка списка рынка...</td></tr>";
+ $("scanTotal").textContent="—";$("scanGrowing").textContent="—";$("scanChecked").textContent="0";
+ $("scanNoHistory").textContent="0";$("scanErrors").textContent="0";
  try{
-  const securities=await loadMarketSecurities(),list=securities.slice(0,SCAN_MAX);$("scanTotal").textContent=securities.length;
-  let checked=0,idx=0;const found=[];
-  async function worker(){while(idx<list.length){const sec=list[idx++],result=await scanOne(sec);checked++;if(result)found.push(result);$("scanChecked").textContent=checked;$("scanProgress").textContent=checked+" / "+list.length;if(checked%10===0)$("scanInfo").textContent="Проверено "+checked+" из "+list.length+". Получение дневных свечей MOEX..."}}
-  await Promise.all(Array.from({length:SCAN_CONCURRENCY},worker));
-  scanResults=found.sort((a,b)=>Number(b.up)-Number(a.up)||b.change-a.change);$("scanGrowing").textContent=scanResults.filter(x=>x.up).length;
-  $("scanChecked").textContent=checked;$("scanTime").textContent="Последнее сканирование: "+new Date().toLocaleString("ru-RU");
+  const securities=await loadMarketSecurities();
+  $("scanTotal").textContent=securities.length;
+  $("scanProgress").textContent="0 / "+securities.length;
+  let checked=0,idx=0,noHistory=0,errors=0,noTrend=0;
+  const found=[];
+  async function worker(){
+   while(true){
+    const n=idx++;if(n>=securities.length)return;
+    const sec=securities[n],result=await scanOne(sec);
+    checked++;
+    if(result.status==="ok"){if(result.up)found.push(result);else noTrend++}
+    else if(result.status==="history")noHistory++;
+    else errors++;
+    $("scanChecked").textContent=checked;
+    $("scanNoHistory").textContent=noHistory;
+    $("scanErrors").textContent=errors;
+    $("scanProgress").textContent=checked+" / "+securities.length;
+    if(checked%5===0||checked===securities.length){
+     scanProgressText(`Проверено ${checked} из ${securities.length}. В тренде: ${found.length}. Без 10 дневных свечей: ${noHistory}. Ошибок: ${errors}.`);
+    }
+   }
+  }
+  await Promise.all(Array.from({length:Math.min(SCAN_CONCURRENCY,securities.length)},worker));
+  scanResults=found.sort((a,b)=>b.change-a.change);
+  $("scanGrowing").textContent=scanResults.length;
+  $("scanChecked").textContent=checked;
+  $("scanTime").textContent="Последнее сканирование: "+new Date().toLocaleString("ru-RU");
   $("scanBadge").textContent="ЗАВЕРШЕНО";$("scanBadge").className="badge green";
-  $("scanInfo").textContent=`Проверено ${checked} из ${securities.length} найденных акций основного рынка TQBR. Восходящий тренд: рост последнего закрытия относительно закрытия 5 сессий назад и рост средней цены последних пяти сессий.`;
+  $("scanProgress").textContent=checked+" / "+securities.length;
+  $("scanInfo").textContent=`Завершено. Получено акций: ${securities.length}. Проверено: ${checked}. Восходящий тренд: ${scanResults.length}. Нет 10 дневных свечей: ${noHistory}. Нет восходящего тренда: ${noTrend}. Ошибок загрузки: ${errors}.`;
   renderScanResults();
- }catch(e){$("scanBadge").textContent="ОШИБКА";$("scanBadge").className="badge red";$("scanInfo").textContent="Не удалось получить список рынка MOEX: "+(e.message||e);$("scanProgress").textContent="Ошибка"}
- finally{scanBusy=false}
+ }catch(e){
+  $("scanBadge").textContent="ОШИБКА";$("scanBadge").className="badge red";
+  $("scanInfo").textContent="Не удалось получить список рынка MOEX: "+(e.message||e);
+  $("scanProgress").textContent="Ошибка";
+  $("scanResults").innerHTML="<tr><td colspan='5'>Ошибка загрузки списка. Проверь интернет-соединение и повтори сканирование.</td></tr>";
+ }finally{
+  scanBusy=false;if(btn)btn.disabled=false;
+ }
 }
 function renderScanResults(){
- const body=$("scanResults");body.textContent="";const shown=scanResults.filter(x=>x.up);
- if(!shown.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="Акции с подтверждённым восходящим трендом не найдены.";tr.append(td);body.append(tr);return}
- shown.slice(0,100).forEach(x=>{
-  const tr=document.createElement("tr"),td1=document.createElement("td"),strong=document.createElement("b");strong.textContent=x.ticker;td1.append(strong);
+ const body=$("scanResults");body.textContent="";
+ const shown=scanResults;
+ if(!shown.length){
+  const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;
+  td.textContent="Подтверждённых восходящих трендов не найдено. Проверь счётчики истории и ошибок выше.";
+  tr.append(td);body.append(tr);return;
+ }
+ shown.slice(0,150).forEach(x=>{
+  const tr=document.createElement("tr"),td1=document.createElement("td"),strong=document.createElement("b");
+  strong.textContent=x.ticker;td1.append(strong);
   const td2=document.createElement("td");td2.textContent=fmt(x.price)+" ₽";
   const td3=document.createElement("td");td3.textContent=(x.change>=0?"+":"")+x.change.toFixed(2)+"%";td3.className=x.change>=0?"positive":"negative";
   const td4=document.createElement("td");td4.textContent="ВОСХОДЯЩИЙ";td4.className="scanUp";
-  const td5=document.createElement("td"),btn=document.createElement("button");btn.type="button";btn.textContent=CFG[x.ticker]?"УЖЕ ЕСТЬ":"Добавить";btn.disabled=!!CFG[x.ticker];btn.onclick=()=>addScannedAsset(x);td5.append(btn);
+  const td5=document.createElement("td"),btn=document.createElement("button");
+  btn.type="button";btn.textContent=CFG[x.ticker]?"УЖЕ ЕСТЬ":"Добавить";btn.disabled=!!CFG[x.ticker];
+  btn.onclick=()=>addScannedAsset(x);td5.append(btn);
   tr.append(td1,td2,td3,td4,td5);body.append(tr);
  });
 }
@@ -683,17 +802,20 @@ function addScannedAsset(x){
  if(!/^[A-Z0-9-]{1,20}$/.test(x.ticker)){alert("Недопустимый код инструмента.");return}
  CFG[x.ticker]={ticker:x.ticker,market:"shares",boards:["TQBR"],tv:"MOEX:"+x.ticker,name:x.name||x.ticker};
  registerAsset(x.ticker,false);renderAssetControls();save();
- $("scanInfo").textContent=x.ticker+" добавлен в список. Автоматическая торговля выключена. Включи переключатель «Авто» только после проверки данных и графика.";
+ $("scanInfo").textContent=x.ticker+" добавлен в список. Автоматическая торговля выключена. Включи «Авто» только после проверки данных и графика.";
  refreshAsset(x.ticker);
 }
-// ===== НАДЁЖНАЯ ОБРАБОТКА ПЕРЕКЛЮЧАТЕЛЕЙ =====
+// ===== ОБРАБОТКА ПЕРЕКЛЮЧАТЕЛЕЙ =====
 function bindControls(){
  document.querySelectorAll("[data-tf]").forEach(btn=>{
   btn.addEventListener("click",ev=>{ev.preventDefault();changeTF(Number(btn.dataset.tf))});
  });
  $("tradeIntervals").addEventListener("change",ev=>{
   const el=ev.target;if(!el||!el.id||!el.id.startsWith("tf-"))return;
-  const tf=Number(el.id.slice(3));if(TFS.includes(tf)){S.enabled[S.asset][tf]=el.checked;save();$("intervalStatus").textContent="Настройки "+S.asset+" сохранены. "+tfName(tf)+": "+(el.checked?"ВКЛЮЧЁН":"ВЫКЛЮЧЕН")+".";
+  const tf=Number(el.id.slice(3));
+  if(TFS.includes(tf)){
+   S.enabled[S.asset][tf]=el.checked;save();
+   $("intervalStatus").textContent="Настройки "+S.asset+" сохранены. "+tfName(tf)+": "+(el.checked?"ВКЛЮЧЁН":"ВЫКЛЮЧЕН")+".";
   }
  });
 }
@@ -708,6 +830,7 @@ restoreControls();
 bindControls();
 tvUpdate();
 render();
+save();
 refreshAll();
 setInterval(refreshAll,UPDATE);
 setInterval(()=>startMarketScan(false),SCAN_INTERVAL);
