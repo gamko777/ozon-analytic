@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.7.4 FIX</title>
+<title>SNIPER ULTIMATE AI 2.7.5 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -67,8 +67,8 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.7.4 FIX</span></h1>
-<div class="sub" id="headerSub">MANUAL ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
+<h1>SNIPER ULTIMATE AI <span class="green">2.7.5 FIX</span></h1>
+<div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
 <section class="panel">
@@ -149,7 +149,7 @@ th{color:var(--muted);font-weight:normal}
  <button class="wide" onclick="resetCurrent()" style="border-color:var(--red);color:var(--red)">СБРОСИТЬ СЧЁТ ЭТОГО ИНТЕРВАЛА</button>
 </section>
 <section class="panel">
- <b>ОБЩАЯ ПРИБЫЛЬ И УБЫТОК · ВСЕ ИНТЕРВАЛЫ</b><div class="small muted" style="margin-top:7px">Показатели включают закрытые сделки и плавающий результат открытых позиций.</div>
+ <b>ОБЩАЯ ПРИБЫЛЬ И УБЫТОК · ВСЕ ИНТЕРВАЛЫ</b><div class="small muted" style="margin-top:7px">Показатели включают закрытые сделки и плавающий результат открытых позиций, в том числе убранных из списка инструментов.</div>
  <div class="statGrid" style="margin-top:10px"><div class="metric"><span class="muted small">Общая прибыль</span><b class="positive" id="totalProfit">0 ₽</b></div><div class="metric"><span class="muted small">Общий убыток</span><b class="negative" id="totalLoss">0 ₽</b></div><div class="metric"><span class="muted small">Чистый результат</span><b id="totalNet">0 ₽</b></div><div class="metric"><span class="muted small">Плавающая прибыль</span><b class="positive" id="floatProfit">0 ₽</b></div><div class="metric"><span class="muted small">Плавающий убыток</span><b class="negative" id="floatLoss">0 ₽</b></div><div class="metric"><span class="muted small">Все открытые позиции</span><b id="allPositions">0</b></div></div>
  <div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Инструмент</th><th>Прибыль</th><th>Убыток</th><th>Плавающий</th><th>Итого</th></tr></thead><tbody id="assetStats"></tbody></table></div><div class="small muted" id="statsUpdated" style="margin-top:8px">Ожидание котировок.</div>
 </section>
@@ -170,7 +170,7 @@ th{color:var(--muted);font-weight:normal}
  <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Режим</span><b id="board">—</b></div><div class="metric"><span class="muted small">Минутных свечей</span><b id="count">0</b></div><div class="metric"><span class="muted small">Страниц</span><b id="pages">0</b></div><div class="metric"><span class="muted small">Последняя свеча</span><b id="lastBar">—</b></div><div class="metric"><span class="muted small">Свежесть</span><b id="freshness">—</b></div><div class="metric"><span class="muted small">Вход разрешён</span><b id="allowed">НЕТ</b></div></div>
  <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.7.4 FIX · MANUAL ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.7.5 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 <script>
 "use strict";
 const CFG={
@@ -178,16 +178,37 @@ const CFG={
  TGLD:{ticker:"TGLD",market:"shares",boards:["TQTF","TQBR","TQIF"],tv:"MOEX:TGLD",name:"ЗОЛОТО"},
  LKOH:{ticker:"LKOH",market:"shares",boards:["TQBR"],tv:"MOEX:LKOH",name:"ЛУКОЙЛ"},
  ROSN:{ticker:"ROSN",market:"shares",boards:["TQBR"],tv:"MOEX:ROSN",name:"РОСНЕФТЬ"},
- PLZL:{ticker:"PLZL",market:"shares",boards:["TQBR"],tv:"MOEX:PLZL",name:"ПОЛЮС"}
+ PLZL:{ticker:"PLZL",market:"shares",boards:["TQBR"],tv:"MOEX:PLZL",name:"ПОЛЮС"},
+ SBER:{ticker:"SBER",market:"shares",boards:["TQBR"],tv:"MOEX:SBER",name:"СБЕРБАНК"},
+ VTBR:{ticker:"VTBR",market:"shares",boards:["TQBR"],tv:"MOEX:VTBR",name:"ВТБ"},
+ MOEX:{ticker:"MOEX",market:"shares",boards:["TQBR"],tv:"MOEX:MOEX",name:"МОСКОВСКАЯ БИРЖА"},
+ AFKS:{ticker:"AFKS",market:"shares",boards:["TQBR"],tv:"MOEX:AFKS",name:"АФК СИСТЕМА"},
+ GAZP:{ticker:"GAZP",market:"shares",boards:["TQBR"],tv:"MOEX:GAZP",name:"ГАЗПРОМ"},
+ NVTK:{ticker:"NVTK",market:"shares",boards:["TQBR"],tv:"MOEX:NVTK",name:"НОВАТЭК"},
+ TATN:{ticker:"TATN",market:"shares",boards:["TQBR"],tv:"MOEX:TATN",name:"ТАТНЕФТЬ"},
+ SNGS:{ticker:"SNGS",market:"shares",boards:["TQBR"],tv:"MOEX:SNGS",name:"СУРГУТНЕФТЕГАЗ"},
+ IRAO:{ticker:"IRAO",market:"shares",boards:["TQBR"],tv:"MOEX:IRAO",name:"ИНТЕР РАО"},
+ YDEX:{ticker:"YDEX",market:"shares",boards:["TQBR"],tv:"MOEX:YDEX",name:"ЯНДЕКС"},
+ T:{ticker:"T",market:"shares",boards:["TQBR"],tv:"MOEX:T",name:"Т-ТЕХНОЛОГИИ"},
+ MTSS:{ticker:"MTSS",market:"shares",boards:["TQBR"],tv:"MOEX:MTSS",name:"МТС"},
+ GMKN:{ticker:"GMKN",market:"shares",boards:["TQBR"],tv:"MOEX:GMKN",name:"НОРИЛЬСКИЙ НИКЕЛЬ"},
+ CHMF:{ticker:"CHMF",market:"shares",boards:["TQBR"],tv:"MOEX:CHMF",name:"СЕВЕРСТАЛЬ"},
+ NLMK:{ticker:"NLMK",market:"shares",boards:["TQBR"],tv:"MOEX:NLMK",name:"НЛМК"},
+ ALRS:{ticker:"ALRS",market:"shares",boards:["TQBR"],tv:"MOEX:ALRS",name:"АЛРОСА"},
+ X5:{ticker:"X5",market:"shares",boards:["TQBR"],tv:"MOEX:X5",name:"ИКС 5"},
+ MGNT:{ticker:"MGNT",market:"shares",boards:["TQBR"],tv:"MOEX:MGNT",name:"МАГНИТ"},
+ AFLT:{ticker:"AFLT",market:"shares",boards:["TQBR"],tv:"MOEX:AFLT",name:"АЭРОФЛОТ"},
+ SMLT:{ticker:"SMLT",market:"shares",boards:["TQBR"],tv:"MOEX:SMLT",name:"САМОЛЁТ"}
 };
 const BUILTIN=["OZON","TGLD","LKOH","ROSN","PLZL"];
+const DEFAULT_ADDITIONAL=["SBER","VTBR","MOEX","AFKS","GAZP","NVTK","TATN","SNGS","IRAO","YDEX","T","MTSS","GMKN","CHMF","NLMK","ALRS","X5","MGNT","AFLT","SMLT"];
 let assets=BUILTIN.slice();
 const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100;
 const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000;
 const MAX_SIGNAL_AGE=3*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5];
 const BOX_SAMPLE=20,BOX_VERSION=7,BOX_MULTIPLIERS=[.25,.5,.75,1,1.25,1.5,2];
-const STORE_KEY="sniper_ultimate_274",LEGACY_KEYS=["sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
+const STORE_KEY="sniper_ultimate_275",LEGACY_KEYS=["sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
 const $=id=>document.getElementById(id),last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:4}):"—";
@@ -220,7 +241,7 @@ function compactState(maxBricks=500,maxClosed=10000){
   books[k]={...b,bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),closed:(Array.isArray(b.closed)?b.closed:[]).slice(0,maxClosed),events:(Array.isArray(b.events)?b.events:[]).slice(0,300),marks:(Array.isArray(b.marks)?b.marks:[]).slice(-400),pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-1000),preWarn:{}};
  });
  const custom={};Object.keys(CFG).forEach(a=>{if(!BUILTIN.includes(a)){const c=CFG[a];custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name}}});
- return{version:"2.7.4",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
+ return{version:"2.7.5",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
 }
 let saveBusy=false,saveAgain=false,lastSaveError="";
 function save(){
@@ -239,17 +260,32 @@ function restore(){
  try{
   let raw=localStorage.getItem(STORE_KEY),source=STORE_KEY;
   if(!raw){for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v){raw=v;source=k;break}}}
-  const x=JSON.parse(raw||"null");if(!x)return;
-  if(x.custom&&typeof x.custom==="object")Object.keys(x.custom).forEach(a=>{const c=x.custom[a];if(/^[A-Z0-9-]{1,20}$/.test(a)&&c&&c.ticker===a)CFG[a]={ticker:a,market:"shares",boards:Array.isArray(c.boards)&&c.boards.length?c.boards:["TQBR"],tv:String(c.tv||"MOEX:"+a),name:String(c.name||a)}});
-  S.asset=CFG[x.asset]?x.asset:"OZON";S.tf=TFS.includes(+x.tf)?+x.tf:5;
-  S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:5;
-  const m=Number(x.boxMultiplier);S.boxMultiplier=BOX_MULTIPLIERS.includes(m)?m:.5;
-  S.auto={...S.auto,...(x.auto||{})};S.enabled={...S.enabled,...(x.enabled||{})};S.voice=x.voice!==false;S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
-  S.books=x.books&&typeof x.books==="object"?x.books:{};
-  (x.assets||[]).forEach(a=>{if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]))});
-  assets.forEach(a=>{registerAsset(a,!!S.auto[a]);TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true})});
-  if(source!==STORE_KEY)console.log("Выполнена миграция сохранённых данных в 2.7.4");
- }catch(e){console.warn("Восстановление",e)}
+  const x=JSON.parse(raw||"null");
+  if(x&&x.custom&&typeof x.custom==="object")Object.keys(x.custom).forEach(a=>{
+   const c=x.custom[a];if(/^[A-Z0-9-]{1,20}$/.test(a)&&c&&c.ticker===a)
+    CFG[a]={ticker:a,market:"shares",boards:Array.isArray(c.boards)&&c.boards.length?c.boards:["TQBR"],tv:String(c.tv||"MOEX:"+a),name:String(c.name||a)};
+  });
+  if(x){
+   S.asset=CFG[x.asset]?x.asset:"OZON";S.tf=TFS.includes(+x.tf)?+x.tf:5;
+   S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:5;
+   const m=Number(x.boxMultiplier);S.boxMultiplier=BOX_MULTIPLIERS.includes(m)?m:.5;
+   S.auto={...S.auto,...(x.auto||{})};S.enabled={...S.enabled,...(x.enabled||{})};
+   S.voice=x.voice!==false;S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
+   S.books=x.books&&typeof x.books==="object"?x.books:{};
+   (Array.isArray(x.assets)?x.assets:[]).forEach(a=>{if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]))});
+  }
+  BUILTIN.forEach(a=>registerAsset(a,true));
+  const isCurrent=source===STORE_KEY&&x&&String(x.version||"")==="2.7.5";
+  if(!isCurrent){
+   DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false});
+  }
+  assets.forEach(a=>{
+   registerAsset(a,!!S.auto[a]);
+   TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true});
+  });
+  if(!assets.includes(S.asset))S.asset="OZON";
+  if(source!==STORE_KEY||!isCurrent)console.log("Выполнена миграция сохранённых данных в 2.7.5");
+ }catch(e){console.warn("Восстановление",e);DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
 }
 function setStatusError(message){const el=$("status");if(el)el.textContent=message}
 restore();
@@ -376,7 +412,7 @@ function updateEquity(b,price){
  const mark=Number.isFinite(price)&&price>0?price:(b.position?b.position.entry:0),equity=b.cash+(b.position&&mark?b.position.qty*mark:0);
  if(!Number.isFinite(equity))return;b.equity=equity;b.peak=Math.max(Number(b.peak)||CAPITAL,equity);b.maxDD=Math.max(Number(b.maxDD)||0,b.peak-equity);
 }
-const speechQueue=[];let speaking=false,audioContext=null;
+ const speechQueue=[];let speaking=false,audioContext=null;
 function speak(text){
  if(!S.voice||!$("voiceOn")?.checked||!("speechSynthesis"in window))return;
  speechQueue.push(text);if(speechQueue.length>100)speechQueue.shift();runSpeechQueue();
@@ -420,7 +456,7 @@ function closePosition(b,asset,tf,price,time,source="AUTO"){
  b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,10000);
  logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
 }
- function queueBrickSignal(b,bar,tf){
+function queueBrickSignal(b,bar,tf){
  const n=b.bricks.length;if(n<3)return;
  const a=b.bricks[n-3],c=b.bricks[n-2],z=b.bricks[n-1];
  if(a.dir===z.dir||c.dir!==z.dir||z.dir===0)return;
@@ -537,10 +573,14 @@ async function refreshAsset(asset){
 let refreshBusy=false;
 async function refreshAll(){
  if(refreshBusy)return;refreshBusy=true;$("status").textContent="Обновление инструментов MOEX...";
- try{await Promise.all(assets.map(a=>refreshAsset(a)))}
+ try{
+  const list=assets.slice(),workers=3;let index=0;
+  const runWorker=async()=>{while(index<list.length){const a=list[index++];await refreshAsset(a)}};
+  await Promise.all(Array.from({length:Math.min(workers,list.length)},()=>runWorker()));
+ }
  finally{
   refreshBusy=false;updateLamps();render();
-  const bad=assets.filter(a=>!!S.data[a].error).length;
+  const bad=assets.filter(a=>S.data[a]&&!!S.data[a].error).length;
   $("status").textContent=bad?`Обновление завершено. Ошибок инструментов: ${bad}`:"Все инструменты обновлены";
  }
 }
@@ -610,20 +650,28 @@ function drawEquity(){
 }
 function allStats(){
  let profit=0,loss=0,floatProfit=0,floatLoss=0,positions=0;const per={};
- assets.forEach(a=>{
+ // Учитываем все сохранённые счета, в том числе инструменты, убранные из видимого списка.
+ const keys=new Set([...assets,...Object.keys(S.books||{}).map(k=>k.slice(0,k.lastIndexOf("_")))]);
+ keys.forEach(a=>{
   per[a]={profit:0,loss:0,floating:0,total:0};
   TFS.forEach(tf=>{
-   const b=book(a,tf);
-   b.closed.forEach(c=>{if(c.pnl>0){profit+=c.pnl;per[a].profit+=c.pnl}else{loss+=Math.abs(c.pnl);per[a].loss+=Math.abs(c.pnl)}});
-   const price=S.data[a].quote?.price||0;
-   if(b.position&&price>0){positions++;const p=(price-b.position.entry)*b.position.qty;if(p>0){floatProfit+=p;per[a].floating+=p}else{floatLoss+=Math.abs(p);per[a].floating+=p}}
+   const b=S.books[bookKey(a,tf)];if(!b)return;
+   (Array.isArray(b.closed)?b.closed:[]).forEach(c=>{
+    const pnl=Number(c.pnl)||0;if(pnl>0){profit+=pnl;per[a].profit+=pnl}else{loss+=Math.abs(pnl);per[a].loss+=Math.abs(pnl)}
+   });
+   const price=S.data[a]?.quote?.price||0;
+   if(b.position){positions++;if(price>0){const p=(price-b.position.entry)*b.position.qty;if(p>0){floatProfit+=p;per[a].floating+=p}else{floatLoss+=Math.abs(p);per[a].floating+=p}}}
   });per[a].total=per[a].profit-per[a].loss+per[a].floating;
  });
  $("totalProfit").textContent=money(profit);$("totalLoss").textContent=money(loss);$("floatProfit").textContent=money(floatProfit);$("floatLoss").textContent=money(floatLoss);
  const net=profit-loss+floatProfit-floatLoss;$("totalNet").textContent=money(net);$("totalNet").className=net>=0?"positive":"negative";$("allPositions").textContent=positions;
  const body=$("assetStats");body.textContent="";
- assets.forEach(a=>{const tr=document.createElement("tr");[a,money(per[a].profit),money(per[a].loss),money(per[a].floating),money(per[a].total)].forEach((v,i)=>{const td=document.createElement("td");td.textContent=v;if(i===1||i===3)td.className="positive";if(i===2)td.className="negative";if(i===4)td.className=per[a].total>=0?"positive":"negative";tr.append(td)});body.append(tr)});
- $("statsUpdated").textContent="Обновлено: "+new Date().toLocaleTimeString("ru-RU")+" · Все инструменты и интервалы.";
+ Object.keys(per).sort((a,b)=>a.localeCompare(b)).forEach(a=>{
+  const tr=document.createElement("tr");[a,money(per[a].profit),money(per[a].loss),money(per[a].floating),money(per[a].total)].forEach((v,i)=>{
+   const td=document.createElement("td");td.textContent=v;if(i===1||i===3)td.className="positive";if(i===2)td.className="negative";if(i===4)td.className=per[a].total>=0?"positive":"negative";tr.append(td)
+  });body.append(tr);
+ });
+ $("statsUpdated").textContent="Обновлено: "+new Date().toLocaleTimeString("ru-RU")+" · Все сохранённые счета и интервалы.";
 }
 function changeTF(tf){if(!TFS.includes(+tf))return;S.tf=+tf;tvUpdate();render();updateLamps();save()}
 function toggleAuto(a){
@@ -675,7 +723,6 @@ function runBacktest(){
   let cash=CAPITAL,pos=null,realized=0,peak=CAPITAL,maxDD=0,deals=0,wins=0,pending=null;
   for(let i=0;i<enriched.length;i++){
    const bar=enriched[i];
-   // Сигнал предыдущей свечи исполняется только по открытию следующей.
    if(pending){
     if(pending==="BUY"&&!pos){
      const qty=Math.floor(cash*ALLOC/bar.open);
