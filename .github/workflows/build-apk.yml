@@ -1,5 +1,5 @@
 
-name: Build SNIPER Android APK
+name: Build SNIPER ULTIMATE AI APK
 
 on:
   workflow_dispatch:
@@ -27,14 +27,21 @@ jobs:
           java-version: 21
 
       - name: Install Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android platform
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Prepare application
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@7.4.3 @capacitor/cli@7.4.3 @capacitor/android@7.4.3
           mkdir -p www
-          echo '<html><body>SNIPER</body></html>' > www/index.html
+          cp index.html www/index.html
+          for f in manifest.webmanifest sw.js icon.svg; do
+            if [ -f "$f" ]; then cp "$f" www/; fi
+          done
 
       - name: Configure Capacitor
         run: |
@@ -42,14 +49,7 @@ jobs:
           {
             "appId": "com.gamko777.sniper",
             "appName": "SNIPER ULTIMATE AI",
-            "webDir": "www",
-            "server": {
-              "url": "https://gamko777.github.io/ozon-analytic/",
-              "cleartext": false,
-              "allowNavigation": [
-                "gamko777.github.io"
-              ]
-            }
+            "webDir": "www"
           }
           EOF
 
@@ -67,5 +67,7 @@ jobs:
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
-          name: SNIPER-ANDROID-APK
+          name: SNIPER-ULTIMATE-AI-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
