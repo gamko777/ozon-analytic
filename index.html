@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.7.9 FIX</title>
+<title>SNIPER ULTIMATE AI 2.8.0 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -69,7 +70,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.7.9 FIX</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.8.0 FIX</span></h1>
 <div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -245,7 +246,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
 
-<div class="footer">SNIPER ULTIMATE AI 2.7.9 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.8.0 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 
 <script>
 "use strict";
@@ -407,7 +408,7 @@ custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name};
 }
 });
 return{
-version:"2.7.9",
+version:"2.8.0",
 asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,
 boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,
 voice:S.voice,volume:S.volume,books,assets:assets.slice(),
@@ -429,7 +430,7 @@ if(saveBusy){saveAgain=true;return}
 saveBusy=true;
 saveAgain=false;
 let saved=false,error=null;
-for(const limits of [[300,3000],[180,1500],[100,800],[50,300]]){
+for(const limits of [[300,3000],[180,1500],[100,800],[50,300],[25,100],[10,30]]){
 try{
 localStorage.setItem(STORE_KEY,JSON.stringify(compactState(limits[0],limits[1])));
 saved=true;
@@ -493,13 +494,12 @@ if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]));
 });
 }
 BUILTIN.forEach(a=>registerAsset(a,true));
-const isCurrent=source===STORE_KEY&&x&&String(x.version||"")==="2.7.9";
-if(!isCurrent){
+const knownAssets=new Set(Array.isArray(x?.assets)?x.assets:[]);
 DEFAULT_ADDITIONAL.forEach(a=>{
-registerAsset(a,false);
-S.auto[a]=false;
+const existed=knownAssets.has(a);
+registerAsset(a,existed?!!S.auto[a]:false);
+if(!existed)S.auto[a]=false;
 });
-}
 assets.forEach(a=>{
 registerAsset(a,!!S.auto[a]);
 TFS.forEach(t=>{
@@ -529,7 +529,7 @@ assets.forEach(a=>{
 const c=CFG[a],btn=document.createElement("button");
 btn.type="button";
 btn.className="assetBtn"+(S.asset===a?" active":"");
-const lamp=document.createElement("i");
+ const lamp=document.createElement("i");
 lamp.className="assetLamp";
 lamp.id="lamp-"+a;
 const name=document.createElement("span");
@@ -715,12 +715,17 @@ if(!r.ok)throw new Error("HTTP "+r.status);
 return await r.json();
 }
 
-function parseMOEXTime(v){
+function parseMOEXTime(v,tradeDate){
 if(!v)return 0;
-const s=String(v);
+const s=String(v).trim();
 let t=Date.parse(s);
-if(!Number.isFinite(t))return 0;
-return t;
+if(Number.isFinite(t))return t;
+if(!tradeDate)return 0;
+const d=String(tradeDate).trim().slice(0,10);
+if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return 0;
+if(!/^\d{2}:\d{2}(?::\d{2})?$/.test(s))return 0;
+t=Date.parse(d+"T"+(s.length===5?s+":00":s)+"+03:00");
+return Number.isFinite(t)?t:0;
 }
 
 function boardCandidates(a){
@@ -740,11 +745,13 @@ if(!row)continue;
 const obj=Object.fromEntries(cols.map((k,i)=>[k,row[i]]));
 const price=Number(obj.LAST??obj.MARKETPRICE??obj.WAPRICE??obj.PREVPRICE);
 if(!Number.isFinite(price)||price<=0)continue;
-const time=parseMOEXTime(obj.SYSTIME||obj.LASTTRADETIME||obj.UPDATETIME);
+const tradeTime=obj.LASTTRADETIME||"";
+const tradeDate=obj.LASTTRADEDATE||obj.TRADEDATE||"";
+const time=parseMOEXTime(tradeTime,tradeDate);
 return{
 price,time,board,
 source:"MOEX ISS",
-tradeTime:obj.LASTTRADETIME||obj.SYSTIME||obj.UPDATETIME||"—"
+tradeTime:tradeTime||"—"
 };
 }catch(e){lastError=e}
 }
@@ -1060,6 +1067,7 @@ function closePosition(a,tf,price,source){
 const b=book(a,tf),p=b.position;
 if(!p)return{ok:false,reason:"Открытой позиции нет."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены продажи."};
+if(!isFresh(S.data[a]?.quote))return{ok:false,reason:"Продажа заблокирована: цена MOEX старше 3 минут или время сделки неизвестно."};
 const value=price*p.qty;
 const commission=value*COMMISSION_RATE;
 const proceeds=value-commission;
@@ -1100,7 +1108,7 @@ renderAll();
 
 function runAutoSignals(a){
 const d=S.data[a],q=d?.quote;
-if(!d||!q)return;
+if(!d||!q||!isFresh(q))return;
 TFS.forEach(tf=>{
 const b=book(a,tf);
 if(!S.enabled[a]?.[tf])return;
@@ -1401,6 +1409,15 @@ if(!d?.bars?.length){
 $("backtestStatus").textContent="Нет истории MOEX ISS для теста.";
 return;
 }
+if(!validQuantity(S.asset)){
+$("backtestStatus").textContent="Тест остановлен: сначала задайте количество акций для "+S.asset+" в таблице инструментов.";
+$("backtest").innerHTML="";
+$("btOpen").textContent="—";
+$("btEquity").textContent="—";
+$("btPosition").textContent="—";
+$("btPending").textContent="—";
+return;
+}
 $("backtestStatus").textContent="Выполняется тест...";
 const bars=aggregateBars(d.bars,S.tf);
 const calc=calculateBox(bars);
@@ -1410,7 +1427,7 @@ return;
 }
 const bricks=buildRenko(bars,calc.box);
 let position=null,cash=CAPITAL,profit=0,trades=0,wins=0,maxEquity=CAPITAL,maxDD=0;
-const qty=validQuantity(S.asset)?getQuantity(S.asset):1;
+const qty=getQuantity(S.asset);
 bricks.forEach((x,i)=>{
 if(i===0)return;
 const prev=bricks[i-1];
