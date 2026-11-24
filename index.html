@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.7.8</title>
+<title>SNIPER ULTIMATE AI 2.7.9</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px Arial,sans-serif}
@@ -49,7 +49,7 @@ th{color:var(--muted);font-weight:normal}.check{accent-color:var(--green);width:
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.7.8</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.7.9</span></h1>
 <div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -153,7 +153,7 @@ th{color:var(--muted);font-weight:normal}.check{accent-color:var(--green);width:
 <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Режим</span><b id="board">—</b></div><div class="metric"><span class="muted small">Минутных свечей</span><b id="count">0</b></div><div class="metric"><span class="muted small">Страниц</span><b id="pages">0</b></div><div class="metric"><span class="muted small">Последняя свеча</span><b id="lastBar">—</b></div><div class="metric"><span class="muted small">Свежесть</span><b id="freshness">—</b></div><div class="metric"><span class="muted small">Вход разрешён</span><b id="allowed">НЕТ</b></div></div>
 <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.7.8 · MOEX ISS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.7.9 · MOEX ISS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 <script>
 "use strict";
 const CFG={
@@ -189,7 +189,7 @@ let assets=BUILTIN.slice();
 const CAPITAL=1000000,COMMISSION_RATE=.003,BUY_PRICE_MAX_AGE=3*60000,UPDATE=60000,PAGE=500,MAXPAGES=100;
 const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000,MAX_SIGNAL_AGE=3*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5],BOX_SAMPLE=20,BOX_VERSION=9,BOX_MULTIPLIERS=[.25,.5,.75,1,1.25,1.5,2];
-const STORE_KEY="sniper_ultimate_278",LEGACY_KEYS=["sniper_ultimate_277","sniper_ultimate_276","sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
+const STORE_KEY="sniper_ultimate_279",LEGACY_KEYS=["sniper_ultimate_278","sniper_ultimate_277","sniper_ultimate_276","sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
 const $=id=>document.getElementById(id),last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:4}):"—";
@@ -214,12 +214,19 @@ if(!b.preWarn)b.preWarn={};if(b.pending&&b.pending.type){b.pendingQueue.unshift(
 if(!Number.isFinite(b.lastSignalTime))b.lastSignalTime=0;if(!Number.isFinite(b.lastSignalDir))b.lastSignalDir=0;
 return b;
 }
-function compactState(maxBricks=500,maxClosed=10000){
-const books={};Object.keys(S.books||{}).forEach(k=>{const b=S.books[k];if(!b||typeof b!=="object")return;
-books[k]={...b,bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),closed:(Array.isArray(b.closed)?b.closed:[]).slice(0,maxClosed),events:(Array.isArray(b.events)?b.events:[]).slice(0,300),marks:(Array.isArray(b.marks)?b.marks:[]).slice(-400),pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-1000),preWarn:{}};
-});
-const custom={};Object.keys(CFG).forEach(a=>{if(!BUILTIN.includes(a)){const c=CFG[a];custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name}}});
-return{version:"2.7.8",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,quantities:S.quantities,books,assets:assets.slice(),custom};
+function compactState(maxBricks=100,maxClosed=2500,maxEvents=2000,maxMarks=1500){
+ const books={};let closedAll=[],eventsAll=[],marksAll=[];
+ Object.keys(S.books||{}).forEach(k=>{const b=S.books[k];if(!b||typeof b!=="object")return;
+ const closed=(Array.isArray(b.closed)?b.closed:[]).map((x,i)=>({...x,_ct:Number(x.time||x.closeTime||x.exitTime)||i}));
+ const events=(Array.isArray(b.events)?b.events:[]).map((x,i)=>({...x,_ct:Number(x.time||x.timestamp)||i}));
+ const marks=(Array.isArray(b.marks)?b.marks:[]).map((x,i)=>({...x,_ct:Number(x.time||x.timestamp)||i}));
+ closedAll.push(...closed.map(x=>({key:k,item:x})));eventsAll.push(...events.map(x=>({key:k,item:x})));marksAll.push(...marks.map(x=>({key:k,item:x})));
+ books[k]={...b,bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),closed:[],events:[],marks:[],pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-20),preWarn:{}};
+ });
+ const distribute=(all,limit,field)=>{all.sort((a,b)=>b.item._ct-a.item._ct);all.slice(0,limit).forEach(x=>{const item={...x.item};delete item._ct;books[x.key][field].push(item)});Object.keys(books).forEach(k=>books[k][field].reverse())};
+ distribute(closedAll,maxClosed,"closed");distribute(eventsAll,maxEvents,"events");distribute(marksAll,maxMarks,"marks");
+ const custom={};Object.keys(CFG).forEach(a=>{if(!BUILTIN.includes(a)){const c=CFG[a];custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name}}});
+ return{version:"2.7.9",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,quantities:S.quantities,books,assets:assets.slice(),custom};
 }
 let saveBusy=false,saveAgain=false,lastSaveError="";
 function save(){
@@ -228,7 +235,7 @@ if($("voiceOn"))S.voice=$("voiceOn").checked;if($("volume"))S.volume=Number($("v
 assets.forEach(a=>{const e=$("auto-"+a);if(e)S.auto[a]=e.checked});
 if(saveBusy){saveAgain=true;return}saveBusy=true;saveAgain=false;
 let saved=false,error=null;
-for(const limits of [[500,10000],[300,5000],[150,2000],[80,1000]]){try{localStorage.setItem(STORE_KEY,JSON.stringify(compactState(limits[0],limits[1])));saved=true;lastSaveError="";break}catch(e){error=e}}
+for(const limits of [[100,2500,2000,1500],[70,1600,1200,900],[45,900,700,500],[25,400,300,200]]){try{localStorage.setItem(STORE_KEY,JSON.stringify(compactState(limits[0],limits[1],limits[2],limits[3])));saved=true;lastSaveError="";break}catch(e){error=e}}
 if(saved)LEGACY_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
 else{lastSaveError=error?.message||"Недостаточно места";console.warn("Сохранение не выполнено",error);setStatusError("Не удалось сохранить данные: "+lastSaveError+". Старые данные не удалены.")}
 }catch(e){lastSaveError=e.message;console.warn("Сохранение",e);setStatusError("Ошибка сохранения: "+e.message)}
@@ -256,7 +263,7 @@ BUILTIN.forEach(a=>registerAsset(a,true));
 if(!x||!Array.isArray(x.assets)){DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
 assets.forEach(a=>{registerAsset(a,!!S.auto[a]);TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true})});
 if(!assets.includes(S.asset))S.asset="OZON";
-if(source!==STORE_KEY||!x||String(x.version||"")!=="2.7.8")console.log("Выполнена миграция сохранённых данных в 2.7.8");
+if(source!==STORE_KEY||!x||String(x.version||"")!=="2.7.9")console.log("Выполнена миграция сохранённых данных в 2.7.9");
 }catch(e){console.warn("Восстановление",e);DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
 }
 restore();
@@ -328,14 +335,14 @@ function moscowDate(d){return new Date(d.getTime()+OFFSET).toISOString().slice(0
 function parseDate(v){
 if(!v)return NaN;let s=String(v).trim();if(/^\d{4}-\d\d-\d\d$/.test(s))s+="T00:00:00+03:00";else{s=s.replace(" ","T");if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+="+03:00"}const n=new Date(s).getTime();return Number.isFinite(n)?n:NaN;
 }
-function parseTradeTime(v){
-if(!v)return NaN;const s=String(v).trim();
-if(/^\d{4}-\d\d-\d\d[ T]/.test(s))return parseDate(s);
-if(!/^\d\d:\d\d(?::\d\d)?$/.test(s))return NaN;
-const today=moscowDate(new Date(now()));let t=parseDate(today+"T"+s);
-if(t>now()+60000)t-=86400000;return t;
+function parseTradeTime(v,tradeDate){
+ if(!v)return NaN;const s=String(v).trim();
+ if(/^\d{4}-\d\d-\d\d[ T]/.test(s))return parseDate(s);
+ if(!/^\d\d:\d\d(?::\d\d)?$/.test(s)||!tradeDate)return NaN;
+ const d=String(tradeDate).trim();if(!/^\d{4}-\d\d-\d\d$/.test(d))return NaN;
+ return parseDate(d+"T"+s);
 }
-function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн."}
+function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(m/24)+" дн."}
 async function json(url){
 const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
 try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(timer)}
@@ -378,10 +385,10 @@ async function loadMarketQuote(asset){
 const c=CFG[asset];let errors=[];
 for(const board of c.boards){
 try{
-const url=`https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${encodeURIComponent(c.ticker)}.json?iss.only=marketdata&marketdata.columns=SECID,BOARDID,LAST,TIME&iss.meta=off`;
+const url=`https://iss.moex.com/iss/engines/stock/markets/${c.market}/boards/${board}/securities/${encodeURIComponent(c.ticker)}.json?iss.only=marketdata&marketdata.columns=SECID,BOARDID,LAST,TIME,TRADEDATE&iss.meta=off`;
 const j=await json(url),r=rows(j,"marketdata").find(x=>String(x.secid||"").toUpperCase()===asset);
 if(!r)continue;
-const price=Number(r.last),time=parseTradeTime(r.time);
+const price=Number(r.last),time=parseTradeTime(r.time,r.tradedate);
 if(!Number.isFinite(price)||price<=0)throw Error("Биржа не предоставила последнюю цену сделки");
 if(!Number.isFinite(time))throw Error("MOEX не предоставила время последней сделки");
 return{price,time,board:String(r.boardid||board),source:"MOEX ISS LAST/TIME"};
@@ -397,6 +404,9 @@ return{price:q.price,time:q.time,age:ageMs,board:q.board||d.board||"—"};
 function addATR(bars,period=S.atrPeriod){
 let prev=null,seed=[],atr=null;const out=[];
 for(const b of bars){const tr=prev===null?b.high-b.low:Math.max(b.high-b.low,Math.abs(b.high-prev),Math.abs(b.low-prev));if(seed.length<period){seed.push(tr);if(seed.length===period)atr=seed.reduce((a,v)=>a+v,0)/period}else atr=(atr*(period-1)+tr)/period;out.push({...b,atr:atr!==null&&Number.isFinite(atr)&&atr>0?atr:null});prev=b.close}
+return out;
+}
+ for(const b of bars){const tr=prev===null?b.high-b.low:Math.max(b.high-b.low,Math.abs(b.high-prev),Math.abs(b.low-prev));if(seed.length<period){seed.push(tr);if(seed.length===period)atr=seed.reduce((a,v)=>a+v,0)/period}else atr=(atr*(period-1)+tr)/period;out.push({...b,atr:atr!==null&&Number.isFinite(atr)&&atr>0?atr:null});prev=b.close}
 return out;
 }
 function sourceBars(d,tf){return tf===1440?closedDailyBars(d.dailyBars):closedBars(aggregate(d.bars,tf),tf)}
@@ -701,39 +711,43 @@ if(!confirm("Сбросить виртуальный счёт "+S.asset+" · "+t
 S.books[bookKey(S.asset,S.tf)]=emptyBook();save();render();
 }
 function runBacktest(){
-const el=$("backtestStatus");el.textContent="Выполняется исторический тест...";
-try{
-const d=S.data[S.asset],tf=S.tf,bars=sourceBars(d,tf);
-if(bars.length<80)throw Error("Недостаточно завершённых свечей для теста.");
-const qty=Number(S.quantities[S.asset]);
-if(!Number.isSafeInteger(qty)||qty<1||qty>1000000)throw Error("Сначала задай количество акций для "+S.asset+" в таблице инструментов.");
-const enriched=addATR(bars,S.atrPeriod),cal=calculateFixedBox(enriched);
-if(!(cal.box>0))throw Error("Недостаточно данных ATR.");
-const first=enriched.find(x=>Number.isFinite(x.close)&&x.close>0);if(!first)throw Error("Нет начальной цены.");
-const state={anchor:first.close,dir:0},bricks=[];
-let cash=CAPITAL,pos=null,realized=0,peak=CAPITAL,maxDD=0,deals=0,wins=0,pending=null;
-for(let i=0;i<enriched.length;i++){
-const bar=enriched[i];
-if(pending){
-if(pending==="BUY"&&!pos){
-const gross=qty*bar.open,fee=gross*COMMISSION_RATE,total=gross+fee;
-if(total<=cash){cash-=total;pos={entry:bar.open,qty,buyFee:fee,buyCost:total}}
-}else if(pending==="SELL"&&pos){
-const gross=pos.qty*bar.open,fee=gross*COMMISSION_RATE,pnl=gross-fee-pos.buyCost;
-cash+=gross-fee;realized+=pnl;deals++;if(pnl>0)wins++;pos=null;
-}pending=null;
-}
-const before=bricks.length,previous=before?bricks[before-1].dir:0;
-applyRenkoBar(state,bar,bricks,cal.box);
-if(bricks.length>before){const firstNew=bricks[before];if(previous!==0&&firstNew.dir!==previous)pending=firstNew.dir===1?"BUY":"SELL"}
-const equity=cash+(pos?pos.qty*bar.close-pos.qty*bar.close*COMMISSION_RATE:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
-}
-const lastBar=last(enriched),floating=pos?(lastBar.close-pos.entry)*pos.qty-pos.buyFee-lastBar.close*pos.qty*COMMISSION_RATE:0,total=realized+floating,tr=document.createElement("tr");
-["Renko ATR "+S.atrPeriod+" × "+S.boxMultiplier,String(deals),money(realized),deals?((wins/deals)*100).toFixed(1)+"%":"—",money(maxDD)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
-$("backtest").replaceChildren(tr);$("btOpen").textContent=money(floating);$("btEquity").textContent=money(CAPITAL+total);
-$("btPosition").textContent=pos?pos.qty+" шт. · вход "+fmt(pos.entry):"Нет";$("btPending").textContent=pending||"Нет";
-el.textContent="Тест завершён · свечей: "+bars.length+" · кирпичей: "+bricks.length+" · закрытых сделок: "+deals+". Количество: "+qty+" шт. Комиссия учтена отдельно при покупке и продаже.";
-}catch(e){el.textContent="Тест не выполнен: "+e.message}
+ const el=$("backtestStatus");el.textContent="Выполняется исторический тест...";
+ try{
+ const d=S.data[S.asset],tf=S.tf,bars=sourceBars(d,tf);
+ if(bars.length<80)throw Error("Недостаточно завершённых свечей для теста.");
+ const qty=Number(S.quantities[S.asset]);
+ if(!Number.isSafeInteger(qty)||qty<1||qty>1000000)throw Error("Сначала задай количество акций для "+S.asset+" в таблице инструментов.");
+ const enriched=addATR(bars,S.atrPeriod),atrIndices=[];
+ enriched.forEach((x,i)=>{if(Number.isFinite(x.atr)&&x.atr>0)atrIndices.push(i)});
+ if(atrIndices.length<BOX_SAMPLE)throw Error("Недостаточно данных ATR для калибровки Renko.");
+ const calibration=atrIndices.slice(0,BOX_SAMPLE),calibrationEnd=calibration[calibration.length-1];
+ const atr=calibration.reduce((sum,i)=>sum+enriched[i].atr,0)/calibration.length,box=tickRound(atr*S.boxMultiplier);
+ if(!(box>0))throw Error("Не удалось рассчитать размер кирпича Renko.");
+ const first=enriched[calibrationEnd];if(!first||!Number.isFinite(first.close)||first.close<=0)throw Error("Нет начальной цены после калибровки.");
+ const state={anchor:first.close,dir:0},bricks=[];
+ let cash=CAPITAL,pos=null,realized=0,peak=CAPITAL,maxDD=0,deals=0,wins=0,pending=null;
+ for(let i=calibrationEnd+1;i<enriched.length;i++){
+ const bar=enriched[i];
+ if(pending){
+ if(pending==="BUY"&&!pos){
+ const gross=qty*bar.open,fee=gross*COMMISSION_RATE,total=gross+fee;
+ if(total<=cash){cash-=total;pos={entry:bar.open,qty,buyFee:fee,buyCost:total}}
+ }else if(pending==="SELL"&&pos){
+ const gross=pos.qty*bar.open,fee=gross*COMMISSION_RATE,pnl=gross-fee-pos.buyCost;
+ cash+=gross-fee;realized+=pnl;deals++;if(pnl>0)wins++;pos=null;
+ }pending=null;
+ }
+ const before=bricks.length,previous=before?bricks[before-1].dir:0;
+ applyRenkoBar(state,bar,bricks,box);
+ if(bricks.length>before){const firstNew=bricks[before];if(previous!==0&&firstNew.dir!==previous)pending=firstNew.dir===1?"BUY":"SELL"}
+ const equity=cash+(pos?pos.qty*bar.close-pos.qty*bar.close*COMMISSION_RATE:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
+ }
+ const lastBar=last(enriched),floating=pos?(lastBar.close-pos.entry)*pos.qty-pos.buyFee-lastBar.close*pos.qty*COMMISSION_RATE:0,total=realized+floating,tr=document.createElement("tr");
+ ["Renko ATR "+S.atrPeriod+" × "+S.boxMultiplier,String(deals),money(realized),deals?((wins/deals)*100).toFixed(1)+"%":"—",money(maxDD)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
+ $("backtest").replaceChildren(tr);$("btOpen").textContent=money(floating);$("btEquity").textContent=money(CAPITAL+total);
+ $("btPosition").textContent=pos?pos.qty+" шт. · вход "+fmt(pos.entry):"Нет";$("btPending").textContent=pending||"Нет";
+ el.textContent="Тест завершён · свечей: "+bars.length+" · кирпичей: "+bricks.length+" · закрытых сделок: "+deals+". Количество: "+qty+" шт. Комиссия учтена отдельно при покупке и продаже.";
+ }catch(e){el.textContent="Тест не выполнен: "+e.message}
 }
 function render(){
 const d=S.data[S.asset],b=book(),p=d.quote?.price;
