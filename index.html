@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.8.1 FIX</title>
+<title>SNIPER ULTIMATE AI 2.8.2 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -69,7 +69,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.8.1 FIX</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.8.2 FIX</span></h1>
 <div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -245,7 +245,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
 
-<div class="footer">SNIPER ULTIMATE AI 2.8.1 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.8.2 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 
 <script>
 "use strict";
@@ -293,7 +293,7 @@ const HISTORY=45;
 const DAILY_HISTORY=365;
 const OFFSET=10800000;
 const MAX_DELAY=15*60000;
-const MAX_SIGNAL_AGE=15*60000;
+const MAX_SIGNAL_AGE=3*60000;
 const DAILY_REFRESH=6*60*60000;
 const TFS=[1,5,15,30,60,120,240,1440];
 const ATR_OPTIONS=[14,10,7,5];
@@ -374,7 +374,6 @@ return validQuantity(asset)?Number(S.quantities[asset]):0;
 }
 
 function setQuantity(asset,value){
-if(S.auto[asset])return;
 const raw=String(value??"").trim();
 if(raw===""||!/^\d+$/.test(raw)){
 S.quantities[asset]="";
@@ -409,7 +408,7 @@ custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name};
 }
 });
 return{
-version:"2.8.1",
+version:"2.8.2",
 asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,
 boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,
 voice:S.voice,volume:S.volume,books,assets:assets.slice(),
@@ -431,7 +430,7 @@ if(saveBusy){saveAgain=true;return}
 saveBusy=true;
 saveAgain=false;
 let saved=false,error=null;
-for(const limits of [[300,3000],[180,1500],[100,800],[50,300],[25,100],[10,30]]){
+for(const limits of [[100,500],[50,200],[25,100],[10,30],[5,10]]){
 try{
 localStorage.setItem(STORE_KEY,JSON.stringify(compactState(limits[0],limits[1])));
 saved=true;
@@ -593,7 +592,7 @@ input.max="100000000";
 input.className="qtyInput";
 input.placeholder="Количество";
 input.value=S.quantities[a]??"";
-input.disabled=!!S.auto[a];
+input.disabled=false;
 input.setAttribute("aria-label","Количество акций "+a);
 input.onchange=()=>setQuantity(a,input.value);
 input.onblur=()=>setQuantity(a,input.value);
@@ -1073,6 +1072,7 @@ return{ok:true};
 function closePosition(a,tf,price,source){
 const b=book(a,tf),p=b.position;
 if(!p)return{ok:false,reason:"Открытой позиции нет."};
+if(!isFresh(S.data[a]?.quote))return{ok:false,reason:"Продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены продажи."};
 
 const value=price*p.qty;
@@ -1107,6 +1107,7 @@ renderAll();
 }
 
 function manualSell(){
+if(!isFresh(S.data[S.asset]?.quote)){$("manualStatus").textContent="Продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно.";return;}
 const p=currentPrice();
 const result=closePosition(S.asset,S.tf,p,"MANUAL");
 $("manualStatus").textContent=result.ok?"Виртуальная позиция закрыта.":result.reason;
@@ -1115,7 +1116,7 @@ renderAll();
 
 function runAutoSignals(a){
 const d=S.data[a],q=d?.quote;
-if(!d||!q||!Number.isFinite(q.price)||q.price<=0)return;
+if(!d||!q||!Number.isFinite(q.price)||q.price<=0||!isFresh(q))return;
 TFS.forEach(tf=>{
 const b=book(a,tf);
 if(!S.enabled[a]?.[tf])return;
@@ -1453,7 +1454,7 @@ const equity=cash+(position?position.qty*x.close:0);
 maxEquity=Math.max(maxEquity,equity);
 maxDD=Math.max(maxDD,maxEquity-equity);
 });
-const openResult=position?((last(bricks).close-position.price)*position.qty-position.price*position.qty*COMMISSION_RATE):0;
+const openResult=position?((last(bricks).close-position.price)*position.qty-position.price*qty*COMMISSION_RATE):0;
 $("backtest").innerHTML="<tr><td>Renko ATR</td><td>"+trades+"</td><td>"+money(profit)+"</td><td>"+(trades?fmt(wins/trades*100)+"%":"—")+"</td><td>"+money(maxDD)+"</td></tr>";
 $("btOpen").textContent=money(openResult);
 $("btEquity").textContent=money(cash+(position?position.qty*last(bricks).close:0));
