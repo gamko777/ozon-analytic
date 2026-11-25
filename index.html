@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.8.3 FIX</title>
+<title>SNIPER ULTIMATE AI 2.8.4 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -46,6 +46,10 @@ th{color:var(--muted);font-weight:normal}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .assetBtn{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:60px;position:relative}
 .assetLamp{display:block;width:9px;height:9px;border-radius:50%;background:#718096}
+.renkoLamps{display:grid;grid-template-columns:repeat(4,27px);gap:4px;min-width:120px}
+.renkoLamp{width:27px;height:31px;padding:2px 0;border-radius:5px;border:1px solid #34485b;background:#101e2d;color:#e8f1fa;font-size:8px;line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.renkoLamp .renkoDot{width:9px;height:9px;border-radius:50%;background:#ffc857;display:block}
+.renkoLamp:focus{outline:1px solid var(--green);outline-offset:1px}
 .assetName{font-weight:bold;font-size:12px}
 .assetDesc{font-size:9px;color:var(--muted)}
 .assetRemove{padding:3px 6px;font-size:10px;color:var(--red);border-color:#633342}
@@ -69,7 +73,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.8.3 FIX</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.8.4 FIX</span></h1>
 <div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -85,7 +89,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="small muted" style="margin-top:8px">Количество акций задаётся вручную для каждого инструмента. Одно количество используется всеми восемью торговыми интервалами. Без корректного количества покупка запрещена.</div>
 <div class="addRow"><input id="tickerInput" type="text" maxlength="20" placeholder="Например: SBER, GAZP, YDEX"><button id="addTickerButton" onclick="addTicker()">＋ ДОБАВИТЬ</button></div>
 <div id="addTickerStatus" class="small muted" style="margin-top:9px">Удаление инструмента не удаляет его виртуальные счета, историю и открытые позиции.</div>
-<div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Тикер</th><th>Название</th><th>Цена MOEX</th><th>Количество</th><th>Авто</th><th>Действие</th></tr></thead><tbody id="myAssets"></tbody></table></div>
+<div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>Тикер</th><th>Название</th><th>Цена MOEX</th><th>Renko · 8 интервалов</th><th>Количество</th><th>Авто</th><th>Действие</th></tr></thead><tbody id="myAssets"></tbody></table></div>
 </section>
 
 <section class="panel">
@@ -197,7 +201,7 @@ th{color:var(--muted);font-weight:normal}
 <button class="buyButton" id="manualBuy" onclick="manualBuy()">▲ КУПИТЬ ВИРТУАЛЬНО</button>
 <button class="sellButton" id="manualSell" onclick="manualSell()">▼ ПРОДАТЬ ВИРТУАЛЬНО</button>
 </div>
-<div class="small muted" id="manualStatus" style="margin-top:9px">Ручное управление доступно при наличии свежей цены MOEX и заданного количества.</div>
+<div class="small muted" id="manualStatus" style="margin-top:9px">Ручные сделки доступны по последней полученной цене MOEX с предупреждением об устаревшей котировке. Автоматические сделки требуют свежую котировку.</div>
 <div class="small muted" style="margin-top:8px">Стартовый капитал каждого инструмента и интервала: 1 000 000 ₽. Автоматическая покупка — по заданному количеству акций, если хватает свободных средств. Комиссия 0,3% при покупке и 0,3% при продаже.</div>
 <button class="wide" onclick="resetCurrent()" style="border-color:var(--red);color:var(--red)">СБРОСИТЬ СЧЁТ ЭТОГО ИНТЕРВАЛА</button>
 </section>
@@ -245,7 +249,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
 
-<div class="footer">SNIPER ULTIMATE AI 2.8.2 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.8.4 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 
 <script>
 "use strict";
@@ -301,8 +305,8 @@ const BOX_SAMPLE=20;
 const BOX_VERSION=9;
 const BOX_MULTIPLIERS=[.25,.5,.75,1,1.25,1.5,2];
 
-const STORE_KEY="sniper_ultimate_283";
-const LEGACY_KEYS=["sniper_ultimate_281","sniper_ultimate_279","sniper_ultimate_278","sniper_ultimate_276","sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
+const STORE_KEY="sniper_ultimate_284";
+const LEGACY_KEYS=["sniper_ultimate_283","sniper_ultimate_281","sniper_ultimate_279","sniper_ultimate_278","sniper_ultimate_276","sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
 
 const $=id=>document.getElementById(id);
 const last=a=>a&&a.length?a[a.length-1]:null;
@@ -409,7 +413,7 @@ custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name};
 }
 });
 return{
-version:"2.8.3",
+version:"2.8.4",
 asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,
 boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,
 voice:S.voice,volume:S.volume,books,assets:assets.slice(),
@@ -606,7 +610,7 @@ const label=document.createElement("label");
 const b=document.createElement("b");
 const check=document.createElement("input");
 b.textContent=a;
-check.type="checkbox";
+ check.type="checkbox";
 check.className="check";
 check.id="auto-"+a;
 check.checked=!!S.auto[a];
@@ -638,6 +642,26 @@ const q=data.quote?.price;
 priceCell.textContent=Number.isFinite(q)?fmt(q)+" ₽":"—";
 priceCell.className=Number.isFinite(q)?"green":"muted";
 tr.append(priceCell);
+
+const signalCell=document.createElement("td");
+const lamps=document.createElement("div");
+lamps.className="renkoLamps";
+TFS.forEach(tf=>{
+const lamp=document.createElement("button");
+lamp.type="button";
+lamp.className="renkoLamp";
+lamp.id="renko-"+a+"-"+tf;
+lamp.title=tfName(tf)+": направление Renko";
+const dot=document.createElement("i");
+dot.className="renkoDot";
+const label=document.createElement("span");
+label.textContent=({1:"1м",5:"5м",15:"15м",30:"30м",60:"1ч",120:"2ч",240:"4ч",1440:"1д"})[tf];
+lamp.append(dot,label);
+lamp.onclick=()=>selectAssetInterval(a,tf);
+lamps.append(lamp);
+});
+signalCell.append(lamps);
+tr.append(signalCell);
 
 const qtyCell=document.createElement("td");
 qtyCell.className="qtyCell";
@@ -750,6 +774,16 @@ renderAll();
 function selectAsset(a){
 if(!CFG[a])return;
 S.asset=a;
+save();
+renderAll();
+updateTradingView();
+refreshAsset(a);
+}
+
+function selectAssetInterval(a,tf){
+if(!CFG[a]||!TFS.includes(tf))return;
+S.asset=a;
+S.tf=tf;
 save();
 renderAll();
 updateTradingView();
@@ -1101,13 +1135,33 @@ function canBuy(a,price){
 if(!validQuantity(a))return{ok:false,reason:"Не задано корректное количество акций."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены."};
 const q=S.data[a]?.quote;
-if(!isFresh(q))return{ok:false,reason:"Покупка заблокирована: цена MOEX старше 3 минут или время сделки неизвестно."};
+if(!isFresh(q))return{ok:false,reason:"Автоматическая покупка заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
 return{ok:true};
 }
 
-function openPosition(a,tf,price,source){
+function canManualBuy(a,tf,price){
+if(!validQuantity(a))return{ok:false,reason:"Не задано корректное количество акций."};
+if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет последней полученной цены MOEX."};
 const b=book(a,tf);
-const check=canBuy(a,price);
+if(b.position)return{ok:false,reason:"Позиция уже открыта."};
+const value=tradeCost(price,getQuantity(a));
+const total=value*(1+COMMISSION_RATE);
+if(total>CAPITAL*ALLOC||total>b.cash)return{ok:false,reason:"Недостаточно свободных средств для покупки заданного количества."};
+return{ok:true};
+}
+
+function quoteWarning(q){
+if(isFresh(q))return"";
+if(!q||!Number.isFinite(q.price)||q.price<=0)return"";
+if(!Number.isFinite(q.time)||q.time<=0)return"ВНИМАНИЕ: время последней котировки неизвестно. Сделка рассчитана по последней полученной цене MOEX.";
+const age=now()-q.time;
+if(age<0)return"ВНИМАНИЕ: время котировки некорректно. Используется последняя полученная цена MOEX.";
+return"ВНИМАНИЕ: котировка устарела ("+Math.floor(age/60000)+" мин). Сделка рассчитана по последней полученной цене MOEX.";
+}
+
+function openPosition(a,tf,price,source,allowStale=false){
+const b=book(a,tf);
+const check=allowStale?canManualBuy(a,tf,price):canBuy(a,price);
 if(!check.ok)return{ok:false,reason:check.reason};
 if(b.position)return{ok:false,reason:"Позиция уже открыта."};
 const qty=getQuantity(a);
@@ -1127,10 +1181,10 @@ announce("Виртуальная покупка "+a+". Цена "+fmt(price)+" �
 return{ok:true};
 }
 
-function closePosition(a,tf,price,source){
+function closePosition(a,tf,price,source,allowStale=false){
 const b=book(a,tf),p=b.position;
 if(!p)return{ok:false,reason:"Открытой позиции нет."};
-if(!isFresh(S.data[a]?.quote))return{ok:false,reason:"Продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
+if(!allowStale&&!isFresh(S.data[a]?.quote))return{ok:false,reason:"Автоматическая продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены продажи."};
 
 const value=price*p.qty;
@@ -1158,18 +1212,21 @@ return{ok:true,result};
 }
 
 function manualBuy(){
-const p=currentPrice();
-const result=openPosition(S.asset,S.tf,p,"MANUAL");
-$("manualStatus").textContent=result.ok?"Виртуальная покупка выполнена.":result.reason;
+const q=S.data[S.asset]?.quote,p=currentPrice();
+const result=openPosition(S.asset,S.tf,p,"MANUAL",true);
 renderAll();
+$("manualStatus").textContent=result.ok?
+("Виртуальная покупка выполнена по цене "+fmt(p)+" ₽. "+quoteWarning(q)).trim():
+result.reason;
 }
 
 function manualSell(){
-if(!isFresh(S.data[S.asset]?.quote)){$("manualStatus").textContent="Продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно.";return;}
-const p=currentPrice();
-const result=closePosition(S.asset,S.tf,p,"MANUAL");
-$("manualStatus").textContent=result.ok?"Виртуальная позиция закрыта.":result.reason;
+const q=S.data[S.asset]?.quote,p=currentPrice();
+const result=closePosition(S.asset,S.tf,p,"MANUAL",true);
 renderAll();
+$("manualStatus").textContent=result.ok?
+("Виртуальная позиция закрыта по цене "+fmt(p)+" ₽. "+quoteWarning(q)).trim():
+result.reason;
 }
 
 function runAutoSignals(a){
@@ -1349,11 +1406,13 @@ $("lastDeal").textContent=b.lastDeal||"—";
 $("position").textContent=p?
 "Открыта: "+p.qty+" акций · цена покупки "+fmt(p.price)+" ₽ · комиссия покупки "+money(p.commission)+" · текущий результат "+money(floating):
 "Открытой позиции нет.";
-const check=canBuy(S.asset,price);
+const check=canManualBuy(S.asset,S.tf,price);
 $("manualBuy").disabled=!!p||!check.ok;
-$("manualSell").disabled=!p||!Number.isFinite(price);
+$("manualSell").disabled=!p||!Number.isFinite(price)||price<=0;
+const warning=quoteWarning(S.data[S.asset]?.quote);
 if(!p&&!check.ok)$("manualStatus").textContent=check.reason;
-else if(p)$("manualStatus").textContent="Позиция открыта. Продажа доступна при наличии цены.";
+else if(!p&&warning)$("manualStatus").textContent="Ручная покупка доступна по последней цене. "+warning;
+else if(p)$("manualStatus").textContent="Позиция открыта. Ручная продажа доступна при наличии цены."+(warning?" "+warning:"");
 }
 
 function renderJournal(){
@@ -1478,6 +1537,7 @@ if(el)el.checked=!!S.enabled[S.asset]?.[tf];
 });
 const fresh=isFresh(S.data[S.asset]?.quote);
 $("lamp-"+S.asset)?.style.setProperty("background",fresh?"#20d69a":"#718096");
+updateAssetLamps();
 updateStats();
 }
 
@@ -1544,6 +1604,18 @@ function updateAssetLamps(){
 assets.forEach(a=>{
 const lamp=$("lamp-"+a);
 if(lamp)lamp.style.background=isFresh(S.data[a]?.quote)?"#20d69a":"#718096";
+TFS.forEach(tf=>{
+const el=$("renko-"+a+"-"+tf);
+if(!el)return;
+const b=S.books[bookKey(a,tf)];
+const dir=b?.initialized?(b.renkoState||0):0;
+const color=dir===1?"#20d69a":dir===-1?"#ff6478":"#ffc857";
+const dot=el.querySelector(".renkoDot");
+if(dot)dot.style.background=color;
+el.style.borderColor=color;
+const direction=dir===1?"РОСТ":dir===-1?"ПАДЕНИЕ":"НЕТ СИГНАЛА";
+el.title=tfName(tf)+": "+direction+(b?.initialized?" · Renko ATR":" · недостаточно данных");
+});
 });
 }
 
