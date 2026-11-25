@@ -145,7 +145,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Капитал интервала</span><b id="capital">—</b></div><div class="metric"><span class="muted small">Свободные средства</span><b id="cash">—</b></div><div class="metric"><span class="muted small">Реализованный результат</span><b id="profit">—</b></div><div class="metric"><span class="muted small">Закрытые сделки</span><b id="trades">0</b></div><div class="metric"><span class="muted small">Успешность</span><b id="winrate">—</b></div><div class="metric"><span class="muted small">Плавающий результат</span><b id="floating">—</b></div><div class="metric"><span class="muted small">Макс. просадка</span><b id="drawdown">—</b></div><div class="metric"><span class="muted small">Последняя сделка</span><b id="lastDeal">—</b></div></div>
 <div class="tradeButtons"><button class="buyButton" id="manualBuy" onclick="manualBuy()">▲ КУПИТЬ ВИРТУАЛЬНО</button><button class="sellButton" id="manualSell" onclick="manualSell()">▼ ПРОДАТЬ ВИРТУАЛЬНО</button></div>
 <div class="small muted" id="manualStatus" style="margin-top:9px">Ручное управление доступно при наличии свежей цены MOEX.</div>
-<div class="small muted" style="margin-top:8px">Стартовый капитал каждого инструмента и интервала: 1 000 000 ₽. На покупку — до 75% свободных средств. Комиссии и налоги временно не учитываются.</div>
+<div class="small muted" style="margin-top:8px">Стартовый капитал каждого инструмента и интервала: 1 000 000 ₽. На покупку — до 75% свободных средств. Комиссия: 0,3% при покупке и 0,3% при продаже. Налоги не учитываются.</div>
 <button class="wide" onclick="resetCurrent()" style="border-color:var(--red);color:var(--red)">СБРОСИТЬ СЧЁТ ЭТОГО ИНТЕРВАЛА</button>
 </section>
 <section class="panel">
@@ -204,6 +204,7 @@ const BUILTIN=["OZON","TGLD","LKOH","ROSN","PLZL"];
 const DEFAULT_ADDITIONAL=["SBER","VTBR","MOEX","AFKS","GAZP","NVTK","TATN","SNGS","IRAO","YDEX","T","MTSS","GMKN","CHMF","NLMK","ALRS","X5","MGNT","AFLT","SMLT"];
 let assets=BUILTIN.slice();
 const CAPITAL=1000000,ALLOC=.75,UPDATE=60000,PAGE=500,MAXPAGES=100;
+const BUY_COMMISSION=0.003,SELL_COMMISSION=0.003;
 const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000;
 const MAX_SIGNAL_AGE=3*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5];
@@ -336,7 +337,7 @@ if(!v)return NaN;let s=String(v).trim();if(/^\d{4}-\d\d-\d\d$/.test(s))s+="T00:0
 function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн."}
 async function json(url){
 const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
-try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(timer)}
+ try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(timer)}
 }
 function rows(j,k){
 let t=j&&j[k];if(!t&&j&&k.includes(".")){const p=k.split(".");t=j[p[0]]&&j[p[0]][p[1]]}
@@ -401,7 +402,7 @@ if(cl>=a+2*box&&guard++<100){out.push({open:a+box,close:a+2*box,dir:1,time:bar.t
 state.anchor=a;state.dir=d;
 }
 function updateEquity(b,price){
-const mark=Number.isFinite(price)&&price>0?price:(b.position?b.position.entry:0),equity=b.cash+(b.position&&mark?b.position.qty*mark:0);
+const mark=Number.isFinite(price)&&price>0?price:(b.position?b.position.entry:0),equity=b.cash+(b.position&&mark?b.position.qty*mark*(1-SELL_COMMISSION):0);
 if(!Number.isFinite(equity))return;b.equity=equity;b.peak=Math.max(Number(b.peak)||CAPITAL,equity);b.maxDD=Math.max(Number(b.maxDD)||0,b.peak-equity);
 }
 const speechQueue=[];let speaking=false,audioContext=null;
@@ -438,15 +439,25 @@ speak(type==="BUY"?`${CFG[asset].name}. ${tfName(tf)}. ${method} покупка.
 function openPosition(b,asset,tf,price,time,source="AUTO"){
 if(source==="AUTO"&&(!S.auto[asset]||!S.enabled[asset][tf]))return false;
 if(b.position||!(price>0)||b.cash<=0)return false;
-const qty=Math.floor(b.cash*ALLOC/price);if(qty<1)return false;
-b.cash-=qty*price;b.position={entry:price,qty,opened:time,source,tf};
-logEvent(b,asset,tf,"BUY",price,0,time,qty,source);updateEquity(b,price);beep("BUY");announce("BUY",asset,tf,price,qty,0,source);save();return true;
+const qty=Math.floor((b.cash*ALLOC)/(price*(1+BUY_COMMISSION)));
+if(qty<1)return false;
+const gross=qty*price,buyFee=gross*BUY_COMMISSION,totalCost=gross+buyFee;
+if(totalCost>b.cash)return false;
+b.cash-=totalCost;
+b.position={entry:price,qty,buyFee,opened:time,source,tf};
+logEvent(b,asset,tf,"BUY",price,0,time,qty,source);
+updateEquity(b,price);beep("BUY");announce("BUY",asset,tf,price,qty,0,source);save();return true;
 }
 function closePosition(b,asset,tf,price,time,source="AUTO"){
 if(!b.position||!(price>0))return false;
-const p=b.position,pnl=(price-p.entry)*p.qty;b.cash+=p.qty*price;b.realized+=pnl;
-b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,10000);
-logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
+const p=b.position,gross=price*p.qty,sellFee=gross*SELL_COMMISSION;
+const netSale=gross-sellFee,buyCost=p.entry*p.qty+(Number(p.buyFee)||0);
+const pnl=netSale-buyCost;
+b.cash+=netSale;b.realized+=pnl;
+b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,buyFee:Number(p.buyFee)||0,sellFee,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});
+b.closed=b.closed.slice(0,10000);
+logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);
+b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
 }
 
 /* 2.7.6: сигнал формируется по ПЕРВОМУ новому кирпичу противоположного направления. */
@@ -638,7 +649,7 @@ TFS.forEach(tf=>{
 const b=S.books[bookKey(a,tf)];if(!b)return;
 (Array.isArray(b.closed)?b.closed:[]).forEach(c=>{const pnl=Number(c.pnl)||0;if(pnl>0){profit+=pnl;per[a].profit+=pnl}else{loss+=Math.abs(pnl);per[a].loss+=Math.abs(pnl)}});
 const price=S.data[a]?.quote?.price||0;
-if(b.position){positions++;if(price>0){const p=(price-b.position.entry)*b.position.qty;if(p>0){floatProfit+=p;per[a].floating+=p}else{floatLoss+=Math.abs(p);per[a].floating+=p}}}
+if(b.position){positions++;if(price>0){const p=price*b.position.qty*(1-SELL_COMMISSION)-b.position.entry*b.position.qty-(Number(b.position.buyFee)||0);if(p>0){floatProfit+=p;per[a].floating+=p}else{floatLoss+=Math.abs(p);per[a].floating+=p}}}
 });per[a].total=per[a].profit-per[a].loss+per[a].floating;
 });
 $("totalProfit").textContent=money(profit);$("totalLoss").textContent=money(loss);$("floatProfit").textContent=money(floatProfit);$("floatLoss").textContent=money(floatLoss);
@@ -694,8 +705,8 @@ let cash=CAPITAL,pos=null,realized=0,peak=CAPITAL,maxDD=0,deals=0,wins=0,pending
 for(let i=0;i<enriched.length;i++){
 const bar=enriched[i];
 if(pending){
-if(pending==="BUY"&&!pos){const qty=Math.floor(cash*ALLOC/bar.open);if(qty>0){cash-=qty*bar.open;pos={entry:bar.open,qty}}}
-else if(pending==="SELL"&&pos){const pnl=(bar.open-pos.entry)*pos.qty;cash+=pos.qty*bar.open;realized+=pnl;deals++;if(pnl>0)wins++;pos=null}
+if(pending==="BUY"&&!pos){const qty=Math.floor((cash*ALLOC)/(bar.open*(1+BUY_COMMISSION)));if(qty>0){const gross=qty*bar.open,buyFee=gross*BUY_COMMISSION;cash-=gross+buyFee;pos={entry:bar.open,qty,buyFee}}}
+else if(pending==="SELL"&&pos){const gross=pos.qty*bar.open,sellFee=gross*SELL_COMMISSION;const pnl=gross-sellFee-pos.entry*pos.qty-(pos.buyFee||0);cash+=gross-sellFee;realized+=pnl;deals++;if(pnl>0)wins++;pos=null}
 pending=null;
 }
 const before=bricks.length,previous=before?bricks[before-1].dir:0;
@@ -703,7 +714,7 @@ applyRenkoBar(state,bar,bricks,cal.box);
 if(bricks.length>before){const firstNew=bricks[before];if(previous!==0&&firstNew.dir!==previous)pending=firstNew.dir===1?"BUY":"SELL"}
 const equity=cash+(pos?pos.qty*bar.close:0);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);
 }
-const lastBar=last(enriched),floating=pos?(lastBar.close-pos.entry)*pos.qty:0,total=realized+floating,tr=document.createElement("tr");
+const lastBar=last(enriched),floating=pos?lastBar.close*pos.qty*(1-SELL_COMMISSION)-pos.entry*pos.qty-(pos.buyFee||0):0,total=realized+floating,tr=document.createElement("tr");
 ["Renko ATR "+S.atrPeriod+" × "+S.boxMultiplier,String(deals),money(realized),deals?((wins/deals)*100).toFixed(1)+"%":"—",money(maxDD)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
 $("backtest").replaceChildren(tr);$("btOpen").textContent=money(floating);$("btEquity").textContent=money(CAPITAL+total);
 $("btPosition").textContent=pos?pos.qty+" шт. · вход "+fmt(pos.entry):"Нет";$("btPending").textContent=pending||"Нет";
@@ -744,7 +755,7 @@ $("renkoInfo").textContent="ATR Уайлдера · период "+S.atrPeriod+"
 $("capital").textContent=money(b.cash+(b.position&&p?b.position.qty*p:0));$("cash").textContent=money(b.cash);$("profit").textContent=money(b.realized);
 $("trades").textContent=b.closed.length;const wins=b.closed.filter(x=>x.pnl>0).length;
 $("winrate").textContent=b.closed.length?(wins/b.closed.length*100).toFixed(1)+"%":"—";
-const floating=b.position&&p?(p-b.position.entry)*b.position.qty:0;$("floating").textContent=money(floating);$("floating").className=floating>=0?"positive":"negative";
+const floating=b.position&&p?p*b.position.qty*(1-SELL_COMMISSION)-b.position.entry*b.position.qty-(Number(b.position.buyFee)||0):0;$("floating").textContent=money(floating);$("floating").className=floating>=0?"positive":"negative";
 $("drawdown").textContent=money(b.maxDD);$("lastDeal").textContent=b.closed.length?money(b.closed[0].pnl):"—";
 $("manualBuy").disabled=!fresh||!!b.position;$("manualSell").disabled=!fresh||!b.position;
 $("position").textContent=b.position?"ПОЗИЦИЯ ОТКРЫТА · "+b.position.qty+" шт. · вход "+fmt(b.position.entry)+" ₽ · текущая "+(p?fmt(p):"—")+" ₽ · результат "+money(floating):"Открытой позиции нет.";
