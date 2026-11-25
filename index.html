@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER ULTIMATE AI 2.7.6 FIX</title>
+<title>SNIPER ULTIMATE AI 2.7.7 FIX</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--txt:#e8f1fa;--muted:#8da3b7;--green:#20d69a;--red:#ff6478;--yellow:#ffc857}
 *{box-sizing:border-box}
@@ -67,7 +67,7 @@ th{color:var(--muted);font-weight:normal}
 </head>
 <body>
 <header>
-<h1>SNIPER ULTIMATE AI <span class="green">2.7.6 FIX</span></h1>
+<h1>SNIPER ULTIMATE AI <span class="green">2.7.7 FIX</span></h1>
 <div class="sub" id="headerSub">25 MOEX ASSETS · AUTO RENKO ATR · VIRTUAL ONLY</div>
 </header>
 <main>
@@ -86,18 +86,18 @@ th{color:var(--muted);font-weight:normal}
 </section>
 <section class="panel">
 <div class="row"><b>НЕЗАВИСИМАЯ ТОРГОВЛЯ ПО ИНТЕРВАЛАМ</b><span class="badge green">8 ИНТЕРВАЛОВ</span></div>
-<div class="small muted" style="margin-top:7px">Каждый интервал имеет собственный виртуальный счёт и позицию. Выключение запрещает новые покупки, но не закрытие уже открытой позиции.</div>
+<div class="small muted" style="margin-top:7px">Каждый интервал имеет собственный виртуальный счёт и позицию. Эти восемь переключателей общие для всех 25 инструментов: выключенный интервал запрещает новые автоматические покупки по всем акциям. Открытые позиции продолжают сопровождаться и закрываются по сигналу SELL.</div>
 <div class="tfGrid" id="tradeIntervals">
-<div class="tfItem"><label>1 мин<input class="check" type="checkbox" id="tf-1" checked onchange="toggleTF(1)"></label></div>
-<div class="tfItem"><label>5 мин<input class="check" type="checkbox" id="tf-5" checked onchange="toggleTF(5)"></label></div>
-<div class="tfItem"><label>15 мин<input class="check" type="checkbox" id="tf-15" checked onchange="toggleTF(15)"></label></div>
-<div class="tfItem"><label>30 мин<input class="check" type="checkbox" id="tf-30" checked onchange="toggleTF(30)"></label></div>
-<div class="tfItem"><label>1 час<input class="check" type="checkbox" id="tf-60" checked onchange="toggleTF(60)"></label></div>
-<div class="tfItem"><label>2 часа<input class="check" type="checkbox" id="tf-120" checked onchange="toggleTF(120)"></label></div>
-<div class="tfItem"><label>4 часа<input class="check" type="checkbox" id="tf-240" checked onchange="toggleTF(240)"></label></div>
-<div class="tfItem"><label>1 день<input class="check" type="checkbox" id="tf-1440" checked onchange="toggleTF(1440)"></label></div>
+<div class="tfItem"><label>1 мин<input class="check" type="checkbox" id="tf-1" onchange="toggleTF(1)"></label></div>
+<div class="tfItem"><label>5 мин<input class="check" type="checkbox" id="tf-5" onchange="toggleTF(5)"></label></div>
+<div class="tfItem"><label>15 мин<input class="check" type="checkbox" id="tf-15" onchange="toggleTF(15)"></label></div>
+<div class="tfItem"><label>30 мин<input class="check" type="checkbox" id="tf-30" onchange="toggleTF(30)"></label></div>
+<div class="tfItem"><label>1 час<input class="check" type="checkbox" id="tf-60" onchange="toggleTF(60)"></label></div>
+<div class="tfItem"><label>2 часа<input class="check" type="checkbox" id="tf-120" onchange="toggleTF(120)"></label></div>
+<div class="tfItem"><label>4 часа<input class="check" type="checkbox" id="tf-240" onchange="toggleTF(240)"></label></div>
+<div class="tfItem"><label>1 день<input class="check" type="checkbox" id="tf-1440" onchange="toggleTF(1440)"></label></div>
 </div>
-<div class="small muted" id="intervalStatus" style="margin-top:8px">Интервалы анализируются независимо.</div>
+<div class="small muted" id="intervalStatus" style="margin-top:8px">Переключатели интервалов действуют одновременно на все инструменты.</div>
 </section>
 <section class="panel">
 <div class="row"><span class="muted">ПОСЛЕДНЯЯ ЦЕНА MOEX · ЗАВЕРШЁННАЯ МИНУТНАЯ СВЕЧА</span><span id="fresh" class="badge yellow">ОЖИДАНИЕ</span></div>
@@ -170,7 +170,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Режим</span><b id="board">—</b></div><div class="metric"><span class="muted small">Минутных свечей</span><b id="count">0</b></div><div class="metric"><span class="muted small">Страниц</span><b id="pages">0</b></div><div class="metric"><span class="muted small">Последняя свеча</span><b id="lastBar">—</b></div><div class="metric"><span class="muted small">Свежесть</span><b id="freshness">—</b></div><div class="metric"><span class="muted small">Вход разрешён</span><b id="allowed">НЕТ</b></div></div>
 <div class="small muted" id="diagnostic" style="margin-top:10px;line-height:1.6">Ожидание источника.</div>
 </section>
-<div class="footer">SNIPER ULTIMATE AI 2.7.6 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
+<div class="footer">SNIPER ULTIMATE AI 2.7.7 FIX · 25 MOEX ASSETS · VIRTUAL ONLY<br>Реальные заявки брокеру не отправляются.</div>
 <script>
 "use strict";
 const CFG={
@@ -209,7 +209,7 @@ const HISTORY=45,DAILY_HISTORY=365,OFFSET=10800000,MAX_DELAY=20*60000;
 const MAX_SIGNAL_AGE=3*60000;
 const TFS=[1,5,15,30,60,120,240,1440],ATR_OPTIONS=[14,10,7,5];
 const BOX_SAMPLE=20,BOX_VERSION=8,BOX_MULTIPLIERS=[.25,.5,.75,1,1.25,1.5,2];
-const STORE_KEY="sniper_ultimate_276",LEGACY_KEYS=["sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
+const STORE_KEY="sniper_ultimate_277",LEGACY_KEYS=["sniper_ultimate_276","sniper_ultimate_275","sniper_ultimate_274","sniper_ultimate_273","sniper_ultimate_272","sniper_ultimate_271","sniper_ultimate_270","sniper_ultimate_265","sniper_ultimate_264","sniper_ultimate_262"];
 const $=id=>document.getElementById(id),last=a=>a&&a.length?a[a.length-1]:null;
 const money=n=>(Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽";
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{maximumFractionDigits:4}):"—";
@@ -218,7 +218,7 @@ const tfName=t=>({1:"1 мин",5:"5 мин",15:"15 мин",30:"30 мин",60:"1 
 const bookKey=(a,t)=>a+"_"+t;
 function emptyBook(){return{cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],bricks:[],box:0,boxRaw:0,atrNow:0,initialized:false,cursor:0,lastReversal:"—",pending:null,pendingQueue:[],renkoState:null,peak:CAPITAL,maxDD:0,equity:CAPITAL,calibrationEnd:0,preWarn:{},renkoVersion:BOX_VERSION,lastSignalTime:0,lastSignalDir:0}}
 function emptyData(){return{bars:[],dailyBars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,complete:false,dailyComplete:false,dailyError:"",dailyUpdated:0}}
-let S={asset:"OZON",tf:5,atrPeriod:5,boxMultiplier:.5,auto:{},enabled:{},loading:{},voice:true,volume:.8,data:{},books:{}};
+let S={asset:"OZON",tf:5,atrPeriod:5,boxMultiplier:.5,auto:{},enabled:{},intervalEnabled:Object.fromEntries(TFS.map(t=>[t,false])),loading:{},voice:true,volume:.8,data:{},books:{}};
 function registerAsset(a,auto=false){
 if(!CFG[a])return;if(!assets.includes(a))assets.push(a);
 if(S.auto[a]===undefined)S.auto[a]=!!auto;
@@ -242,7 +242,7 @@ Object.keys(S.books||{}).forEach(k=>{const b=S.books[k];if(!b||typeof b!=="objec
 books[k]={...b,bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),closed:(Array.isArray(b.closed)?b.closed:[]).slice(0,maxClosed),events:(Array.isArray(b.events)?b.events:[]).slice(0,300),marks:(Array.isArray(b.marks)?b.marks:[]).slice(-400),pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-1000),preWarn:{}};
 });
 const custom={};Object.keys(CFG).forEach(a=>{if(!BUILTIN.includes(a)){const c=CFG[a];custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name}}});
-return{version:"2.7.6",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
+return{version:"2.7.7",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,intervalEnabled:S.intervalEnabled,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
 }
 let saveBusy=false,saveAgain=false,lastSaveError="";
 function save(){
@@ -271,16 +271,17 @@ S.asset=CFG[x.asset]?x.asset:"OZON";S.tf=TFS.includes(+x.tf)?+x.tf:5;
 S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:5;
 const m=Number(x.boxMultiplier);S.boxMultiplier=BOX_MULTIPLIERS.includes(m)?m:.5;
 S.auto={...S.auto,...(x.auto||{})};S.enabled={...S.enabled,...(x.enabled||{})};
+S.intervalEnabled=Object.fromEntries(TFS.map(t=>[t,!!(x.intervalEnabled&&x.intervalEnabled[t]===true)]));
 S.voice=x.voice!==false;S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
 S.books=x.books&&typeof x.books==="object"?x.books:{};
 (Array.isArray(x.assets)?x.assets:[]).forEach(a=>{if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]))});
 }
 BUILTIN.forEach(a=>registerAsset(a,true));
-const isCurrent=source===STORE_KEY&&x&&String(x.version||"")==="2.7.6";
-if(!isCurrent){DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
+const isCurrent=source===STORE_KEY&&x&&String(x.version||"")==="2.7.7";
+if(!isCurrent){DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);if(!(x&&x.auto&&typeof x.auto[a]==="boolean"))S.auto[a]=false})}
 assets.forEach(a=>{registerAsset(a,!!S.auto[a]);TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true})});
 if(!assets.includes(S.asset))S.asset="OZON";
-if(source!==STORE_KEY||!isCurrent)console.log("Выполнена миграция сохранённых данных в 2.7.6");
+if(source!==STORE_KEY||!isCurrent)console.log("Выполнена миграция сохранённых данных в 2.7.7");
 }catch(e){console.warn("Восстановление",e);DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
 }
 restore();
@@ -437,7 +438,7 @@ const method=source==="MANUAL"?"Ручная виртуальная":"Автом
 speak(type==="BUY"?`${CFG[asset].name}. ${tfName(tf)}. ${method} покупка. ${qty} штук. Цена ${fmt(price)} рублей.`:`${CFG[asset].name}. ${tfName(tf)}. ${method} продажа. Результат ${pnl>=0?"прибыль":"убыток"} ${money(Math.abs(pnl))}.`);
 }
 function openPosition(b,asset,tf,price,time,source="AUTO"){
-if(source==="AUTO"&&(!S.auto[asset]||!S.enabled[asset][tf]))return false;
+if(source==="AUTO"&&(!S.auto[asset]||!S.intervalEnabled[tf]))return false;
 if(b.position||!(price>0)||b.cash<=0)return false;
 const qty=Math.floor((b.cash*ALLOC)/(price*(1+BUY_COMMISSION)));
 if(qty<1)return false;
@@ -460,7 +461,7 @@ logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);
 b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
 }
 
-/* 2.7.6: сигнал формируется по ПЕРВОМУ новому кирпичу противоположного направления. */
+/* 2.7.7: сигнал формируется по ПЕРВОМУ новому кирпичу противоположного направления. */
 function queueBrickSignal(b,bar,tf,brick,previousDir){
 if(!brick||!previousDir||brick.dir===previousDir)return;
 const dir=brick.dir,afterTime=bar.time+tf*60000;
@@ -490,7 +491,7 @@ if(now()-(next.time+60000)>MAX_SIGNAL_AGE){b.pendingQueue.shift();changed=true;c
 if(!priceFresh)break;
 b.pendingQueue.shift();changed=true;
 if(p.type==="BUY"){
-if(S.auto[asset]&&S.enabled[asset][tf]&&!b.position)openPosition(b,asset,tf,next.open,next.time,"AUTO");
+if(S.auto[asset]&&S.intervalEnabled[tf]&&!b.position)openPosition(b,asset,tf,next.open,next.time,"AUTO");
 }else if(p.type==="SELL"&&b.position){
 closePosition(b,asset,tf,next.open,next.time,"AUTO");
 }
@@ -541,9 +542,11 @@ if(b.bricks.length>600)b.bricks=b.bricks.slice(-600);
 updateEquity(b,price||0);save();
 }
 function processAsset(asset){TFS.forEach(tf=>processStrategy(asset,tf))}
-function clearQueuedBuys(asset,tf=null){
-const intervals=tf===null?TFS:[tf];
-intervals.forEach(t=>{const b=book(asset,t),before=b.pendingQueue.length;b.pendingQueue=b.pendingQueue.filter(p=>p.type!=="BUY");if(b.pendingQueue.length!==before)save()});
+function clearQueuedBuys(asset=null,tf=null){
+const names=asset?[asset]:[...new Set([...assets,...Object.keys(S.books||{}).map(k=>k.slice(0,k.lastIndexOf("_")))])];
+const intervals=tf===null?TFS:[tf];let changed=false;
+names.forEach(a=>intervals.forEach(t=>{const b=S.books[bookKey(a,t)];if(!b||!Array.isArray(b.pendingQueue))return;const before=b.pendingQueue.length;b.pendingQueue=b.pendingQueue.filter(p=>p.type!=="BUY");if(b.pendingQueue.length!==before)changed=true}));
+if(changed)save();
 }
 function resetRenkoAll(){
 assets.forEach(a=>TFS.forEach(tf=>{
@@ -664,9 +667,9 @@ if(!CFG[a])return;S.auto[a]=$("auto-"+a).checked;
 if(!S.auto[a])clearQueuedBuys(a);save();render();renderMyAssets();
 }
 function toggleTF(tf){
-tf=+tf;if(!TFS.includes(tf))return;S.enabled[S.asset][tf]=$("tf-"+tf).checked;
-if(!S.enabled[S.asset][tf])clearQueuedBuys(S.asset,tf);
-save();render();$("intervalStatus").textContent="Автоторговля "+tfName(tf)+": "+(S.enabled[S.asset][tf]?"включена":"выключена")+". Открытые позиции продолжают сопровождаться.";
+tf=+tf;if(!TFS.includes(tf))return;S.intervalEnabled[tf]=$("tf-"+tf).checked;
+if(!S.intervalEnabled[tf])clearQueuedBuys(null,tf);
+save();render();$("intervalStatus").textContent="Общий режим для всех инструментов · "+tfName(tf)+": "+(S.intervalEnabled[tf]?"ВКЛЮЧЁН":"ВЫКЛЮЧЕН")+". Открытые позиции продолжают сопровождаться.";
 }
 function changeATR(v){const n=Number(v);if(!ATR_OPTIONS.includes(n))return;S.atrPeriod=n;resetRenkoAll();save();refreshAll()}
 function changeBoxMultiplier(v){const n=Number(v);if(!BOX_MULTIPLIERS.includes(n))return;S.boxMultiplier=n;resetRenkoAll();save();refreshAll()}
@@ -726,8 +729,10 @@ const d=S.data[S.asset],b=book(),p=d.quote?.price;
 $("accountAsset").textContent=S.asset;$("journalAsset").textContent=S.asset;$("accountTF").textContent=tfName(S.tf).toUpperCase();$("signalTF").textContent=tfName(S.tf);
 $("atrSelect").value=String(S.atrPeriod);$("boxMultiplier").value=String(S.boxMultiplier);$("atrValue").textContent=S.atrPeriod;
 $("boxMultiplierValue").textContent=String(S.boxMultiplier).replace(".",",")+" × ATR";$("fixedBoxValue").textContent=b.box>0?fmt(b.box):"—";
-$("tf-"+S.tf).checked=!!S.enabled[S.asset][S.tf];
-$("intervalStatus").textContent="Автоторговля "+tfName(S.tf)+": "+(S.enabled[S.asset][S.tf]?"включена":"выключена")+".";
+TFS.forEach(t=>{$("tf-"+t).checked=!!S.intervalEnabled[t]});
+const enabledCount=TFS.filter(t=>S.intervalEnabled[t]).length;
+$("intervalStatus").textContent="Общие настройки для всех инструментов: включено "+enabledCount+" из 8 интервалов. "+tfName(S.tf)+": "+(S.intervalEnabled[S.tf]?"ВКЛ":"ВЫКЛ")+"."
+
 document.querySelectorAll("[data-tf]").forEach(x=>x.classList.toggle("active",Number(x.dataset.tf)===S.tf));
 if(Number.isFinite(p)){
 $("price").textContent=fmt(p)+" ₽";$("tradeTime").textContent=d.quote?new Date(d.quote.time).toLocaleString("ru-RU"):"—";
@@ -738,7 +743,7 @@ $("fresh").textContent=fresh?"ДАННЫЕ АКТУАЛЬНЫ":"НЕТ СВЕЖ�
 $("sourceBadge").textContent=d.error?"ОШИБКА":"MOEX ISS";$("sourceBadge").className="badge "+(d.error?"red":"green");
 $("board").textContent=d.board||"—";$("count").textContent=d.bars.length;$("pages").textContent=d.pages||0;
 $("lastBar").textContent=last(d.bars)?new Date(last(d.bars).time).toLocaleString("ru-RU"):"—";$("freshness").textContent=f.age===Infinity?"—":age(f.age);
-$("allowed").textContent=fresh&&S.auto[S.asset]&&S.enabled[S.asset][S.tf]?"ДА":"НЕТ";
+$("allowed").textContent=fresh&&S.auto[S.asset]&&S.intervalEnabled[S.tf]?"ДА":"НЕТ";
 $("diagnostic").textContent=(d.error||d.dailyError||"Минутная история: "+(d.complete?"загружена":"неполная")+". Дневная история: "+(d.dailyComplete?"загружена":"неполная")+".");
 const dir=renkoDirection(S.asset,S.tf);
 $("renkoState").textContent=dir==="up"?"ВОСХОДЯЩИЙ":dir==="down"?"НИСХОДЯЩИЙ":"ОЖИДАНИЕ";
