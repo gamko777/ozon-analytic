@@ -145,7 +145,7 @@ th{color:var(--muted);font-weight:normal}
 <div class="grid" style="margin-top:10px"><div class="metric"><span class="muted small">Капитал интервала</span><b id="capital">—</b></div><div class="metric"><span class="muted small">Свободные средства</span><b id="cash">—</b></div><div class="metric"><span class="muted small">Реализованный результат</span><b id="profit">—</b></div><div class="metric"><span class="muted small">Закрытые сделки</span><b id="trades">0</b></div><div class="metric"><span class="muted small">Успешность</span><b id="winrate">—</b></div><div class="metric"><span class="muted small">Плавающий результат</span><b id="floating">—</b></div><div class="metric"><span class="muted small">Макс. просадка</span><b id="drawdown">—</b></div><div class="metric"><span class="muted small">Последняя сделка</span><b id="lastDeal">—</b></div></div>
 <div class="tradeButtons"><button class="buyButton" id="manualBuy" onclick="manualBuy()">▲ КУПИТЬ ВИРТУАЛЬНО</button><button class="sellButton" id="manualSell" onclick="manualSell()">▼ ПРОДАТЬ ВИРТУАЛЬНО</button></div>
 <div class="small muted" id="manualStatus" style="margin-top:9px">Ручное управление доступно при наличии свежей цены MOEX.</div>
-<div class="small muted" style="margin-top:8px">Стартовый капитал каждого инструмента и интервала: 1 000 000 ₽. На покупку — до 75% свободных средств. Комиссии и налоги временно не учитываются.</div>
+<div class="small muted" style="margin-top:8px">Стартовый капитал каждого инструмента и интервала: 1 000 000 ₽. На покупку — до 75% свободных средств. Комиссия: 0,3% при покупке и 0,3% при продаже. Налоги не учитываются.</div>
 <button class="wide" onclick="resetCurrent()" style="border-color:var(--red);color:var(--red)">СБРОСИТЬ СЧЁТ ЭТОГО ИНТЕРВАЛА</button>
 </section>
 <section class="panel">
@@ -336,7 +336,8 @@ if(!v)return NaN;let s=String(v).trim();if(/^\d{4}-\d\d-\d\d$/.test(s))s+="T00:0
 function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн."}
 async function json(url){
 const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
-try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(timer)}
+try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.sta
+     tus);return await r.json()}finally{clearTimeout(timer)}
 }
 function rows(j,k){
 let t=j&&j[k];if(!t&&j&&k.includes(".")){const p=k.split(".");t=j[p[0]]&&j[p[0]][p[1]]}
@@ -428,8 +429,8 @@ const el=$("soundStatus");if(el)el.textContent="Проверка звука...";
 if(S.voice&&$("voiceOn")?.checked&&("speechSynthesis"in window)){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("Снайпер. Проверка голосового помощника.");u.lang="ru-RU";u.volume=S.volume;u.onend=()=>{if(el)el.textContent=ok?"Звук и голос работают.":"Голос работает, звуковой сигнал недоступен."};u.onerror=()=>{if(el)el.textContent="Звуковой сигнал проверен, голос не поддерживается браузером."};speechSynthesis.speak(u)}catch(e){if(el)el.textContent="Голосовая проверка не удалась: "+e.message}}
 else if(el)el.textContent=ok?"Звуковой сигнал работает. Для голосовой проверки включи «Голос включён».":"Не удалось воспроизвести звук.";
 }
-function logEvent(b,asset,tf,type,price,pnl=0,time=now(),qty=0,source="AUTO"){
-const e={type,price,pnl,time,qty,asset,tf,atr:S.atrPeriod,box:b.box,source};b.events.unshift(e);b.events=b.events.slice(0,300);b.marks.push(e);b.marks=b.marks.slice(-400);save();
+function logEvent(b,asset,tf,type,price,pnl=0,time=now(),qty=0,source="AUTO",commission=0){
+const e={type,price,pnl,time,qty,asset,tf,atr:S.atrPeriod,box:b.box,source,commission};b.events.unshift(e);b.events=b.events.slice(0,300);b.marks.push(e);b.marks=b.marks.slice(-400);save();
 }
 function announce(type,asset,tf,price,qty,pnl,source="AUTO"){
 const method=source==="MANUAL"?"Ручная виртуальная":"Автоматическая виртуальная";
@@ -438,15 +439,20 @@ speak(type==="BUY"?`${CFG[asset].name}. ${tfName(tf)}. ${method} покупка.
 function openPosition(b,asset,tf,price,time,source="AUTO"){
 if(source==="AUTO"&&(!S.auto[asset]||!S.enabled[asset][tf]))return false;
 if(b.position||!(price>0)||b.cash<=0)return false;
-const qty=Math.floor(b.cash*ALLOC/price);if(qty<1)return false;
-b.cash-=qty*price;b.position={entry:price,qty,opened:time,source,tf};
-logEvent(b,asset,tf,"BUY",price,0,time,qty,source);updateEquity(b,price);beep("BUY");announce("BUY",asset,tf,price,qty,0,source);save();return true;
+const qty=Math.floor(b.cash*ALLOC/(price*(1+0.003)));if(qty<1)return false;
+const gross=qty*price,buyCommission=gross*0.003;
+if(gross+buyCommission>b.cash)return false;
+b.cash-=gross+buyCommission;b.position={entry:price,qty,entryCommission:buyCommission,opened:time,source,tf};
+logEvent(b,asset,tf,"BUY",price,0,time,qty,source,buyCommission);updateEquity(b,price);beep("BUY");announce("BUY",asset,tf,price,qty,0,source);save();return true;
 }
 function closePosition(b,asset,tf,price,time,source="AUTO"){
 if(!b.position||!(price>0))return false;
-const p=b.position,pnl=(price-p.entry)*p.qty;b.cash+=p.qty*price;b.realized+=pnl;
-b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,10000);
-logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source);b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
+const p=b.position,buyCommission=Number.isFinite(Number(p.entryCommission))?Number(p.entryCommission):p.entry*p.qty*0.003;
+const legacyBuyFee=p.entryCommission==null,sellGross=p.qty*price,sellCommission=sellGross*0.003;
+const pnl=(price-p.entry)*p.qty-buyCommission-sellCommission;
+b.cash+=sellGross-sellCommission-(legacyBuyFee?buyCommission:0);b.realized+=pnl;
+b.closed.unshift({entry:p.entry,exit:price,qty:p.qty,pnl,buyCommission,sellCommission,commission:buyCommission+sellCommission,time,source:p.source||"AUTO",exitSource:source,opened:p.opened,tf});b.closed=b.closed.slice(0,10000);
+logEvent(b,asset,tf,"SELL",price,pnl,time,p.qty,source,sellCommission);b.position=null;updateEquity(b,price);beep("SELL");announce("SELL",asset,tf,price,p.qty,pnl,source);save();return true;
 }
 
 /* 2.7.6: сигнал формируется по ПЕРВОМУ новому кирпичу противоположного направления. */
@@ -457,7 +463,7 @@ const ageMs=now()-afterTime;
 const allowedAge=Math.max(MAX_SIGNAL_AGE,tf*60000+MAX_SIGNAL_AGE);
 if(ageMs<0||ageMs>allowedAge)return;
 if(b.lastSignalTime===bar.time&&b.lastSignalDir===dir)return;
-b.lastSignalDir=dir;b.lastSignalTime=bar.time;
+b.lastSignalDir=bar.time;b.lastSignalDir=dir;
 b.lastReversal=dir===1?"ВВЕРХ":"ВНИЗ";
 b.pendingQueue=b.pendingQueue.filter(p=>p.brickTime!==bar.time);
 b.pendingQueue.push({type:dir===1?"BUY":"SELL",afterTime,brickTime:bar.time,dir,created:now()});
@@ -694,8 +700,8 @@ let cash=CAPITAL,pos=null,realized=0,peak=CAPITAL,maxDD=0,deals=0,wins=0,pending
 for(let i=0;i<enriched.length;i++){
 const bar=enriched[i];
 if(pending){
-if(pending==="BUY"&&!pos){const qty=Math.floor(cash*ALLOC/bar.open);if(qty>0){cash-=qty*bar.open;pos={entry:bar.open,qty}}}
-else if(pending==="SELL"&&pos){const pnl=(bar.open-pos.entry)*pos.qty;cash+=pos.qty*bar.open;realized+=pnl;deals++;if(pnl>0)wins++;pos=null}
+if(pending==="BUY"&&!pos){const qty=Math.floor(cash*ALLOC/(bar.open*(1+0.003)));if(qty>0){const gross=qty*bar.open,fee=gross*0.003;if(gross+fee<=cash){cash-=gross+fee;pos={entry:bar.open,qty,entryCommission:fee}}}}
+else if(pending==="SELL"&&pos){const sellGross=pos.qty*bar.open,sellFee=sellGross*0.003,pnl=(bar.open-pos.entry)*pos.qty-(pos.entryCommission||0)-sellFee;cash+=sellGross-sellFee;realized+=pnl;deals++;if(pnl>0)wins++;pos=null}
 pending=null;
 }
 const before=bricks.length,previous=before?bricks[before-1].dir:0;
@@ -768,4 +774,4 @@ window.addEventListener("resize",()=>{if(S.asset){drawRenko();drawEquity()}});
 init();
 </script>
 </body>
-</html>
+</html>                                                                               
