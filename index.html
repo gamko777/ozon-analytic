@@ -7,48 +7,39 @@
 <meta name="theme-color" content="#07111d">
 <title>SNIPER GOLD AI 1.0</title>
 <style>
-:root{
- --bg:#07111d;--panel:#101e2d;--panel2:#15283a;--line:#263b50;
- --text:#e8f0f8;--muted:#8da3b8;--green:#27d69a;--red:#ff6577;
- --gold:#e8bd55;--blue:#58aaff;--orange:#f2a64a;
-}
+:root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--text:#e8f0f8;--muted:#8da3b8;--green:#27d69a;--red:#ff6577;--gold:#e8bd55;--blue:#58aaff;--orange:#f2a64a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
 header{padding:15px;background:#0b1927;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 h1{font-size:19px;margin:0;color:var(--gold);letter-spacing:1px}
 .sub{font-size:11px;color:var(--muted);margin-top:5px}
 main{padding:10px;max-width:1100px;margin:auto}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.panel{background:var(--p);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .price{font-size:26px;font-weight:bold;color:var(--gold)}
 .muted{color:var(--muted);font-size:12px}
 .status{font-size:12px;padding:6px 9px;border-radius:20px;background:#25384a}
 .good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--orange)}
 button,select,input{background:#1a3044;color:var(--text);border:1px solid #38516a;border-radius:8px;padding:10px;font-size:13px}
-button{cursor:pointer}
-button:disabled{opacity:.45}
-.primary{background:#174b43;border-color:#267e69}
-.gold{background:#594719;border-color:#9a7a2e}
+button{cursor:pointer}button:disabled{opacity:.45}
+.primary{background:#174b43;border-color:#267e69}.gold{background:#594719;border-color:#9a7a2e}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.tf{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.tf{background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
 .tf.active{border-color:var(--gold)}
 .tf-name{font-weight:bold;color:var(--gold);font-size:14px}
-.tf-signal{font-weight:bold;margin:7px 0}
+.tf-signal{font-weight:bold;margin:7px 0;font-size:12px}
 .tf-data{font-size:11px;color:var(--muted);line-height:1.6}
 canvas{width:100%;height:280px;display:block;background:#091521;border-radius:8px}
 .tabs{display:flex;gap:6px;overflow:auto;margin-bottom:9px}
-.tabs button{white-space:nowrap}
-.tabs button.selected{border-color:var(--gold);color:var(--gold)}
-.metric{font-size:19px;font-weight:bold;margin-top:5px}
-.metric-label{font-size:11px;color:var(--muted)}
+.tabs button{white-space:nowrap}.tabs button.selected{border-color:var(--gold);color:var(--gold)}
 table{width:100%;border-collapse:collapse;font-size:12px}
 td,th{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}
 th{color:var(--muted);font-weight:normal}
 .scroll{overflow-x:auto}
 .log{font-size:12px;line-height:1.5;border-bottom:1px solid var(--line);padding:7px 0}
 .log time{color:var(--muted)}
-input[type=number]{width:110px}
+input[type=number]{width:120px}
 #speechText{line-height:1.5;font-size:13px}
 .smallbtn{padding:7px 9px}
 footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
@@ -69,7 +60,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
  <section class="panel">
   <div class="row">
    <div>
-    <div class="muted">T-КАПИТАЛ ЗОЛОТО · TGLD</div>
+    <div class="muted">Т-КАПИТАЛ ЗОЛОТО · TGLD</div>
     <div class="price" id="currentPrice">— ₽</div>
     <div class="muted" id="priceTime">Ожидание котировки MOEX ISS</div>
    </div>
@@ -108,7 +99,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
    <button class="gold" id="saveSettings">Сохранить</button>
   </div>
   <div class="muted" style="margin-top:8px">
-   Каждый интервал торгует независимо. Покупка и продажа выполняются только после закрытия свечи.
+   Каждый интервал торгует независимо. Все операции виртуальные. Сигнал формируется после закрытия свечи.
   </div>
  </section>
 
@@ -157,21 +148,15 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
    <strong>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</strong>
    <button class="smallbtn" id="clearLog">Очистить журнал</button>
   </div>
-  <div id="tradeLog" style="margin-top:8px">
-   <div class="muted">Сделок пока нет.</div>
-  </div>
+  <div id="tradeLog" style="margin-top:8px"><div class="muted">Сделок пока нет.</div></div>
  </section>
 
  <section class="panel">
   <strong>СОБЫТИЯ И ПРЕДУПРЕЖДЕНИЯ</strong>
-  <div id="eventLog" style="margin-top:8px">
-   <div class="muted">Ожидание анализа.</div>
-  </div>
+  <div id="eventLog" style="margin-top:8px"><div class="muted">Ожидание анализа.</div></div>
  </section>
 
- <footer>
-  SNIPER GOLD AI 1.0 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ЯВЛЯЕТСЯ ИНВЕСТИЦИОННОЙ РЕКОМЕНДАЦИЕЙ
- </footer>
+ <footer>SNIPER GOLD AI 1.0 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ЯВЛЯЕТСЯ ИНВЕСТИЦИОННОЙ РЕКОМЕНДАЦИЕЙ</footer>
 </main>
 
 <script>
@@ -179,7 +164,6 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
 
 const CONFIG={
  ticker:"TGLD",
- name:"Т-Капитал Золото",
  intervals:[
   {id:"1m",label:"1 мин",minutes:1},
   {id:"5m",label:"5 мин",minutes:5},
@@ -193,55 +177,46 @@ const CONFIG={
  maxAgeMs:3*60*1000,
  minCandles:35,
  refreshMs:30000,
- historyDays:45,
+ historyDays:30,
  storageKey:"sniper_gold_ai_10"
 };
 
 const $=id=>document.getElementById(id);
 const state={
- raw:[],
- frames:{},
- accounts:{},
- selectedTf:"1m",
- voice:false,
- lastSpeech:"",
- lastEvent:"",
- lastFreshAt:0,
- lastPrice:null,
- lastCandleKey:{},
- warnedCandle:{},
- pendingEvents:[],
- loading:false,
- timer:null,
- lastAnalysisAt:0
+ raw:[],frames:{},accounts:{},selectedTf:"1m",
+ voice:false,lastSpeech:"",lastCandleKey:{},
+ warnedCandle:{},loading:false,lastAnalysisAt:0,
+ lastPrice:null,lastDataWarning:0
 };
 
-function defaultAccount(){
- const capital=Number($("capitalInput")?.value)||100000;
+function defaultAccount(capital){
  return {cash:capital,units:0,entry:0,realized:0,trades:[],markers:[]};
 }
 function loadSaved(){
- try{
-  const x=JSON.parse(localStorage.getItem(CONFIG.storageKey)||"{}");
-  if(x.capital)$("capitalInput").value=x.capital;
-  if(x.risk)$("riskInput").value=String(x.risk);
-  if(x.accounts)state.accounts=x.accounts;
- }catch(e){console.warn("Saved data:",e)}
- CONFIG.intervals.forEach(t=>{
-  if(!state.accounts[t.id])state.accounts[t.id]=defaultAccount();
+ let saved={};
+ try{saved=JSON.parse(localStorage.getItem(CONFIG.storageKey)||"{}")}catch(e){}
+ if(saved.capital)$("capitalInput").value=saved.capital;
+ if(saved.risk)$("riskInput").value=String(saved.risk);
+ const capital=Number($("capitalInput").value)||100000;
+ CONFIG.intervals.forEach(tf=>{
+  const a=saved.accounts?.[tf.id];
+  state.accounts[tf.id]=a&&Number.isFinite(a.cash)?a:defaultAccount(capital);
+  const x=state.accounts[tf.id];
+  if(!Array.isArray(x.trades))x.trades=[];
+  if(!Array.isArray(x.markers))x.markers=[];
+  if(!Number.isFinite(x.units))x.units=0;
+  if(!Number.isFinite(x.entry))x.entry=0;
+  if(!Number.isFinite(x.realized))x.realized=0;
  });
 }
 function saveState(){
  try{
-  const data={
+  localStorage.setItem(CONFIG.storageKey,JSON.stringify({
    capital:Number($("capitalInput").value)||100000,
    risk:Number($("riskInput").value)||0.75,
    accounts:state.accounts
-  };
-  localStorage.setItem(CONFIG.storageKey,JSON.stringify(data));
- }catch(e){
-  eventMessage("Не удалось сохранить настройки и журнал. Освободи место в хранилище браузера.");
- }
+  }));
+ }catch(e){eventMessage("Не удалось сохранить данные. Возможно, хранилище браузера заполнено.")}
 }
 function fmt(n,d=2){
  return Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
@@ -249,43 +224,37 @@ function fmt(n,d=2){
 function clock(ts){
  return ts?new Date(ts).toLocaleString("ru-RU",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"}):"—";
 }
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 function eventMessage(msg){
- const box=$("eventLog");
- const item=document.createElement("div");
+ const box=$("eventLog"),item=document.createElement("div");
  item.className="log";
  item.innerHTML="<time>"+clock(Date.now())+"</time> · "+escapeHtml(msg);
  box.prepend(item);
  while(box.children.length>35)box.lastChild.remove();
 }
-function escapeHtml(s){
- return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
 function speak(msg,important=false){
  state.lastSpeech=msg;
  $("speechText").textContent=msg;
- if(!state.voice)return;
- if(!("speechSynthesis" in window))return;
+ if(!state.voice||!("speechSynthesis" in window))return;
  try{
   if(important)speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(msg);
-  u.lang="ru-RU";u.rate=1.02;u.pitch=1;
-  speechSynthesis.speak(u);
- }catch(e){console.warn("TTS:",e)}
-}
-function repeatSpeech(){
- if(state.lastSpeech)speak(state.lastSpeech,true);
+  const utterance=new SpeechSynthesisUtterance(msg);
+  utterance.lang="ru-RU";utterance.rate=1;utterance.pitch=1;
+  speechSynthesis.speak(utterance);
+ }catch(e){console.warn("Голосовой движок:",e)}
 }
 function setStatus(text,kind=""){
- const el=$("systemStatus");
- el.textContent=text;
- el.className="status "+kind;
+ $("systemStatus").textContent=text;
+ $("systemStatus").className="status "+kind;
 }
 function setFresh(text,kind=""){
  $("freshStatus").textContent=text;
  $("freshStatus").className="status "+kind;
 }
 
-/* Получение минутных OHLC из MOEX ISS с постраничной загрузкой. */
+/* Получение минутной истории MOEX ISS. */
 async function fetchMoexCandles(){
  const from=new Date(Date.now()-CONFIG.historyDays*86400000).toISOString().slice(0,10);
  const boards=["TQTF","TQTD","TQTE"];
@@ -293,19 +262,17 @@ async function fetchMoexCandles(){
  for(const board of boards){
   try{
    let all=[],start=0;
-   for(let page=0;page<12;page++){
-    const url=
-     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/"+
+   for(let page=0;page<15;page++){
+    const url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/"+
      board+"/securities/"+CONFIG.ticker+
-     "/candles.json?from="+from+
-     "&interval=1&start="+start+
+     "/candles.json?from="+from+"&interval=1&start="+start+
      "&iss.meta=off&iss.only=candles"+
-     "&candles.columns=open,close,high,low,value,volume,begin,end";
+     "&candles.columns=open,close,high,low,volume,begin";
     const response=await fetch(url,{cache:"no-store"});
     if(!response.ok)throw new Error("HTTP "+response.status);
     const json=await response.json();
     const block=json.candles;
-    if(!block||!Array.isArray(block.data))throw new Error("Нет таблицы candles");
+    if(!block||!Array.isArray(block.data))throw new Error("MOEX ISS не вернул таблицу свечей");
     const cols=block.columns;
     if(!block.data.length)break;
     const rows=block.data.map(r=>{
@@ -313,36 +280,43 @@ async function fetchMoexCandles(){
      return {
       open:Number(o.open),close:Number(o.close),
       high:Number(o.high),low:Number(o.low),
-      volume:Number(o.volume)||0,
-      time:Date.parse(o.begin)
+      volume:Number(o.volume)||0,time:Date.parse(o.begin)
      };
     }).filter(c=>Number.isFinite(c.time)&&[c.open,c.close,c.high,c.low].every(Number.isFinite));
     all.push(...rows);
     if(block.data.length<500)break;
     start+=block.data.length;
    }
-   all.sort((a,b)=>a.time-b.time);
    const unique=new Map();
-   all.forEach(c=>unique.set(c.time,c));
+   all.sort((a,b)=>a.time-b.time).forEach(c=>unique.set(c.time,c));
    const result=[...unique.values()];
    if(result.length>=CONFIG.minCandles)return result;
-   lastError=new Error("Недостаточно минутных свечей для "+board);
+   lastError=new Error("Для "+board+" получено недостаточно свечей");
   }catch(e){lastError=e}
  }
- throw lastError||new Error("Не удалось получить данные MOEX ISS");
+ throw lastError||new Error("История TGLD не найдена");
 }
 
-/* Агрегация минутных OHLC в нужные интервалы. */
+/* Время группировки: московская временная зона UTC+3. */
+function moscowTime(ts){return ts+3*60*60*1000}
 function aggregateCandles(rows,minutes){
  if(minutes===1)return rows.slice();
- const step=minutes*60000;
- const map=new Map();
+ const groups=new Map();
  rows.forEach(c=>{
-  const key=Math.floor(c.time/step)*step;
-  let a=map.get(key);
+  const mt=moscowTime(c.time);
+  const dayStart=Math.floor(mt/86400000)*86400000;
+  let key;
+  if(minutes===1440){
+   key=dayStart;
+  }else{
+   const sessionStart=dayStart+9*60*60*1000;
+   const base=mt<sessionStart?sessionStart-86400000:sessionStart;
+   key=base+Math.floor((mt-base)/(minutes*60000))*minutes*60000;
+  }
+  let a=groups.get(key);
   if(!a){
-   a={time:key,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
-   map.set(key,a);
+   a={time:key-3*60*60*1000,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
+   groups.set(key,a);
   }else{
    a.high=Math.max(a.high,c.high);
    a.low=Math.min(a.low,c.low);
@@ -350,102 +324,22 @@ function aggregateCandles(rows,minutes){
    a.volume+=c.volume;
   }
  });
- return [...map.values()].sort((a,b)=>a.time-b.time);
+ return [...groups.values()].sort((a,b)=>a.time-b.time);
 }
-
-/* Расчёт Heikin Ashi на основе обычных OHLC. */
 function toHeikinAshi(rows){
- const out=[];
- let previous=null;
+ const out=[];let previous=null;
  rows.forEach(c=>{
-  const close=(c.open+c.high+c.low+c.close)/4;
-  const open=previous?(previous.open+previous.close)/2:(c.open+c.close)/2;
-  const high=Math.max(c.high,open,close);
-  const low=Math.min(c.low,open,close);
-  const item={...c,haOpen:open,haClose:close,haHigh:high,haLow:low};
+  const haClose=(c.open+c.high+c.low+c.close)/4;
+  const haOpen=previous?(previous.haOpen+previous.haClose)/2:(c.open+c.close)/2;
+  const haHigh=Math.max(c.high,haOpen,haClose);
+  const haLow=Math.min(c.low,haOpen,haClose);
+  const item={...c,haOpen,haClose,haHigh,haLow};
   out.push(item);previous=item;
  });
  return out;
 }
-
-/* Индикаторы и оценка контекста по истории, не по одной свече. */
-function analyzeFrame(candles){
- if(candles.length<CONFIG.minCandles)return {ready:false,reason:"Недостаточно истории"};
- const last=candles[candles.length-1];
- const prev=candles[candles.length-2];
- const recent=candles.slice(-12);
- const greens=recent.filter(c=>c.haClose>c.haOpen).length;
- const reds=recent.length-greens;
- const bodies=recent.map(c=>Math.abs(c.haClose-c.haOpen));
- const avgBody=bodies.reduce((a,b)=>a+b,0)/bodies.length;
- const lastBody=Math.abs(last.haClose-last.haOpen);
- const trend=greens>=9?"UP":reds>=9?"DOWN":greens>reds?"WEAK_UP":reds>greens?"WEAK_DOWN":"SIDE";
- const rising=last.haClose>last.haOpen;
- const previousRising=prev.haClose>prev.haOpen;
- const changed=rising!==previousRising;
- const upperWick=last.haHigh-Math.max(last.haOpen,last.haClose);
- const lowerWick=Math.min(last.haOpen,last.haClose)-last.haLow;
- const momentum=avgBody>0?lastBody/avgBody:0;
- const closes=candles.slice(-20).map(c=>c.haClose);
- const support=Math.min(...candles.slice(-20).map(c=>c.haLow));
- const resistance=Math.max(...candles.slice(-20).map(c=>c.haHigh));
- const breakout=last.haClose>resistance*0.9995;
- const breakdown=last.haClose<support*1.0005;
- return {
-  ready:true,last,prev,trend,greens,reds,rising,previousRising,changed,
-  momentum,upperWick,lowerWick,support,resistance,breakout,breakdown,
-  avgBody,closes
- };
-}
-
-function renderTimeframes(){
- const box=$("timeframes");box.innerHTML="";
- const tabs=$("chartTabs");tabs.innerHTML="";
- CONFIG.intervals.forEach(t=>{
-  const card=document.createElement("div");
-  card.className="tf"+(state.selectedTf===t.id?" active":"");
-  card.id="card_"+t.id;
-  card.innerHTML=`
-   <div class="tf-name">${t.label}</div>
-   <div class="tf-signal muted" id="signal_${t.id}">ОЖИДАНИЕ ДАННЫХ</div>
-   <div class="tf-data" id="detail_${t.id}">История загружается</div>`;
-  card.addEventListener("click",()=>selectTimeframe(t.id));
-  box.appendChild(card);
-  const b=document.createElement("button");
-  b.textContent=t.label;b.className=state.selectedTf===t.id?"selected":"";
-  b.addEventListener("click",()=>selectTimeframe(t.id));
-  tabs.appendChild(b);
- });
-}
-function selectTimeframe(id){
- state.selectedTf=id;
- renderFrameCards();
- renderChart();
-}
-function renderFrameCards(){
- CONFIG.intervals.forEach(t=>{
-  const el=$("card_"+t.id);if(!el)return;
-  el.classList.toggle("active",state.selectedTf===t.id);
-  const f=state.frames[t.id],s=f?.analysis;
-  const signal=$("signal_"+t.id),detail=$("detail_"+t.id);
-  if(!s||!s.ready){
-   signal.textContent="НЕДОСТАТОЧНО ДАННЫХ";signal.className="tf-signal warn";
-   detail.textContent=s?.reason||"Ожидание";
-   return;
-  }
-  const a=state.accounts[t.id];
-  const open=a.units>0?"ПОЗИЦИЯ ОТКРЫТА":"БЕЗ ПОЗИЦИИ";
-  signal.textContent=(s.trend==="UP"?"ВОСХОДЯЩИЙ ТРЕНД":s.trend==="DOWN"?"НИСХОДЯЩИЙ ТРЕНД":s.trend==="WEAK_UP"?"СЛАБЫЙ РОСТ":s.trend==="WEAK_DOWN"?"СЛАБОЕ СНИЖЕНИЕ":"БОКОВОЕ ДВИЖЕНИЕ");
-  signal.className="tf-signal "+(s.trend.includes("UP")?"good":s.trend.includes("DOWN")?"bad":"warn");
-  detail.textContent=`HA ${fmt(s.last.haClose)} · импульс ${fmt(s.momentum,1)} · ${open}`;
- });
-}
-</script>
-
-/* Проверка актуальности и обработка новых закрытых свечей. */
 function getClosedCandles(rows,minutes){
- const step=minutes*60000;
- const now=Date.now();
+ const step=minutes*60000,now=Date.now();
  return rows.filter(c=>c.time+step<=now);
 }
 function getFreshness(){
@@ -455,101 +349,157 @@ function getFreshness(){
  return {ok:age<=CONFIG.maxAgeMs&&age>=-60000,age,last};
 }
 function getLastPrice(){
- if(!state.raw.length)return null;
- return state.raw[state.raw.length-1].close;
+ return state.raw.length?state.raw[state.raw.length-1].close:null;
 }
 
-function processVirtualTrade(tf,candle,analysis,price){
- const account=state.accounts[tf.id];
- if(!account||!analysis.ready||!Number.isFinite(price)||price<=0)return;
- const key=String(candle.time);
- if(state.lastCandleKey[tf.id]===key)return;
- state.lastCandleKey[tf.id]=key;
+/* Анализ последовательности Heikin Ashi. */
+function analyzeFrame(candles){
+ if(candles.length<CONFIG.minCandles)return {ready:false,reason:"Недостаточно истории"};
+ const last=candles[candles.length-1],prev=candles[candles.length-2];
+ const recent=candles.slice(-12);
+ const greens=recent.filter(c=>c.haClose>c.haOpen).length;
+ const reds=recent.filter(c=>c.haClose<c.haOpen).length;
+ const bodies=recent.map(c=>Math.abs(c.haClose-c.haOpen));
+ const avgBody=bodies.reduce((a,b)=>a+b,0)/bodies.length;
+ const lastBody=Math.abs(last.haClose-last.haOpen);
+ const trend=greens>=9?"UP":reds>=9?"DOWN":greens>reds?"WEAK_UP":reds>greens?"WEAK_DOWN":"SIDE";
+ const momentum=avgBody>0?lastBody/avgBody:0;
+ const upperWick=last.haHigh-Math.max(last.haOpen,last.haClose);
+ const lowerWick=Math.min(last.haOpen,last.haClose)-last.haLow;
+ const recent20=candles.slice(-20);
+ const support=Math.min(...recent20.map(c=>c.haLow));
+ const resistance=Math.max(...recent20.map(c=>c.haHigh));
+ return {ready:true,last,prev,trend,greens,reds,momentum,upperWick,lowerWick,avgBody,support,resistance};
+}
 
+/* Вывод карточек интервалов и вкладок графика. */
+function renderTimeframes(){
+ const box=$("timeframes"),tabs=$("chartTabs");
+ box.innerHTML="";tabs.innerHTML="";
+ CONFIG.intervals.forEach(tf=>{
+  const card=document.createElement("div");
+  card.className="tf";card.id="card_"+tf.id;
+  card.innerHTML='<div class="tf-name">'+tf.label+'</div>'+
+   '<div class="tf-signal muted" id="signal_'+tf.id+'">ОЖИДАНИЕ ДАННЫХ</div>'+
+   '<div class="tf-data" id="detail_'+tf.id+'">История загружается</div>';
+  card.addEventListener("click",()=>selectTimeframe(tf.id));
+  box.appendChild(card);
+  const button=document.createElement("button");
+  button.textContent=tf.label;
+  button.addEventListener("click",()=>selectTimeframe(tf.id));
+  tabs.appendChild(button);
+ });
+ selectTimeframe(state.selectedTf);
+}
+function selectTimeframe(id){
+ state.selectedTf=id;
+ CONFIG.intervals.forEach(tf=>{
+  $("card_"+tf.id)?.classList.toggle("active",tf.id===id);
+ });
+ [...$("chartTabs").children].forEach((b,i)=>{
+  b.classList.toggle("selected",CONFIG.intervals[i].id===id);
+ });
+ renderChart();
+}
+function renderFrameCards(){
+ CONFIG.intervals.forEach(tf=>{
+  const el=$("card_"+tf.id);if(!el)return;
+  const a=state.frames[tf.id]?.analysis;
+  const signal=$("signal_"+tf.id),detail=$("detail_"+tf.id);
+  if(!a||!a.ready){
+   signal.textContent="НЕДОСТАТОЧНО ДАННЫХ";
+   signal.className="tf-signal warn";
+   detail.textContent=a?.reason||"Ожидание";
+   return;
+  }
+  const account=state.accounts[tf.id];
+  const names={UP:"ВОСХОДЯЩИЙ ТРЕНД",DOWN:"НИСХОДЯЩИЙ ТРЕНД",WEAK_UP:"СЛАБЫЙ РОСТ",WEAK_DOWN:"СЛАБОЕ СНИЖЕНИЕ",SIDE:"БОКОВОЕ ДВИЖЕНИЕ"};
+  signal.textContent=names[a.trend];
+  signal.className="tf-signal "+(a.trend.includes("UP")?"good":a.trend.includes("DOWN")?"bad":"warn");
+  detail.textContent="HA "+fmt(a.last.haClose)+" · импульс "+fmt(a.momentum,1)+" · "+(account.units>0?"ПОЗИЦИЯ ОТКРЫТА":"БЕЗ ПОЗИЦИИ");
+ });
+}
+
+/* Виртуальные сделки. Цена сделки берётся из обычного OHLC close, не из HA close. */
+function processVirtualTrade(tf,candle){
+ const account=state.accounts[tf.id];
+ if(!account||!Number.isFinite(candle.close)||candle.close<=0)return;
  const fresh=getFreshness();
  if(!fresh.ok)return;
-
+ const key=String(candle.time);
+ if(state.lastCandleKey[tf.id]===key)return;
  const green=candle.haClose>candle.haOpen;
  const red=candle.haClose<candle.haOpen;
- if(!green&&!red)return;
+ if(!green&&!red){state.lastCandleKey[tf.id]=key;return}
+ state.lastCandleKey[tf.id]=key;
+ const price=candle.close;
 
- if(account.units<=0&&green){
+ if(account.units===0&&green){
   const ratio=Number($("riskInput").value)||0.75;
-  const budget=account.cash*ratio;
-  const units=Math.floor(budget/price);
+  const units=Math.floor((account.cash*ratio)/price);
   if(units<1)return;
-  const cost=units*price;
-  account.cash-=cost;
+  account.cash-=units*price;
   account.units=units;
   account.entry=price;
   account.markers.push({time:candle.time,type:"BUY",price,units});
   addTradeLog(tf.id,"BUY",price,units,0);
-  const msg=`TGLD. ${tf.label}. Подтверждена закрытая зелёная свеча Heikin Ashi. Виртуальная покупка ${units} лотов по цене ${fmt(price)} рублей.`;
-  eventMessage(msg);speak(msg,true);
-  saveState();
+  const msg=`TGLD. ${tf.label}. Закрылась зелёная свеча Heikin Ashi. Виртуальная покупка ${units} лотов по цене ${fmt(price)} рублей.`;
+  eventMessage(msg);speak(msg,true);saveState();
  }else if(account.units>0&&red){
   const units=account.units;
-  const exit=price;
-  const profit=(exit-account.entry)*units;
-  account.cash+=units*exit;
+  const profit=(price-account.entry)*units;
+  account.cash+=units*price;
   account.realized+=profit;
-  account.markers.push({time:candle.time,type:"SELL",price:exit,units});
-  addTradeLog(tf.id,"SELL",exit,units,profit);
+  account.markers.push({time:candle.time,type:"SELL",price,units});
+  addTradeLog(tf.id,"SELL",price,units,profit);
   account.units=0;account.entry=0;
-  const msg=`TGLD. ${tf.label}. Закрытая красная свеча. Виртуальная продажа ${units} лотов по ${fmt(exit)} рублей. Результат сделки ${profit>=0?"плюс":"минус"} ${fmt(Math.abs(profit))} рублей.`;
-  eventMessage(msg);speak(msg,true);
-  saveState();
+  const msg=`TGLD. ${tf.label}. Закрылась красная свеча. Виртуальная продажа ${units} лотов по ${fmt(price)} рублей. Результат ${profit>=0?"плюс":"минус"} ${fmt(Math.abs(profit))} рублей.`;
+  eventMessage(msg);speak(msg,true);saveState();
  }
 }
-
 function addTradeLog(tf,side,price,units,profit){
  const account=state.accounts[tf];
- const trade={time:Date.now(),tf,side,price,units,profit};
- account.trades.unshift(trade);
+ account.trades.unshift({time:Date.now(),tf,side,price,units,profit});
  account.trades=account.trades.slice(0,100);
  renderTradeLog();
 }
 function renderTradeLog(){
  const all=[];
- CONFIG.intervals.forEach(t=>{
-  (state.accounts[t.id]?.trades||[]).forEach(x=>all.push({...x}));
- });
+ CONFIG.intervals.forEach(tf=>(state.accounts[tf.id]?.trades||[]).forEach(x=>all.push(x)));
  all.sort((a,b)=>b.time-a.time);
  const box=$("tradeLog");
  if(!all.length){box.innerHTML='<div class="muted">Сделок пока нет.</div>';return}
- box.innerHTML=all.slice(0,70).map(x=>`
-  <div class="log">
-   <time>${clock(x.time)}</time> · <b>${x.tf}</b> ·
-   <b class="${x.side==="BUY"?"good":"bad"}">${x.side==="BUY"?"ПОКУПКА":"ПРОДАЖА"}</b>
-   · ${x.units} шт. · ${fmt(x.price)} ₽
-   ${x.side==="SELL"?' · результат: <b class="'+(x.profit>=0?"good":"bad")+'">'+(x.profit>=0?"+":"")+fmt(x.profit)+' ₽</b>':""}
-  </div>`).join("");
+ box.innerHTML=all.slice(0,70).map(x=>
+  '<div class="log"><time>'+clock(x.time)+'</time> · <b>'+escapeHtml(x.tf)+'</b> · '+
+  '<b class="'+(x.side==="BUY"?"good":"bad")+'">'+(x.side==="BUY"?"ПОКУПКА":"ПРОДАЖА")+'</b> · '+
+  x.units+' шт. · '+fmt(x.price)+' ₽'+
+  (x.side==="SELL"?' · результат: <b class="'+(x.profit>=0?"good":"bad")+'">'+(x.profit>=0?"+":"")+fmt(x.profit)+' ₽</b>':"")+
+  '</div>'
+ ).join("");
 }
 function renderResults(){
  const body=$("resultsBody");body.innerHTML="";
- CONFIG.intervals.forEach(t=>{
-  const a=state.accounts[t.id]||defaultAccount();
-  const price=state.lastPrice||0;
+ CONFIG.intervals.forEach(tf=>{
+  const a=state.accounts[tf.id],price=state.lastPrice||0;
   const floating=a.units>0?(price-a.entry)*a.units:0;
   const equity=a.cash+a.units*price;
   const count=a.trades.filter(x=>x.side==="SELL").length;
+  const result=a.realized+floating;
   const tr=document.createElement("tr");
-  tr.innerHTML=`
-   <td>${t.label}</td>
-   <td>${fmt(equity)} ₽</td>
-   <td>${a.units?`${a.units} шт. · вход ${fmt(a.entry)}`:"Нет"}</td>
-   <td class="${a.realized+floating>=0?"good":"bad"}">${a.realized+floating>=0?"+":""}${fmt(a.realized+floating)} ₽</td>
-   <td>${count}</td>`;
+  tr.innerHTML='<td>'+tf.label+'</td><td>'+fmt(equity)+' ₽</td>'+
+   '<td>'+(a.units?`${a.units} шт. · вход ${fmt(a.entry)}`:"Нет")+'</td>'+
+   '<td class="'+(result>=0?"good":"bad")+'">'+(result>=0?"+":"")+fmt(result)+' ₽</td>'+
+   '<td>'+count+'</td>';
   body.appendChild(tr);
  });
 }
 
+/* Отрисовка графика и отметок виртуальных сделок. */
 function renderChart(){
  const canvas=$("chart"),ctx=canvas.getContext("2d");
  const tf=CONFIG.intervals.find(x=>x.id===state.selectedTf);
  $("chartTf").textContent=tf.label;
- const frame=state.frames[tf.id];
- const rows=frame?.candles||[];
+ const rows=state.frames[tf.id]?.candles||[];
  ctx.clearRect(0,0,canvas.width,canvas.height);
  ctx.fillStyle="#091521";ctx.fillRect(0,0,canvas.width,canvas.height);
  if(rows.length<2){
@@ -567,9 +517,8 @@ function renderChart(){
  for(let i=0;i<=4;i++){
   const yy=pad.t+h*i/4;
   ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(canvas.width-pad.r,yy);ctx.stroke();
-  const value=max-range*i/4;
   ctx.fillStyle="#91a5b7";ctx.font="11px Arial";
-  ctx.fillText(fmt(value),canvas.width-pad.r+5,yy+4);
+  ctx.fillText(fmt(max-range*i/4),canvas.width-pad.r+5,yy+4);
  }
  const step=w/data.length;
  const candleWidth=Math.max(3,Math.min(12,step*.58));
@@ -584,11 +533,10 @@ function renderChart(){
   ctx.fillRect(x-candleWidth/2,top,candleWidth,Math.max(1,bottom-top));
  });
  const account=state.accounts[tf.id];
- (account?.markers||[]).forEach(m=>{
+ account.markers.forEach(m=>{
   const index=data.findIndex(c=>c.time===m.time);
   if(index<0)return;
-  const x=pad.l+index*step+step/2;
-  const yy=y(m.price);
+  const x=pad.l+index*step+step/2,yy=y(m.price);
   ctx.fillStyle=m.type==="BUY"?"#58aaff":"#ffbd55";
   ctx.beginPath();
   if(m.type==="BUY"){
@@ -597,17 +545,17 @@ function renderChart(){
    ctx.moveTo(x,yy-12);ctx.lineTo(x-6,yy-22);ctx.lineTo(x+6,yy-22);
   }
   ctx.closePath();ctx.fill();
-  ctx.font="bold 10px Arial";ctx.fillText(m.type,x-12,m.type==="BUY"?yy+34:yy-27);
+  ctx.font="bold 10px Arial";
+  ctx.fillText(m.type,x-12,m.type==="BUY"?yy+34:yy-27);
  });
  const last=data[data.length-1];
- $("chartInfo").textContent=
-  `${tf.label} · Heikin Ashi · ${data.length} свечей · последняя закрытая свеча: ${clock(last.time)}`;
+ $("chartInfo").textContent=tf.label+" · Heikin Ashi · "+data.length+
+  " свечей · последняя закрытая свеча: "+clock(last.time);
 }
 
-/* Аналитический комментарий по всем интервалам. */
+/* Общий анализ всех восьми интервалов. */
 function runAnalysis(){
- const fresh=getFreshness();
- const price=getLastPrice();
+ const fresh=getFreshness(),price=getLastPrice();
  if(price!==null){
   state.lastPrice=price;
   $("currentPrice").textContent=fmt(price)+" ₽";
@@ -617,17 +565,17 @@ function runAnalysis(){
  if(!fresh.ok){
   setFresh("ДАННЫЕ УСТАРЕЛИ","bad");
   setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
-  $("connectionInfo").textContent=
-   "Последняя минутная свеча устарела на "+(Number.isFinite(fresh.age)?Math.max(0,Math.round(fresh.age/1000))+" сек.":"неизвестное время")+
-   ". Новые виртуальные покупки и продажи по устаревшим данным не выполняются.";
-  $("bestTf").textContent="Выбор интервала невозможен: нет свежих данных";
-  speak("Внимание. Котировки TGLD устарели. Новые виртуальные сделки заблокированы.");
+  $("connectionInfo").textContent="Последняя минутная свеча устарела. Новые виртуальные сделки заблокированы.";
+  $("bestTf").textContent="Нет свежих данных для выбора интервала";
+  if(Date.now()-state.lastDataWarning>60000){
+   state.lastDataWarning=Date.now();
+   speak("Внимание. Котировки TGLD устарели. Новые виртуальные сделки заблокированы.");
+  }
   renderResults();return;
  }
  setFresh("АКТУАЛЬНЫЕ","good");
  setStatus("ДАННЫЕ ПОЛУЧЕНЫ","good");
- $("connectionInfo").textContent="MOEX ISS · минутные OHLC · Heikin Ashi рассчитывается локально · проверка свежести пройдена.";
-
+ $("connectionInfo").textContent="MOEX ISS · минутные OHLC · Heikin Ashi рассчитывается приложением.";
  const reports=[];
  CONFIG.intervals.forEach(tf=>{
   const aggregated=aggregateCandles(state.raw,tf.minutes);
@@ -636,32 +584,26 @@ function runAnalysis(){
   const analysis=analyzeFrame(ha);
   state.frames[tf.id]={candles:ha,analysis};
   if(analysis.ready){
-   const latest=ha[ha.length-1];
-   processVirtualTrade(tf,latest,analysis,latest.close);
+   processVirtualTrade(tf,analysis.last);
    reports.push({tf,analysis});
   }
  });
  renderFrameCards();renderResults();renderChart();
-
  if(!reports.length){
-  speak("Пока недостаточно истории для полноценного анализа Heikin Ashi.");
+  $("speechText").textContent="Получены данные, но истории пока недостаточно для полноценного анализа всех интервалов.";
   return;
  }
- const ranked=reports.filter(x=>x.analysis.ready)
-  .sort((a,b)=>{
-   const score=x=>Math.abs(x.analysis.greens-x.analysis.reds)+
-    Math.min(3,x.analysis.momentum);
-   return score(b)-score(a);
-  });
+ const ranked=reports.slice().sort((a,b)=>{
+  const score=x=>Math.abs(x.analysis.greens-x.analysis.reds)+Math.min(3,x.analysis.momentum);
+  return score(b)-score(a);
+ });
  const best=ranked[0];
- if(best){
-  $("bestTf").textContent="Наиболее выраженное движение сейчас: "+best.tf.label+
-   ". Это ориентир для наблюдения, а не гарантия входа.";
- }
+ $("bestTf").textContent="Наиболее выраженное движение: "+best.tf.label+
+  ". Это ориентир для наблюдения, а не гарантия входа.";
  const selected=reports.find(x=>x.tf.id===state.selectedTf);
  if(selected){
   const a=selected.analysis;
-  let msg=`TGLD, интервал ${selected.tf.label}. `;
+  let msg="TGLD, интервал "+selected.tf.label+". ";
   if(a.trend==="UP")msg+="По последним свечам преобладает восходящее движение. ";
   else if(a.trend==="DOWN")msg+="Преобладает нисходящее движение. Покупку лучше не торопить. ";
   else if(a.trend==="WEAK_UP")msg+="Наблюдается слабое преимущество покупателей. Нужен более сильный импульс. ";
@@ -669,10 +611,11 @@ function runAnalysis(){
   else msg+="Рынок движется без выраженного направления. ";
   if(a.momentum>1.5)msg+="Тело последней свечи больше среднего, импульс усилился. ";
   else if(a.momentum<0.55)msg+="Тело свечи небольшое. Движение замедляется. ";
-  if(a.lowerWick>a.avgBody)msg+="Есть заметная нижняя тень, покупатели пытались оттолкнуть цену вверх. ";
-  if(a.upperWick>a.avgBody)msg+="Есть заметная верхняя тень, сверху присутствует давление продавцов. ";
-  msg+=`Ближайшая область поддержки по недавней истории около ${fmt(a.support)} рублей, сопротивления около ${fmt(a.resistance)} рублей. `;
-  msg+="Это аналитическая оценка истории, а не точный прогноз будущей цены.";
+  if(a.lowerWick>a.avgBody)msg+="Есть заметная нижняя тень. ";
+  if(a.upperWick>a.avgBody)msg+="Есть заметная верхняя тень. ";
+  msg+="Недавняя область поддержки около "+fmt(a.support)+
+   " рублей, сопротивления около "+fmt(a.resistance)+" рублей. ";
+  msg+="Это оценка прошлых свечей, а не точный прогноз будущей цены.";
   $("speechText").textContent=msg;
   if(Date.now()-state.lastAnalysisAt>180000){
    state.lastAnalysisAt=Date.now();state.lastSpeech=msg;
@@ -681,8 +624,7 @@ function runAnalysis(){
  }
 }
 
-/* Предупреждение за пять секунд до границы свечи.
-   Оно не является сигналом и не открывает позицию. */
+/* Предупреждение за пять секунд до закрытия свечи. Не является сигналом. */
 function checkPreCloseWarnings(){
  if(!state.raw.length)return;
  const now=Date.now();
@@ -694,31 +636,30 @@ function checkPreCloseWarnings(){
    const key=tf.id+"_"+boundary;
    if(state.warnedCandle[tf.id]===key)return;
    state.warnedCandle[tf.id]=key;
-   const msg=`TGLD. Интервал ${tf.label}. Через ${seconds} секунд закрывается свеча. Приготовься проверить подтверждение направления. Это предупреждение, не торговый сигнал.`;
+   const msg="TGLD. Интервал "+tf.label+". Через "+seconds+
+    " секунд закрывается свеча. Приготовься проверить направление. Это предупреждение, не торговый сигнал.";
    eventMessage(msg);speak(msg,true);
   }
  });
 }
 
-/* Обновление данных. */
+/* Загрузка данных с обработкой ошибок. */
 async function refreshData(){
  if(state.loading)return;
- state.loading=true;
- $("refreshBtn").disabled=true;
+ state.loading=true;$("refreshBtn").disabled=true;
  setStatus("ЗАГРУЗКА MOEX ISS","warn");
  try{
   const rows=await fetchMoexCandles();
   if(!rows.length)throw new Error("MOEX ISS вернул пустую историю");
   state.raw=rows;
-  state.lastFreshAt=Date.now();
   runAnalysis();
  }catch(e){
   console.error(e);
   setStatus("ОШИБКА ДАННЫХ","bad");
   setFresh("НЕТ ПОДТВЕРЖДЕНИЯ","bad");
   $("connectionInfo").textContent="Ошибка загрузки TGLD: "+e.message+
-   ". Проверь подключение к интернету и доступность MOEX ISS.";
-  speak("Не удалось получить свежие данные TGLD с Московской биржи. Торговля заблокирована.",true);
+   ". Проверь интернет и доступность MOEX ISS.";
+  speak("Не удалось получить данные TGLD с Московской биржи. Новые сделки заблокированы.",true);
   eventMessage("Ошибка загрузки MOEX ISS: "+e.message);
  }finally{
   state.loading=false;$("refreshBtn").disabled=false;
@@ -732,13 +673,7 @@ function saveSettings(){
  }
  CONFIG.intervals.forEach(tf=>{
   const a=state.accounts[tf.id];
-  if(!a)return;
-  const equity=a.cash+a.units*(state.lastPrice||a.entry||0);
-  if(a.units===0&&a.trades.length===0){
-   a.cash=capital;a.realized=0;
-  }else if(a.units===0){
-   a.cash=Math.max(0,equity);
-  }
+  if(a.units===0&&a.trades.length===0)a.cash=capital;
  });
  saveState();renderResults();
  eventMessage("Настройки виртуального капитала сохранены.");
@@ -746,14 +681,14 @@ function saveSettings(){
 function clearLog(){
  if(!confirm("Очистить историю сделок? Открытые позиции и баланс останутся без изменений."))return;
  CONFIG.intervals.forEach(tf=>{
-  const a=state.accounts[tf.id];
-  a.trades=[];a.markers=[];
+  state.accounts[tf.id].trades=[];
+  state.accounts[tf.id].markers=[];
  });
  saveState();renderTradeLog();renderChart();renderResults();
  eventMessage("Журнал сделок очищен.");
 }
 
-/* Инициализация интерфейса. */
+/* Запуск приложения. */
 function init(){
  loadSaved();
  renderTimeframes();
@@ -763,12 +698,14 @@ function init(){
  $("refreshBtn").addEventListener("click",refreshData);
  $("saveSettings").addEventListener("click",saveSettings);
  $("clearLog").addEventListener("click",clearLog);
- $("repeatBtn").addEventListener("click",repeatSpeech);
+ $("repeatBtn").addEventListener("click",()=>{
+  if(state.lastSpeech)speak(state.lastSpeech,true);
+ });
  $("voiceBtn").addEventListener("click",()=>{
   state.voice=!state.voice;
   $("voiceBtn").textContent="Голос: "+(state.voice?"ВКЛ":"ВЫКЛ");
   if(state.voice){
-   speak("Голосовой аналитик SNIPER GOLD AI включён. Анализ TGLD продолжается.",true);
+   speak("Голосовой аналитик SNIPER GOLD AI включён.",true);
   }else if("speechSynthesis" in window){
    speechSynthesis.cancel();
   }
@@ -779,18 +716,13 @@ function init(){
  refreshData();
  setInterval(()=>{
   checkPreCloseWarnings();
-  if(state.raw.length){
-   const fresh=getFreshness();
-   if(!fresh.ok){
-    setFresh("ДАННЫЕ УСТАРЕЛИ","bad");
-    setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
-   }
+  if(state.raw.length&&!getFreshness().ok){
+   setFresh("ДАННЫЕ УСТАРЕЛИ","bad");
+   setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
   }
  },1000);
  setInterval(refreshData,CONFIG.refreshMs);
- setInterval(()=>{
-  if(state.raw.length)runAnalysis();
- },15000);
+ setInterval(()=>{if(state.raw.length)runAnalysis()},15000);
  window.addEventListener("resize",renderChart);
 }
 document.addEventListener("DOMContentLoaded",init);
