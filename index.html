@@ -297,7 +297,7 @@ const HISTORY=45;
 const DAILY_HISTORY=365;
 const OFFSET=10800000;
 const MAX_DELAY=15*60000;
-const MAX_SIGNAL_AGE=3*60000;
+const MAX_SIGNAL_AGE=MAX_DELAY;
 const DAILY_REFRESH=6*60*60000;
 const TFS=[1,5,15,30,60,120,240,1440];
 const ATR_OPTIONS=[14,10,7,5];
@@ -322,7 +322,7 @@ cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],
 bricks:[],box:0,boxRaw:0,atrNow:0,initialized:false,cursor:0,
 lastReversal:"—",pending:null,pendingQueue:[],renkoState:null,
 peak:CAPITAL,maxDD:0,equity:CAPITAL,calibrationEnd:0,
-preWarn:{},renkoVersion:BOX_VERSION,lastSignalTime:0,lastSignalDir:0,signalPending:null
+preWarn:{},renkoVersion:BOX_VERSION,lastSignalTime:0,lastSignalDir:0,lastSignalKey:"",signalInitialized:false,signalPending:null
 };
 }
 
@@ -365,6 +365,8 @@ if(!b.preWarn)b.preWarn={};
 if(b.pending&&b.pending.type){b.pendingQueue.unshift(b.pending);b.pending=null}
 if(!Number.isFinite(b.lastSignalTime))b.lastSignalTime=0;
 if(!Number.isFinite(b.lastSignalDir))b.lastSignalDir=0;
+if(typeof b.lastSignalKey!=="string")b.lastSignalKey="";
+if(typeof b.signalInitialized!=="boolean")b.signalInitialized=false;
 if(b.signalPending===undefined)b.signalPending=null;
 return b;
 }
@@ -594,7 +596,8 @@ btn.className="assetBtn"+(S.asset===a?" active":"");
  const lamp=document.createElement("i");
 lamp.className="assetLamp";
 lamp.id="lamp-"+a;
-const name=document.createElement("span");
+const name=docum
+ent.createElement("span");
 name.className="assetName";
 name.textContent=a;
 const desc=document.createElement("span");
@@ -983,12 +986,13 @@ updateStats();
 }
 
 function aggregateBars(bars,tf){
-if(tf===1)return bars.slice();
 const size=tf*60000;
 const out=[];
 let cur=null;
+const current=now();
 bars.forEach(x=>{
-const start=Math.floor(x.time/size)*size;
+const start=Math.floor((x.time+OFFSET)/size)*size-OFFSET;
+if(start+size>current)return;
 if(!cur||cur.time!==start){
 if(cur)out.push(cur);
 cur={time:start,open:x.open,high:x.high,low:x.low,close:x.close,volume:x.volume||0};
@@ -1094,6 +1098,9 @@ const b=S.books[k];
 b.initialized=false;
 b.cursor=0;
 b.renkoVersion=0;
+b.signalInitialized=false;
+b.lastSignalKey="";
+b.signalPending=null;
 });
 assets.forEach(a=>processAsset(a));
 }
@@ -1104,8 +1111,11 @@ if(!d||!d.bars?.length)return;
 TFS.forEach(tf=>{
 const b=book(a,tf);
 const bars=aggregateBars(d.bars,tf);
-const calc=calculateBox(bars);
-if(!calc.box)return;
+const calculated=calculateBox(bars);
+if(!calculated.box)return;
+const calc=b.initialized&&b.renkoVersion===BOX_VERSION&&b.box>0
+?{...calculated,box:b.box,raw:b.boxRaw}
+:calculated;
 const bricks=buildRenko(bars,calc.box);
 b.bricks=bricks;
 b.box=calc.box;
@@ -1135,7 +1145,7 @@ function canBuy(a,price){
 if(!validQuantity(a))return{ok:false,reason:"Не задано корректное количество акций."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены."};
 const q=S.data[a]?.quote;
-if(!isFresh(q))return{ok:false,reason:"Автоматическая покупка заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
+if(!isFresh(q))return{ok:false,reason:"Автоматическая покупка заблокирована: котировка MOEX старше 15 минут или время сделки неизвестно."};
 return{ok:true};
 }
 
@@ -1184,7 +1194,7 @@ return{ok:true};
 function closePosition(a,tf,price,source,allowStale=false){
 const b=book(a,tf),p=b.position;
 if(!p)return{ok:false,reason:"Открытой позиции нет."};
-if(!allowStale&&!isFresh(S.data[a]?.quote))return{ok:false,reason:"Автоматическая продажа заблокирована: котировка MOEX старше 3 минут или время сделки неизвестно."};
+if(!allowStale&&!isFresh(S.data[a]?.quote))return{ok:false,reason:"Автоматическая продажа заблокирована: котировка MOEX старше 15 минут или время сделки неизвестно."};
 if(!Number.isFinite(price)||price<=0)return{ok:false,reason:"Нет корректной цены продажи."};
 
 const value=price*p.qty;
@@ -1229,19 +1239,42 @@ $("manualStatus").textContent=result.ok?
 result.reason;
 }
 
+function brickSignalKey(x){
+return x?String(x.time)+"|"+String(x.dir)+"|"+Number(x.open).toFixed(8)+"|"+Number(x.close).toFixed(8):"";
+}
+
 function runAutoSignals(a){
 const d=S.data[a],q=d?.quote;
 if(!d)return;
 TFS.forEach(tf=>{
 const b=book(a,tf),bricks=b.bricks||[];
-if(bricks.length>=2){
-const prev=bricks[bricks.length-2],cur=bricks[bricks.length-1];
-if(cur.time!==b.lastSignalTime){
-b.lastSignalTime=cur.time;
-b.lastSignalDir=cur.dir;
-if(cur.dir===-1&&prev.dir!==-1&&b.position){
-b.signalPending={type:"SELL",time:cur.time,dir:-1};
-}else if(cur.dir===1&&prev.dir!==1){
+if(!bricks.length)return;
+const currentKey=brickSignalKey(last(bricks));
+if(!b.signalInitialized){
+b.lastSignalKey=currentKey;
+b.lastSignalTime=last(bricks).time;
+b.lastSignalDir=last(bricks).dir;
+b.signalInitialized=true;
+return;
+}
+let index=-1;
+for(let i=bricks.length-1;i>=0;i--){
+if(brickSignalKey(bricks[i])===b.lastSignalKey){index=i;break}
+}
+if(index<0){
+b.lastSignalKey=currentKey;
+b.lastSignalTime=last(bricks).time;
+b.lastSignalDir=last(bricks).dir;
+b.signalPending=null;
+return;
+}
+for(let i=index+1;i<bricks.length;i++){
+const prev=bricks[i-1],cur=bricks[i];
+if(cur.dir!==prev.dir){
+if(cur.dir===-1){
+if(b.position)b.signalPending={type:"SELL",time:cur.time,dir:-1};
+else if(b.signalPending?.type==="BUY")b.signalPending=null;
+}else if(cur.dir===1){
 if(S.auto[a]&&S.enabled[a]?.[tf]&&!b.position){
 b.signalPending={type:"BUY",time:cur.time,dir:1};
 }else if(b.signalPending?.type==="BUY"){
@@ -1250,6 +1283,10 @@ b.signalPending=null;
 }
 }
 }
+}
+b.lastSignalKey=currentKey;
+b.lastSignalTime=last(bricks).time;
+b.lastSignalDir=last(bricks).dir;
 const pending=b.signalPending;
 if(!pending)return;
 if(pending.type==="SELL"){
@@ -1260,7 +1297,7 @@ if(result.ok)b.signalPending=null;
 return;
 }
 if(pending.type==="BUY"){
-if(!S.auto[a]||!S.enabled[a]?.[tf]||b.position||b.lastSignalDir!==1){
+if(!S.auto[a]||!S.enabled[a]?.[tf]||b.position||last(bricks).dir!==1){
 b.signalPending=null;return;
 }
 if(!isFresh(q)||!Number.isFinite(q.price)||q.price<=0)return;
@@ -1471,7 +1508,7 @@ $("pages").textContent=d.pages||0;
 $("lastBar").textContent=last(d.bars)?new Date(last(d.bars).time).toLocaleString("ru-RU"):"—";
 $("freshness").textContent=q&&Number.isFinite(q.time)&&q.time>0?Math.max(0,Math.round((now()-q.time)/1000))+" сек.":"время сделки неизвестно";
 $("allowed").textContent=fresh&&validQuantity(S.asset)?"ДА":"НЕТ";
-$("sourceBadge").textContent=fresh?"MOEX ISS · АКТУАЛЬНО":"НЕТ СВЕЖИХ ДАННЫХ";
+$("sourceBadge").textContent=fresh?"MOEX ISS · ДО 15 МИН":"КОТИРОВКА СТАРШЕ 15 МИН";
 $("sourceBadge").className="badge "+(fresh?"green":"red");
 $("diagnostic").textContent=
 "Источник: MOEX ISS. Котировка: "+(q?fmt(q.price)+" ₽":"не получена")+
