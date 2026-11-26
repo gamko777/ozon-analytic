@@ -1,37 +1,35 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER GOLD AI 1.0</title>
+<title>SNIPER GOLD AI 1.1</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--text:#e8f0f8;--muted:#8da3b8;--green:#27d69a;--red:#ff6577;--gold:#e8bd55;--blue:#58aaff;--orange:#f2a64a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
-header{padding:15px;background:#0b1927;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header{padding:14px;background:#0b1927;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 h1{font-size:19px;margin:0;color:var(--gold);letter-spacing:1px}
-.sub{font-size:11px;color:var(--muted);margin-top:5px}
+.sub,.muted{font-size:11px;color:var(--muted);margin-top:5px}
 main{padding:10px;max-width:1100px;margin:auto}
 .panel{background:var(--p);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .price{font-size:26px;font-weight:bold;color:var(--gold)}
-.muted{color:var(--muted);font-size:12px}
-.status{font-size:12px;padding:6px 9px;border-radius:20px;background:#25384a}
+.status{font-size:11px;padding:6px 9px;border-radius:20px;background:#25384a}
 .good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--orange)}
-button,select,input{background:#1a3044;color:var(--text);border:1px solid #38516a;border-radius:8px;padding:10px;font-size:13px}
+button,select,input,textarea{background:#1a3044;color:var(--text);border:1px solid #38516a;border-radius:8px;padding:10px;font-size:13px}
 button{cursor:pointer}button:disabled{opacity:.45}
 .primary{background:#174b43;border-color:#267e69}.gold{background:#594719;border-color:#9a7a2e}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .tf{background:var(--p2);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
 .tf.active{border-color:var(--gold)}
-.tf-name{font-weight:bold;color:var(--gold);font-size:14px}
+.tf-name{font-weight:bold;color:var(--gold)}
 .tf-signal{font-weight:bold;margin:7px 0;font-size:12px}
 .tf-data{font-size:11px;color:var(--muted);line-height:1.6}
-canvas{width:100%;height:280px;display:block;background:#091521;border-radius:8px}
-.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:9px}
+canvas{width:100%;height:260px;display:block;background:#091521;border-radius:8px}
+.tabs{display:flex;gap:6px;overflow:auto;margin:9px 0}
 .tabs button{white-space:nowrap}.tabs button.selected{border-color:var(--gold);color:var(--gold)}
 table{width:100%;border-collapse:collapse;font-size:12px}
 td,th{padding:8px 5px;border-bottom:1px solid var(--line);text-align:left}
@@ -40,127 +38,128 @@ th{color:var(--muted);font-weight:normal}
 .log{font-size:12px;line-height:1.5;border-bottom:1px solid var(--line);padding:7px 0}
 .log time{color:var(--muted)}
 input[type=number]{width:120px}
-#speechText{line-height:1.5;font-size:13px}
+.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.toggleRow:last-child{border:0}
+.toggleRow span{font-size:12px}
+.switch{min-width:92px}
+#speechText,#analystText{line-height:1.55;font-size:13px;white-space:pre-wrap}
+#chatLog{max-height:240px;overflow:auto;margin:8px 0}
+.chat{padding:8px;margin:6px 0;border-radius:8px;background:#172b3e;font-size:12px;line-height:1.5;white-space:pre-wrap}
+.chat.me{border-left:3px solid var(--blue)}
+.chat.ai{border-left:3px solid var(--gold)}
+.chat input{width:100%}
 .smallbtn{padding:7px 9px}
+.hidden{display:none!important}
 footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
 </style>
 </head>
 <body>
 <header>
  <div class="row">
-  <div>
-   <h1>SNIPER GOLD AI</h1>
-   <div class="sub">VERSION 1.0 · TGLD · HEIKIN ASHI · VIRTUAL ONLY</div>
+  <div><h1>SNIPER GOLD AI</h1>
+   <div class="sub">VERSION 1.1 · TGLD · HEIKIN ASHI · VIRTUAL ONLY</div>
   </div>
   <span class="status" id="systemStatus">ЗАПУСК...</span>
  </div>
 </header>
-
 <main>
  <section class="panel">
   <div class="row">
-   <div>
-    <div class="muted">Т-КАПИТАЛ ЗОЛОТО · TGLD</div>
+   <div><div class="muted">Т-КАПИТАЛ ЗОЛОТО · TGLD</div>
     <div class="price" id="currentPrice">— ₽</div>
-    <div class="muted" id="priceTime">Ожидание котировки MOEX ISS</div>
+    <div class="muted" id="priceTime">Ожидание MOEX ISS</div>
    </div>
-   <div style="text-align:right">
-    <div class="muted">СВЕЖЕСТЬ ДАННЫХ</div>
+   <div style="text-align:right"><div class="muted">СВЕЖЕСТЬ ДАННЫХ</div>
     <div id="freshStatus" class="status">ПРОВЕРКА</div>
     <div class="muted" id="dataCount">Свечей: —</div>
    </div>
   </div>
   <div class="row" style="margin-top:12px">
    <button class="primary" id="refreshBtn">Обновить данные</button>
-   <button id="voiceBtn">Голос: ВЫКЛ</button>
-   <button id="repeatBtn">Повторить</button>
+   <button id="repeatBtn">Повторить речь</button>
   </div>
-  <div class="muted" id="connectionInfo" style="margin-top:9px">
-   Источник: MOEX ISS. Heikin Ashi рассчитывается приложением по OHLC.
-  </div>
+  <div class="muted" id="connectionInfo">Источник: MOEX ISS. Расчёт Heikin Ashi выполняется приложением.</div>
  </section>
 
  <section class="panel">
-  <div class="row">
-   <strong>НАСТРОЙКИ ВИРТУАЛЬНОЙ ТОРГОВЛИ</strong>
-   <span class="status">БЕЗ КОМИССИИ</span>
-  </div>
+  <div class="row"><strong>ГОЛОС И РАБОТА АНАЛИТИКА</strong><span class="status">3 НЕЗАВИСИМЫХ РЕЖИМА</span></div>
+  <div class="toggleRow"><span><b>Голосовой собеседник</b><br>Микрофон, диалог и ответы</span>
+   <button class="switch" id="talkBtn">ВЫКЛ</button></div>
+  <div class="toggleRow"><span><b>Экран аналитика</b><br>Отдельный график и разметка</span>
+   <button class="switch" id="analystBtn">ВЫКЛ</button></div>
+  <div class="toggleRow"><span><b>Голосовые торговые сигналы</b><br>Сообщения о виртуальных BUY/SELL</span>
+   <button class="switch" id="signalsBtn">ВКЛ</button></div>
+  <div class="muted">Отключение микрофона не отключает анализ и виртуальную торговлю. Голосовые сигналы управляются отдельно.</div>
+ </section>
+
+ <section class="panel">
+  <div class="row"><strong>ВИРТУАЛЬНАЯ ТОРГОВЛЯ</strong><span class="status">БЕЗ КОМИССИИ</span></div>
   <div class="row" style="margin-top:10px">
-   <label>Баланс на каждом интервале, ₽<br>
-    <input id="capitalInput" type="number" min="1000" step="1000" value="100000">
-   </label>
-   <label>Использовать средств<br>
-    <select id="riskInput">
-     <option value="0.5">50%</option>
-     <option value="0.75" selected>75%</option>
-     <option value="1">100%</option>
-    </select>
-   </label>
+   <label>Баланс на каждом интервале, ₽<br><input id="capitalInput" type="number" min="1000" step="1000" value="100000"></label>
+   <label>Использовать средств<br><select id="riskInput"><option value=".5">50%</option><option value=".75" selected>75%</option><option value="1">100%</option></select></label>
    <button class="gold" id="saveSettings">Сохранить</button>
   </div>
-  <div class="muted" style="margin-top:8px">
-   Каждый интервал торгует независимо. Все операции виртуальные. Сигнал формируется после закрытия свечи.
-  </div>
+  <div class="muted">Восемь независимых виртуальных счетов. Покупка по закрытой зелёной свече, продажа по закрытой красной. Реальные ордера не отправляются.</div>
  </section>
 
  <section class="panel">
-  <div class="row">
-   <strong>ВОСЕМЬ НЕЗАВИСИМЫХ ИНТЕРВАЛОВ</strong>
-   <span class="muted">Автоматический режим</span>
-  </div>
+  <div class="row"><strong>ВОСЕМЬ НЕЗАВИСИМЫХ ИНТЕРВАЛОВ</strong><span class="muted">Автоматический режим</span></div>
   <div class="grid" id="timeframes"></div>
  </section>
 
  <section class="panel">
-  <div class="row">
-   <strong>ГРАФИК HEIKIN ASHI</strong>
-   <span class="status" id="chartTf">1 минута</span>
-  </div>
+  <div class="row"><strong>ОСНОВНОЙ ГРАФИК HEIKIN ASHI</strong><span class="status" id="chartTf">1 минута</span></div>
   <div class="tabs" id="chartTabs"></div>
   <canvas id="chart" width="900" height="420"></canvas>
-  <div class="muted" id="chartInfo" style="margin-top:7px">
-   Зелёная свеча — рост. Красная — снижение. Маркеры показывают виртуальные сделки.
-  </div>
+  <div class="muted" id="chartInfo">Маркеры показывают виртуальные сделки.</div>
+ </section>
+
+ <section class="panel hidden" id="analystPanel">
+  <div class="row"><strong>РАБОЧИЙ ЭКРАН AI-АНАЛИТИКА</strong><span class="status">ТЕ ЖЕ ДАННЫЕ TGLD</span></div>
+  <div class="tabs" id="analystTabs"></div>
+  <canvas id="analystChart" width="900" height="420"></canvas>
+  <div id="analystText" style="margin-top:10px">Ожидание данных для анализа.</div>
+  <div class="muted" id="analystLevels" style="margin-top:8px">Поддержка и сопротивление появятся после загрузки истории.</div>
  </section>
 
  <section class="panel">
   <strong>АНАЛИТИКА SNIPER GOLD AI</strong>
-  <div id="speechText" style="margin-top:10px">
-   Ожидаю котировки и историю свечей TGLD. До получения достаточных данных торговля заблокирована.
+  <div id="speechText" style="margin-top:10px">Ожидаю котировки и историю свечей TGLD. До получения достаточных данных торговля заблокирована.</div>
+  <div class="muted" id="bestTf" style="margin-top:9px">Лучший интервал для наблюдения: определяется после анализа.</div>
+ </section>
+
+ <section class="panel" id="conversationPanel">
+  <div class="row"><strong>ГОЛОСОВОЙ ДИАЛОГ С АНАЛИТИКОМ</strong><span class="status" id="micStatus">МИКРОФОН ВЫКЛ</span></div>
+  <div id="chatLog"><div class="chat ai">Я буду анализировать тот же график TGLD, который открыт в основном окне. Включи голосового собеседника, чтобы начать разговор.</div></div>
+  <div class="row">
+   <input id="chatInput" style="flex:1;min-width:160px" placeholder="Напиши вопрос аналитику...">
+   <button class="primary" id="sendChat">Отправить</button>
   </div>
-  <div class="row" style="margin-top:10px">
-   <span class="muted" id="bestTf">Лучший интервал для наблюдения: определяется после анализа</span>
-  </div>
+  <div class="muted">Для полноценного ответа языковой модели необходимо подключить защищённый сервер в настройке AI_ENDPOINT в коде.</div>
  </section>
 
  <section class="panel">
   <strong>РЕЗУЛЬТАТЫ ПО ИНТЕРВАЛАМ</strong>
-  <div class="scroll" style="margin-top:8px">
-   <table>
-    <thead><tr><th>Интервал</th><th>Баланс</th><th>Позиция</th><th>Результат</th><th>Сделок</th></tr></thead>
-    <tbody id="resultsBody"></tbody>
-   </table>
-  </div>
+  <div class="scroll" style="margin-top:8px"><table>
+   <thead><tr><th>Интервал</th><th>Баланс</th><th>Позиция</th><th>Результат</th><th>Сделок</th></tr></thead>
+   <tbody id="resultsBody"></tbody>
+  </table></div>
  </section>
 
  <section class="panel">
-  <div class="row">
-   <strong>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</strong>
-   <button class="smallbtn" id="clearLog">Очистить журнал</button>
-  </div>
+  <div class="row"><strong>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</strong><button class="smallbtn" id="clearLog">Очистить журнал</button></div>
   <div id="tradeLog" style="margin-top:8px"><div class="muted">Сделок пока нет.</div></div>
  </section>
-
- <section class="panel">
-  <strong>СОБЫТИЯ И ПРЕДУПРЕЖДЕНИЯ</strong>
-  <div id="eventLog" style="margin-top:8px"><div class="muted">Ожидание анализа.</div></div>
- </section>
-
- <footer>SNIPER GOLD AI 1.0 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ЯВЛЯЕТСЯ ИНВЕСТИЦИОННОЙ РЕКОМЕНДАЦИЕЙ</footer>
+ <section class="panel"><strong>СОБЫТИЯ И ПРЕДУПРЕЖДЕНИЯ</strong><div id="eventLog" style="margin-top:8px"></div></section>
+ <footer>SNIPER GOLD AI 1.1 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
 </main>
 
 <script>
 "use strict";
+
+/* Для настоящего ИИ-диалога укажи URL своего защищённого backend.
+   Не вставляй сюда API-ключ или секретный токен. */
+const AI_ENDPOINT="";
 
 const CONFIG={
  ticker:"TGLD",
@@ -174,19 +173,17 @@ const CONFIG={
   {id:"4h",label:"4 часа",minutes:240},
   {id:"1d",label:"1 день",minutes:1440}
  ],
- maxAgeMs:3*60*1000,
- minCandles:35,
- refreshMs:30000,
- historyDays:30,
- storageKey:"sniper_gold_ai_10"
+ maxAgeMs:3*60*1000,minCandles:35,refreshMs:30000,
+ historyDays:120,storageKey:"sniper_gold_ai_11"
 };
-
 const $=id=>document.getElementById(id);
 const state={
- raw:[],frames:{},accounts:{},selectedTf:"1m",
- voice:false,lastSpeech:"",lastCandleKey:{},
- warnedCandle:{},loading:false,lastAnalysisAt:0,
- lastPrice:null,lastDataWarning:0
+ raw:[],frames:{},accounts:{},selectedTf:"1m",analystTf:"1m",
+ voice:false,analyst:false,signals:true,listening:false,
+ lastSpeech:"",lastCandleKey:{},warnedCandle:{},
+ loading:false,lastAnalysisAt:0,lastPrice:null,
+ lastDataWarning:0,recognition:null,chatBusy:false,
+ conversation:[],lastAnalystMessage:""
 };
 
 function defaultAccount(capital){
@@ -197,6 +194,7 @@ function loadSaved(){
  try{saved=JSON.parse(localStorage.getItem(CONFIG.storageKey)||"{}")}catch(e){}
  if(saved.capital)$("capitalInput").value=saved.capital;
  if(saved.risk)$("riskInput").value=String(saved.risk);
+ if(typeof saved.signals==="boolean")state.signals=saved.signals;
  const capital=Number($("capitalInput").value)||100000;
  CONFIG.intervals.forEach(tf=>{
   const a=saved.accounts?.[tf.id];
@@ -207,16 +205,17 @@ function loadSaved(){
   if(!Number.isFinite(x.units))x.units=0;
   if(!Number.isFinite(x.entry))x.entry=0;
   if(!Number.isFinite(x.realized))x.realized=0;
+  x.trades=x.trades.slice(0,100);x.markers=x.markers.slice(-200);
  });
 }
 function saveState(){
  try{
   localStorage.setItem(CONFIG.storageKey,JSON.stringify({
    capital:Number($("capitalInput").value)||100000,
-   risk:Number($("riskInput").value)||0.75,
-   accounts:state.accounts
+   risk:Number($("riskInput").value)||.75,
+   signals:state.signals,accounts:state.accounts
   }));
- }catch(e){eventMessage("Не удалось сохранить данные. Возможно, хранилище браузера заполнено.")}
+ }catch(e){eventMessage("Хранилище переполнено. Не удалось сохранить обновление.");}
 }
 function fmt(n,d=2){
  return Number.isFinite(Number(n))?Number(n).toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
@@ -229,112 +228,90 @@ function escapeHtml(s){
 }
 function eventMessage(msg){
  const box=$("eventLog"),item=document.createElement("div");
- item.className="log";
- item.innerHTML="<time>"+clock(Date.now())+"</time> · "+escapeHtml(msg);
- box.prepend(item);
- while(box.children.length>35)box.lastChild.remove();
+ item.className="log";item.innerHTML="<time>"+clock(Date.now())+"</time> · "+escapeHtml(msg);
+ box.prepend(item);while(box.children.length>35)box.lastChild.remove();
 }
-function speak(msg,important=false){
+function addChat(role,msg){
+ const box=$("chatLog"),div=document.createElement("div");
+ div.className="chat "+(role==="me"?"me":"ai");
+ div.textContent=(role==="me"?"Вы: ":"Аналитик: ")+msg;
+ box.appendChild(div);box.scrollTop=box.scrollHeight;
+ state.conversation.push({role:role==="me"?"user":"assistant",content:msg});
+ state.conversation=state.conversation.slice(-16);
+}
+function speak(msg,important=false,force=false){
  state.lastSpeech=msg;
  $("speechText").textContent=msg;
- if(!state.voice||!("speechSynthesis" in window))return;
+ if(!force&&!state.signals&&important)return;
+ if(!state.voice&&!force)return;
+ if(!("speechSynthesis" in window))return;
  try{
   if(important)speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(msg);
-  utterance.lang="ru-RU";utterance.rate=1;utterance.pitch=1;
-  speechSynthesis.speak(utterance);
- }catch(e){console.warn("Голосовой движок:",e)}
+  const u=new SpeechSynthesisUtterance(msg);
+  u.lang="ru-RU";u.rate=1;u.pitch=1;speechSynthesis.speak(u);
+ }catch(e){console.warn(e)}
 }
 function setStatus(text,kind=""){
- $("systemStatus").textContent=text;
- $("systemStatus").className="status "+kind;
+ $("systemStatus").textContent=text;$("systemStatus").className="status "+kind;
 }
 function setFresh(text,kind=""){
- $("freshStatus").textContent=text;
- $("freshStatus").className="status "+kind;
+ $("freshStatus").textContent=text;$("freshStatus").className="status "+kind;
 }
 
-/* Получение минутной истории MOEX ISS. */
+/* MOEX ISS: основной режим TQBR. Старые альтернативные board-коды исключены. */
 async function fetchMoexCandles(){
  const from=new Date(Date.now()-CONFIG.historyDays*86400000).toISOString().slice(0,10);
- const boards=["TQTF","TQTD","TQTE"];
- let lastError=null;
- for(const board of boards){
-  try{
-   let all=[],start=0;
-   for(let page=0;page<15;page++){
-    const url="https://iss.moex.com/iss/engines/stock/markets/shares/boards/"+
-     board+"/securities/"+CONFIG.ticker+
-     "/candles.json?from="+from+"&interval=1&start="+start+
-     "&iss.meta=off&iss.only=candles"+
-     "&candles.columns=open,close,high,low,volume,begin";
-    const response=await fetch(url,{cache:"no-store"});
-    if(!response.ok)throw new Error("HTTP "+response.status);
-    const json=await response.json();
-    const block=json.candles;
-    if(!block||!Array.isArray(block.data))throw new Error("MOEX ISS не вернул таблицу свечей");
-    const cols=block.columns;
-    if(!block.data.length)break;
-    const rows=block.data.map(r=>{
-     const o={};cols.forEach((c,i)=>o[c]=r[i]);
-     return {
-      open:Number(o.open),close:Number(o.close),
-      high:Number(o.high),low:Number(o.low),
-      volume:Number(o.volume)||0,time:Date.parse(o.begin)
-     };
-    }).filter(c=>Number.isFinite(c.time)&&[c.open,c.close,c.high,c.low].every(Number.isFinite));
-    all.push(...rows);
-    if(block.data.length<500)break;
-    start+=block.data.length;
-   }
-   const unique=new Map();
-   all.sort((a,b)=>a.time-b.time).forEach(c=>unique.set(c.time,c));
-   const result=[...unique.values()];
-   if(result.length>=CONFIG.minCandles)return result;
-   lastError=new Error("Для "+board+" получено недостаточно свечей");
-  }catch(e){lastError=e}
+ const urlBase="https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/"+CONFIG.ticker+"/candles.json";
+ let all=[],start=0;
+ for(let page=0;page<30;page++){
+  const url=urlBase+"?from="+from+"&interval=1&start="+start+
+   "&iss.meta=off&iss.only=candles&candles.columns=open,close,high,low,volume,begin";
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok)throw new Error("MOEX ISS HTTP "+response.status);
+  const json=await response.json(),block=json.candles;
+  if(!block||!Array.isArray(block.data))throw new Error("MOEX ISS не вернул таблицу свечей");
+  const cols=block.columns;
+  if(!block.data.length)break;
+  const rows=block.data.map(r=>{
+   const o={};cols.forEach((c,i)=>o[c]=r[i]);
+   return {open:Number(o.open),close:Number(o.close),high:Number(o.high),
+    low:Number(o.low),volume:Number(o.volume)||0,time:Date.parse(o.begin)};
+  }).filter(c=>Number.isFinite(c.time)&&[c.open,c.close,c.high,c.low].every(Number.isFinite));
+  all.push(...rows);
+  if(block.data.length<500)break;
+  start+=block.data.length;
  }
- throw lastError||new Error("История TGLD не найдена");
+ const unique=new Map();
+ all.sort((a,b)=>a.time-b.time).forEach(c=>unique.set(c.time,c));
+ const result=[...unique.values()];
+ if(result.length<CONFIG.minCandles)throw new Error("Недостаточно минутных свечей TGLD");
+ return result;
 }
-
-/* Время группировки: московская временная зона UTC+3. */
-function moscowTime(ts){return ts+3*60*60*1000}
+function moscowTime(ts){return ts+3*3600000}
 function aggregateCandles(rows,minutes){
  if(minutes===1)return rows.slice();
  const groups=new Map();
  rows.forEach(c=>{
-  const mt=moscowTime(c.time);
-  const dayStart=Math.floor(mt/86400000)*86400000;
+  const mt=moscowTime(c.time),day=Math.floor(mt/86400000)*86400000;
   let key;
-  if(minutes===1440){
-   key=dayStart;
-  }else{
-   const sessionStart=dayStart+9*60*60*1000;
-   const base=mt<sessionStart?sessionStart-86400000:sessionStart;
+  if(minutes===1440)key=day;
+  else{
+   const session=day+9*3600000,base=mt<session?session-86400000:session;
    key=base+Math.floor((mt-base)/(minutes*60000))*minutes*60000;
   }
   let a=groups.get(key);
-  if(!a){
-   a={time:key-3*60*60*1000,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume};
-   groups.set(key,a);
-  }else{
-   a.high=Math.max(a.high,c.high);
-   a.low=Math.min(a.low,c.low);
-   a.close=c.close;
-   a.volume+=c.volume;
-  }
+  if(!a)groups.set(key,{time:key-10800000,open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume});
+  else{a.high=Math.max(a.high,c.high);a.low=Math.min(a.low,c.low);a.close=c.close;a.volume+=c.volume;}
  });
  return [...groups.values()].sort((a,b)=>a.time-b.time);
 }
 function toHeikinAshi(rows){
- const out=[];let previous=null;
+ const out=[];let prev=null;
  rows.forEach(c=>{
   const haClose=(c.open+c.high+c.low+c.close)/4;
-  const haOpen=previous?(previous.haOpen+previous.haClose)/2:(c.open+c.close)/2;
-  const haHigh=Math.max(c.high,haOpen,haClose);
-  const haLow=Math.min(c.low,haOpen,haClose);
-  const item={...c,haOpen,haClose,haHigh,haLow};
-  out.push(item);previous=item;
+  const haOpen=prev?(prev.haOpen+prev.haClose)/2:(c.open+c.close)/2;
+  const item={...c,haOpen,haClose,haHigh:Math.max(c.high,haOpen,haClose),haLow:Math.min(c.low,haOpen,haClose)};
+  out.push(item);prev=item;
  });
  return out;
 }
@@ -344,19 +321,12 @@ function getClosedCandles(rows,minutes){
 }
 function getFreshness(){
  if(!state.raw.length)return {ok:false,age:Infinity};
- const last=state.raw[state.raw.length-1];
- const age=Date.now()-(last.time+60000);
+ const last=state.raw[state.raw.length-1],age=Date.now()-(last.time+60000);
  return {ok:age<=CONFIG.maxAgeMs&&age>=-60000,age,last};
 }
-function getLastPrice(){
- return state.raw.length?state.raw[state.raw.length-1].close:null;
-}
-
-/* Анализ последовательности Heikin Ashi. */
 function analyzeFrame(candles){
- if(candles.length<CONFIG.minCandles)return {ready:false,reason:"Недостаточно истории"};
- const last=candles[candles.length-1],prev=candles[candles.length-2];
- const recent=candles.slice(-12);
+ if(candles.length<CONFIG.minCandles)return {ready:false,reason:"Недостаточно истории: "+candles.length+" из "+CONFIG.minCandles};
+ const last=candles[candles.length-1],prev=candles[candles.length-2],recent=candles.slice(-12);
  const greens=recent.filter(c=>c.haClose>c.haOpen).length;
  const reds=recent.filter(c=>c.haClose<c.haOpen).length;
  const bodies=recent.map(c=>Math.abs(c.haClose-c.haOpen));
@@ -367,15 +337,12 @@ function analyzeFrame(candles){
  const upperWick=last.haHigh-Math.max(last.haOpen,last.haClose);
  const lowerWick=Math.min(last.haOpen,last.haClose)-last.haLow;
  const recent20=candles.slice(-20);
- const support=Math.min(...recent20.map(c=>c.haLow));
- const resistance=Math.max(...recent20.map(c=>c.haHigh));
- return {ready:true,last,prev,trend,greens,reds,momentum,upperWick,lowerWick,avgBody,support,resistance};
+ return {ready:true,last,prev,trend,greens,reds,momentum,upperWick,lowerWick,avgBody,
+  support:Math.min(...recent20.map(c=>c.haLow)),resistance:Math.max(...recent20.map(c=>c.haHigh))};
 }
-
-/* Вывод карточек интервалов и вкладок графика. */
-function renderTimeframes(){
- const box=$("timeframes"),tabs=$("chartTabs");
- box.innerHTML="";tabs.innerHTML="";
+ function renderTimeframes(){
+ const box=$("timeframes"),tabs=$("chartTabs"),atabs=$("analystTabs");
+ box.innerHTML="";tabs.innerHTML="";atabs.innerHTML="";
  CONFIG.intervals.forEach(tf=>{
   const card=document.createElement("div");
   card.className="tf";card.id="card_"+tf.id;
@@ -384,84 +351,74 @@ function renderTimeframes(){
    '<div class="tf-data" id="detail_'+tf.id+'">История загружается</div>';
   card.addEventListener("click",()=>selectTimeframe(tf.id));
   box.appendChild(card);
-  const button=document.createElement("button");
-  button.textContent=tf.label;
-  button.addEventListener("click",()=>selectTimeframe(tf.id));
-  tabs.appendChild(button);
+  const b=document.createElement("button");b.textContent=tf.label;
+  b.addEventListener("click",()=>selectTimeframe(tf.id));tabs.appendChild(b);
+  const ab=document.createElement("button");ab.textContent=tf.label;
+  ab.addEventListener("click",()=>selectAnalystTimeframe(tf.id));atabs.appendChild(ab);
  });
- selectTimeframe(state.selectedTf);
+ selectTimeframe(state.selectedTf);selectAnalystTimeframe(state.analystTf);
 }
 function selectTimeframe(id){
  state.selectedTf=id;
- CONFIG.intervals.forEach(tf=>{
-  $("card_"+tf.id)?.classList.toggle("active",tf.id===id);
- });
- [...$("chartTabs").children].forEach((b,i)=>{
-  b.classList.toggle("selected",CONFIG.intervals[i].id===id);
- });
- renderChart();
+ CONFIG.intervals.forEach(tf=>$("card_"+tf.id)?.classList.toggle("active",tf.id===id));
+ [...$("chartTabs").children].forEach((b,i)=>b.classList.toggle("selected",CONFIG.intervals[i].id===id));
+ renderChart("chart",id);
+}
+function selectAnalystTimeframe(id){
+ state.analystTf=id;
+ [...$("analystTabs").children].forEach((b,i)=>b.classList.toggle("selected",CONFIG.intervals[i].id===id));
+ renderChart("analystChart",id);
+ renderAnalystDetails();
 }
 function renderFrameCards(){
  CONFIG.intervals.forEach(tf=>{
-  const el=$("card_"+tf.id);if(!el)return;
   const a=state.frames[tf.id]?.analysis;
   const signal=$("signal_"+tf.id),detail=$("detail_"+tf.id);
   if(!a||!a.ready){
-   signal.textContent="НЕДОСТАТОЧНО ДАННЫХ";
-   signal.className="tf-signal warn";
-   detail.textContent=a?.reason||"Ожидание";
-   return;
+   signal.textContent="НЕДОСТАТОЧНО ДАННЫХ";signal.className="tf-signal warn";
+   detail.textContent=a?.reason||"Ожидание";return;
   }
-  const account=state.accounts[tf.id];
   const names={UP:"ВОСХОДЯЩИЙ ТРЕНД",DOWN:"НИСХОДЯЩИЙ ТРЕНД",WEAK_UP:"СЛАБЫЙ РОСТ",WEAK_DOWN:"СЛАБОЕ СНИЖЕНИЕ",SIDE:"БОКОВОЕ ДВИЖЕНИЕ"};
   signal.textContent=names[a.trend];
   signal.className="tf-signal "+(a.trend.includes("UP")?"good":a.trend.includes("DOWN")?"bad":"warn");
-  detail.textContent="HA "+fmt(a.last.haClose)+" · импульс "+fmt(a.momentum,1)+" · "+(account.units>0?"ПОЗИЦИЯ ОТКРЫТА":"БЕЗ ПОЗИЦИИ");
+  const acc=state.accounts[tf.id];
+  detail.textContent="HA "+fmt(a.last.haClose)+" · импульс "+fmt(a.momentum,1)+" · "+(acc.units?"ПОЗИЦИЯ ОТКРЫТА":"БЕЗ ПОЗИЦИИ");
  });
 }
-
-/* Виртуальные сделки. Цена сделки берётся из обычного OHLC close, не из HA close. */
+function addTradeLog(tf,side,price,units,profit){
+ const a=state.accounts[tf];
+ a.trades.unshift({time:Date.now(),tf,side,price,units,profit});
+ a.trades=a.trades.slice(0,100);renderTradeLog();
+}
 function processVirtualTrade(tf,candle){
- const account=state.accounts[tf.id];
- if(!account||!Number.isFinite(candle.close)||candle.close<=0)return;
- const fresh=getFreshness();
- if(!fresh.ok)return;
+ const a=state.accounts[tf.id];
+ if(!a||!Number.isFinite(candle.close)||candle.close<=0)return;
+ if(!getFreshness().ok)return;
  const key=String(candle.time);
  if(state.lastCandleKey[tf.id]===key)return;
- const green=candle.haClose>candle.haOpen;
- const red=candle.haClose<candle.haOpen;
- if(!green&&!red){state.lastCandleKey[tf.id]=key;return}
+ const green=candle.haClose>candle.haOpen,red=candle.haClose<candle.haOpen;
  state.lastCandleKey[tf.id]=key;
+ if(!green&&!red)return;
  const price=candle.close;
-
- if(account.units===0&&green){
-  const ratio=Number($("riskInput").value)||0.75;
-  const units=Math.floor((account.cash*ratio)/price);
+ if(a.units===0&&green){
+  const ratio=Number($("riskInput").value)||.75;
+  const units=Math.floor(a.cash*ratio/price);
   if(units<1)return;
-  account.cash-=units*price;
-  account.units=units;
-  account.entry=price;
-  account.markers.push({time:candle.time,type:"BUY",price,units});
+  a.cash-=units*price;a.units=units;a.entry=price;
+  a.markers.push({time:candle.time,type:"BUY",price,units});
   addTradeLog(tf.id,"BUY",price,units,0);
-  const msg=`TGLD. ${tf.label}. Закрылась зелёная свеча Heikin Ashi. Виртуальная покупка ${units} лотов по цене ${fmt(price)} рублей.`;
+  const msg="TGLD. "+tf.label+". Закрылась зелёная свеча Heikin Ashi. Виртуальная покупка "+units+" лотов по "+fmt(price)+" рублей.";
   eventMessage(msg);speak(msg,true);saveState();
- }else if(account.units>0&&red){
-  const units=account.units;
-  const profit=(price-account.entry)*units;
-  account.cash+=units*price;
-  account.realized+=profit;
-  account.markers.push({time:candle.time,type:"SELL",price,units});
+ }else if(a.units>0&&red){
+  const units=a.units,profit=(price-a.entry)*units;
+  a.cash+=units*price;a.realized+=profit;
+  a.markers.push({time:candle.time,type:"SELL",price,units});
   addTradeLog(tf.id,"SELL",price,units,profit);
-  account.units=0;account.entry=0;
-  const msg=`TGLD. ${tf.label}. Закрылась красная свеча. Виртуальная продажа ${units} лотов по ${fmt(price)} рублей. Результат ${profit>=0?"плюс":"минус"} ${fmt(Math.abs(profit))} рублей.`;
+  a.units=0;a.entry=0;
+  const msg="TGLD. "+tf.label+". Закрылась красная свеча. Виртуальная продажа "+units+" лотов. Результат "+(profit>=0?"плюс ":"минус ")+fmt(Math.abs(profit))+" рублей.";
   eventMessage(msg);speak(msg,true);saveState();
  }
-}
-function addTradeLog(tf,side,price,units,profit){
- const account=state.accounts[tf];
- account.trades.unshift({time:Date.now(),tf,side,price,units,profit});
- account.trades=account.trades.slice(0,100);
- renderTradeLog();
+ a.markers=a.markers.slice(-200);
 }
 function renderTradeLog(){
  const all=[];
@@ -473,8 +430,7 @@ function renderTradeLog(){
   '<div class="log"><time>'+clock(x.time)+'</time> · <b>'+escapeHtml(x.tf)+'</b> · '+
   '<b class="'+(x.side==="BUY"?"good":"bad")+'">'+(x.side==="BUY"?"ПОКУПКА":"ПРОДАЖА")+'</b> · '+
   x.units+' шт. · '+fmt(x.price)+' ₽'+
-  (x.side==="SELL"?' · результат: <b class="'+(x.profit>=0?"good":"bad")+'">'+(x.profit>=0?"+":"")+fmt(x.profit)+' ₽</b>':"")+
-  '</div>'
+  (x.side==="SELL"?' · результат: <b class="'+(x.profit>=0?"good":"bad")+'">'+(x.profit>=0?"+":"")+fmt(x.profit)+' ₽</b>':"")+'</div>'
  ).join("");
 }
 function renderResults(){
@@ -482,248 +438,306 @@ function renderResults(){
  CONFIG.intervals.forEach(tf=>{
   const a=state.accounts[tf.id],price=state.lastPrice||0;
   const floating=a.units>0?(price-a.entry)*a.units:0;
-  const equity=a.cash+a.units*price;
+  const equity=a.cash+a.units*price,result=a.realized+floating;
   const count=a.trades.filter(x=>x.side==="SELL").length;
-  const result=a.realized+floating;
   const tr=document.createElement("tr");
-  tr.innerHTML='<td>'+tf.label+'</td><td>'+fmt(equity)+' ₽</td>'+
-   '<td>'+(a.units?`${a.units} шт. · вход ${fmt(a.entry)}`:"Нет")+'</td>'+
-   '<td class="'+(result>=0?"good":"bad")+'">'+(result>=0?"+":"")+fmt(result)+' ₽</td>'+
-   '<td>'+count+'</td>';
+  tr.innerHTML="<td>"+tf.label+"</td><td>"+fmt(equity)+" ₽</td>"+
+   "<td>"+(a.units?a.units+" шт. · вход "+fmt(a.entry):"Нет")+"</td>"+
+   '<td class="'+(result>=0?"good":"bad")+'">'+(result>=0?"+":"")+fmt(result)+" ₽</td><td>"+count+"</td>";
   body.appendChild(tr);
  });
 }
 
-/* Отрисовка графика и отметок виртуальных сделок. */
-function renderChart(){
- const canvas=$("chart"),ctx=canvas.getContext("2d");
- const tf=CONFIG.intervals.find(x=>x.id===state.selectedTf);
- $("chartTf").textContent=tf.label;
- const rows=state.frames[tf.id]?.candles||[];
+/* Один и тот же массив HA используется обоими графиками. */
+function renderChart(canvasId,tfId){
+ const canvas=$(canvasId);if(!canvas)return;
+ const ctx=canvas.getContext("2d"),rows=state.frames[tfId]?.candles||[];
  ctx.clearRect(0,0,canvas.width,canvas.height);
  ctx.fillStyle="#091521";ctx.fillRect(0,0,canvas.width,canvas.height);
  if(rows.length<2){
   ctx.fillStyle="#8da3b8";ctx.font="16px Arial";
-  ctx.fillText("Ожидание достаточной истории свечей...",25,55);return;
+  ctx.fillText("Ожидание достаточной истории...",25,55);return;
  }
- const data=rows.slice(-90);
- const min=Math.min(...data.map(c=>c.haLow));
- const max=Math.max(...data.map(c=>c.haHigh));
- const range=max-min||1;
- const pad={l:12,r:65,t:15,b:25};
- const w=canvas.width-pad.l-pad.r,h=canvas.height-pad.t-pad.b;
+ const data=rows.slice(-90),min=Math.min(...data.map(c=>c.haLow)),max=Math.max(...data.map(c=>c.haHigh));
+ const range=max-min||1,pad={l:12,r:65,t:15,b:25},w=canvas.width-pad.l-pad.r,h=canvas.height-pad.t-pad.b;
  const y=v=>pad.t+(max-v)/range*h;
  ctx.strokeStyle="#203448";ctx.lineWidth=1;
  for(let i=0;i<=4;i++){
-  const yy=pad.t+h*i/4;
-  ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(canvas.width-pad.r,yy);ctx.stroke();
-  ctx.fillStyle="#91a5b7";ctx.font="11px Arial";
-  ctx.fillText(fmt(max-range*i/4),canvas.width-pad.r+5,yy+4);
+  const yy=pad.t+h*i/4;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(canvas.width-pad.r,yy);ctx.stroke();
+  ctx.fillStyle="#91a5b7";ctx.font="11px Arial";ctx.fillText(fmt(max-range*i/4),canvas.width-pad.r+5,yy+4);
  }
- const step=w/data.length;
- const candleWidth=Math.max(3,Math.min(12,step*.58));
+ const step=w/data.length,cw=Math.max(3,Math.min(12,step*.58));
  data.forEach((c,i)=>{
-  const x=pad.l+i*step+step/2;
-  const up=c.haClose>=c.haOpen;
-  const color=up?"#27d69a":"#ff6577";
+  const x=pad.l+i*step+step/2,up=c.haClose>=c.haOpen,color=up?"#27d69a":"#ff6577";
   ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(x,y(c.haHigh));ctx.lineTo(x,y(c.haLow));ctx.stroke();
-  const top=y(Math.max(c.haOpen,c.haClose));
-  const bottom=y(Math.min(c.haOpen,c.haClose));
-  ctx.fillRect(x-candleWidth/2,top,candleWidth,Math.max(1,bottom-top));
+  const top=y(Math.max(c.haOpen,c.haClose)),bottom=y(Math.min(c.haOpen,c.haClose));
+  ctx.fillRect(x-cw/2,top,cw,Math.max(1,bottom-top));
  });
- const account=state.accounts[tf.id];
- account.markers.forEach(m=>{
-  const index=data.findIndex(c=>c.time===m.time);
-  if(index<0)return;
+ const account=state.accounts[tfId];
+ (account?.markers||[]).forEach(m=>{
+  const index=data.findIndex(c=>c.time===m.time);if(index<0)return;
   const x=pad.l+index*step+step/2,yy=y(m.price);
-  ctx.fillStyle=m.type==="BUY"?"#58aaff":"#ffbd55";
-  ctx.beginPath();
-  if(m.type==="BUY"){
-   ctx.moveTo(x,yy+12);ctx.lineTo(x-6,yy+22);ctx.lineTo(x+6,yy+22);
-  }else{
-   ctx.moveTo(x,yy-12);ctx.lineTo(x-6,yy-22);ctx.lineTo(x+6,yy-22);
-  }
-  ctx.closePath();ctx.fill();
-  ctx.font="bold 10px Arial";
+  ctx.fillStyle=m.type==="BUY"?"#58aaff":"#ffbd55";ctx.beginPath();
+  if(m.type==="BUY"){ctx.moveTo(x,yy+12);ctx.lineTo(x-6,yy+22);ctx.lineTo(x+6,yy+22);}
+  else{ctx.moveTo(x,yy-12);ctx.lineTo(x-6,yy-22);ctx.lineTo(x+6,yy-22);}
+  ctx.closePath();ctx.fill();ctx.font="bold 10px Arial";
   ctx.fillText(m.type,x-12,m.type==="BUY"?yy+34:yy-27);
  });
- const last=data[data.length-1];
- $("chartInfo").textContent=tf.label+" · Heikin Ashi · "+data.length+
-  " свечей · последняя закрытая свеча: "+clock(last.time);
 }
-
-/* Общий анализ всех восьми интервалов. */
+function describeAnalysis(tf,a){
+ let msg="TGLD, интервал "+tf.label+". ";
+ if(a.trend==="UP")msg+="В последних свечах преобладает восходящее движение. ";
+ else if(a.trend==="DOWN")msg+="Преобладает нисходящее движение. ";
+ else if(a.trend==="WEAK_UP")msg+="Есть небольшое преимущество покупателей, но рост пока слабый. ";
+ else if(a.trend==="WEAK_DOWN")msg+="Есть небольшое преимущество продавцов. ";
+ else msg+="Выраженного направления пока нет. ";
+ if(a.momentum>1.5)msg+="Последняя свеча крупнее среднего тела, импульс усилился. ";
+ else if(a.momentum<.55)msg+="Тело свечи небольшое, движение замедляется. ";
+ if(a.lowerWick>a.avgBody)msg+="Заметна нижняя тень: внутри свечи цену откупали от минимума. ";
+ if(a.upperWick>a.avgBody)msg+="Заметна верхняя тень: от максимума цену отталкивали. ";
+ msg+="Расчётная поддержка последних свечей около "+fmt(a.support)+" рублей, сопротивление около "+fmt(a.resistance)+" рублей. ";
+ msg+="Это анализ прошедших свечей, а не гарантия будущего движения.";
+ return msg;
+}
+function renderAnalystDetails(){
+ const tf=CONFIG.intervals.find(x=>x.id===state.analystTf),a=state.frames[state.analystTf]?.analysis;
+ if(!tf||!a?.ready){
+  $("analystText").textContent="Для "+(tf?.label||"выбранного интервала")+" пока недостаточно закрытых свечей.";
+  $("analystLevels").textContent="Уровни не рассчитаны.";return;
+ }
+ $("analystText").textContent=describeAnalysis(tf,a);
+ $("analystLevels").textContent="Поддержка: "+fmt(a.support)+" ₽ · Сопротивление: "+fmt(a.resistance)+" ₽ · HA close: "+fmt(a.last.haClose)+" ₽";
+}
 function runAnalysis(){
- const fresh=getFreshness(),price=getLastPrice();
+ const fresh=getFreshness(),price=state.raw.length?state.raw[state.raw.length-1].close:null;
  if(price!==null){
-  state.lastPrice=price;
-  $("currentPrice").textContent=fmt(price)+" ₽";
+  state.lastPrice=price;$("currentPrice").textContent=fmt(price)+" ₽";
   $("priceTime").textContent="Последняя минутная свеча MOEX ISS: "+clock(state.raw[state.raw.length-1].time);
  }
  $("dataCount").textContent="Минутных свечей: "+state.raw.length;
  if(!fresh.ok){
-  setFresh("ДАННЫЕ УСТАРЕЛИ","bad");
-  setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
-  $("connectionInfo").textContent="Последняя минутная свеча устарела. Новые виртуальные сделки заблокированы.";
+  setFresh("ДАННЫЕ УСТАРЕЛИ","bad");setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
+  $("connectionInfo").textContent="Нет подтверждения свежести котировок. Новые виртуальные сделки заблокированы.";
   $("bestTf").textContent="Нет свежих данных для выбора интервала";
   if(Date.now()-state.lastDataWarning>60000){
    state.lastDataWarning=Date.now();
-   speak("Внимание. Котировки TGLD устарели. Новые виртуальные сделки заблокированы.");
+   const msg="Котировки TGLD устарели. Новые виртуальные сделки заблокированы.";
+   $("speechText").textContent=msg;speak(msg,false);
   }
   renderResults();return;
  }
- setFresh("АКТУАЛЬНЫЕ","good");
- setStatus("ДАННЫЕ ПОЛУЧЕНЫ","good");
+ setFresh("АКТУАЛЬНЫЕ","good");setStatus("ДАННЫЕ ПОЛУЧЕНЫ","good");
  $("connectionInfo").textContent="MOEX ISS · минутные OHLC · Heikin Ashi рассчитывается приложением.";
  const reports=[];
  CONFIG.intervals.forEach(tf=>{
   const aggregated=aggregateCandles(state.raw,tf.minutes);
   const closed=getClosedCandles(aggregated,tf.minutes);
-  const ha=toHeikinAshi(closed);
-  const analysis=analyzeFrame(ha);
+  const ha=toHeikinAshi(closed),analysis=analyzeFrame(ha);
   state.frames[tf.id]={candles:ha,analysis};
-  if(analysis.ready){
-   processVirtualTrade(tf,analysis.last);
-   reports.push({tf,analysis});
-  }
+  if(analysis.ready){processVirtualTrade(tf,analysis.last);reports.push({tf,analysis});}
  });
- renderFrameCards();renderResults();renderChart();
+ renderFrameCards();renderResults();
+ renderChart("chart",state.selectedTf);
+ if(state.analyst)renderChart("analystChart",state.analystTf);
+ renderAnalystDetails();
  if(!reports.length){
-  $("speechText").textContent="Получены данные, но истории пока недостаточно для полноценного анализа всех интервалов.";
-  return;
+  $("speechText").textContent="Истории пока недостаточно для анализа выбранных интервалов.";return;
  }
- const ranked=reports.slice().sort((a,b)=>{
-  const score=x=>Math.abs(x.analysis.greens-x.analysis.reds)+Math.min(3,x.analysis.momentum);
-  return score(b)-score(a);
- });
- const best=ranked[0];
- $("bestTf").textContent="Наиболее выраженное движение: "+best.tf.label+
-  ". Это ориентир для наблюдения, а не гарантия входа.";
+ const ranked=reports.slice().sort((a,b)=>
+  (Math.abs(b.analysis.greens-b.analysis.reds)+Math.min(3,b.analysis.momentum))-
+  (Math.abs(a.analysis.greens-a.analysis.reds)+Math.min(3,a.analysis.momentum)));
+ $("bestTf").textContent="Наиболее выраженное движение: "+ranked[0].tf.label+". Это ориентир для наблюдения, не торговая рекомендация.";
  const selected=reports.find(x=>x.tf.id===state.selectedTf);
  if(selected){
-  const a=selected.analysis;
-  let msg="TGLD, интервал "+selected.tf.label+". ";
-  if(a.trend==="UP")msg+="По последним свечам преобладает восходящее движение. ";
-  else if(a.trend==="DOWN")msg+="Преобладает нисходящее движение. Покупку лучше не торопить. ";
-  else if(a.trend==="WEAK_UP")msg+="Наблюдается слабое преимущество покупателей. Нужен более сильный импульс. ";
-  else if(a.trend==="WEAK_DOWN")msg+="Продавцы пока имеют небольшое преимущество. ";
-  else msg+="Рынок движется без выраженного направления. ";
-  if(a.momentum>1.5)msg+="Тело последней свечи больше среднего, импульс усилился. ";
-  else if(a.momentum<0.55)msg+="Тело свечи небольшое. Движение замедляется. ";
-  if(a.lowerWick>a.avgBody)msg+="Есть заметная нижняя тень. ";
-  if(a.upperWick>a.avgBody)msg+="Есть заметная верхняя тень. ";
-  msg+="Недавняя область поддержки около "+fmt(a.support)+
-   " рублей, сопротивления около "+fmt(a.resistance)+" рублей. ";
-  msg+="Это оценка прошлых свечей, а не точный прогноз будущей цены.";
+  const msg=describeAnalysis(selected.tf,selected.analysis);
   $("speechText").textContent=msg;
   if(Date.now()-state.lastAnalysisAt>180000){
    state.lastAnalysisAt=Date.now();state.lastSpeech=msg;
-   if(state.voice)speak(msg);
+   if(state.voice)speak(msg,false);
   }
  }
 }
-
-/* Предупреждение за пять секунд до закрытия свечи. Не является сигналом. */
+async function refreshData(){
+ if(state.loading)return;
+ state.loading=true;$("refreshBtn").disabled=true;setStatus("ЗАГРУЗКА MOEX ISS","warn");
+ try{
+  const rows=await fetchMoexCandles();
+  if(!rows.length)throw new Error("MOEX ISS вернул пустую историю");
+  state.raw=rows;runAnalysis();
+ }catch(e){
+  console.error(e);setStatus("ОШИБКА ДАННЫХ","bad");setFresh("НЕТ ПОДТВЕРЖДЕНИЯ","bad");
+  $("connectionInfo").textContent="Ошибка загрузки TGLD: "+e.message+". Старые данные не используются для новых сделок.";
+  state.raw=[];
+  Object.keys(state.frames).forEach(k=>state.frames[k].analysis={ready:false,reason:"Нет подтверждённых свежих данных"});
+  renderFrameCards();renderResults();
+  eventMessage("Ошибка загрузки MOEX ISS: "+e.message);
+ }finally{state.loading=false;$("refreshBtn").disabled=false;}
+}
 function checkPreCloseWarnings(){
- if(!state.raw.length)return;
+ if(!state.raw.length||!getFreshness().ok)return;
  const now=Date.now();
  CONFIG.intervals.forEach(tf=>{
-  const step=tf.minutes*60000;
-  const boundary=(Math.floor(now/step)+1)*step;
+  const step=tf.minutes*60000,boundary=(Math.floor(now/step)+1)*step;
   const seconds=Math.ceil((boundary-now)/1000);
   if(seconds>0&&seconds<=5){
-   const key=tf.id+"_"+boundary;
-   if(state.warnedCandle[tf.id]===key)return;
+   const key=tf.id+"_"+boundary;if(state.warnedCandle[tf.id]===key)return;
    state.warnedCandle[tf.id]=key;
-   const msg="TGLD. Интервал "+tf.label+". Через "+seconds+
-    " секунд закрывается свеча. Приготовься проверить направление. Это предупреждение, не торговый сигнал.";
-   eventMessage(msg);speak(msg,true);
+   const msg="TGLD. Интервал "+tf.label+". Через "+seconds+" секунд закрывается свеча. Приготовься проверить направление. Это предупреждение, не сигнал.";
+   eventMessage(msg);speak(msg,false);
   }
  });
 }
 
-/* Загрузка данных с обработкой ошибок. */
-async function refreshData(){
- if(state.loading)return;
- state.loading=true;$("refreshBtn").disabled=true;
- setStatus("ЗАГРУЗКА MOEX ISS","warn");
- try{
-  const rows=await fetchMoexCandles();
-  if(!rows.length)throw new Error("MOEX ISS вернул пустую историю");
-  state.raw=rows;
-  runAnalysis();
- }catch(e){
-  console.error(e);
-  setStatus("ОШИБКА ДАННЫХ","bad");
-  setFresh("НЕТ ПОДТВЕРЖДЕНИЯ","bad");
-  $("connectionInfo").textContent="Ошибка загрузки TGLD: "+e.message+
-   ". Проверь интернет и доступность MOEX ISS.";
-  speak("Не удалось получить данные TGLD с Московской биржи. Новые сделки заблокированы.",true);
-  eventMessage("Ошибка загрузки MOEX ISS: "+e.message);
- }finally{
-  state.loading=false;$("refreshBtn").disabled=false;
+/* Голосовой ввод. Поддержка зависит от браузера и Android WebView. */
+function stopListening(){
+ if(state.recognition){try{state.recognition.stop()}catch(e){}}
+ state.listening=false;$("micStatus").textContent="МИКРОФОН ВЫКЛ";
+}
+function startListening(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+  addChat("assistant","В этом браузере нет поддержки распознавания речи. Можно писать вопросы в поле ввода.");
+  return;
+ }
+ if(!state.recognition){
+  const rec=new SR();rec.lang="ru-RU";rec.continuous=true;rec.interimResults=false;
+  rec.onresult=e=>{
+   const result=e.results[e.results.length-1];
+   if(result.isFinal&&result[0]?.transcript){
+    const words=result[0].transcript.trim();
+    if(words)sendUserMessage(words);
+   }
+  };
+  rec.onerror=e=>{
+   if(e.error!=="no-speech"&&e.error!=="aborted")eventMessage("Ошибка микрофона: "+e.error);
+  };
+  rec.onend=()=>{
+   if(state.voice&&state.listening){
+    setTimeout(()=>{if(state.voice&&state.listening){try{rec.start()}catch(e){}}},700);
+   }
+  };
+  state.recognition=rec;
+ }
+ state.listening=true;$("micStatus").textContent="СЛУШАЮ";
+ try{state.recognition.start()}catch(e){}
+}
+function setTalkMode(on){
+ state.voice=on;
+ $("talkBtn").textContent=on?"ВКЛ":"ВЫКЛ";
+ if(on){
+  speak("Голосовой собеседник включён. Можешь задавать вопросы по графику TGLD.",true,true);
+  startListening();
+ }else{
+  stopListening();
+  if("speechSynthesis" in window)speechSynthesis.cancel();
+  $("micStatus").textContent="МИКРОФОН ВЫКЛ";
+ }
+}
+function setAnalystMode(on){
+ state.analyst=on;
+ $("analystBtn").textContent=on?"ВКЛ":"ВЫКЛ";
+ $("analystPanel").classList.toggle("hidden",!on);
+ if(on){
+  renderChart("analystChart",state.analystTf);renderAnalystDetails();
  }
 }
 
+/* Контекст графика отправляется серверу, если AI_ENDPOINT задан. */
+function getMarketContext(){
+ const tf=CONFIG.intervals.find(x=>x.id===state.selectedTf);
+ const a=state.frames[state.selectedTf]?.analysis;
+ return {
+  ticker:"TGLD",interval:tf?.label||state.selectedTf,
+  price:state.lastPrice,fresh:getFreshness().ok,
+  analysis:a?.ready?{
+   trend:a.trend,momentum:a.momentum,support:a.support,
+   resistance:a.resistance,upperWick:a.upperWick,lowerWick:a.lowerWick,
+   lastHaOpen:a.last.haOpen,lastHaClose:a.last.haClose
+  }:null,
+  allIntervals:CONFIG.intervals.map(x=>{
+   const z=state.frames[x.id]?.analysis;
+   return {interval:x.id,trend:z?.ready?z.trend:"недостаточно данных",
+    support:z?.ready?z.support:null,resistance:z?.ready?z.resistance:null};
+  })
+ };
+}
+async function askAI(message){
+ if(!AI_ENDPOINT){
+  const a=state.frames[state.selectedTf]?.analysis;
+  if(!a?.ready)return "Пока недостаточно подтверждённых свечей, чтобы ответить по графику. Сначала дождёмся загрузки истории TGLD.";
+  return "Сейчас на интервале "+state.selectedTf+" наблюдается "+a.trend+
+   ". Импульс последней свечи относительно среднего: "+fmt(a.momentum,2)+
+   ". Поддержка около "+fmt(a.support)+" ₽, сопротивление около "+fmt(a.resistance)+
+   " ₽. Я могу анализировать эти данные, но полноценный диалог с языковой моделью ещё не подключён: для этого нужен защищённый AI-сервер.";
+ }
+ const response=await fetch(AI_ENDPOINT,{
+  method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({message,history:state.conversation.slice(-12),market:getMarketContext()})
+ });
+ if(!response.ok)throw new Error("AI-сервер вернул HTTP "+response.status);
+ const data=await response.json();
+ return data.reply||data.answer||"Сервер не вернул текстовый ответ.";
+}
+async function sendUserMessage(text){
+ const message=String(text||"").trim();if(!message||state.chatBusy)return;
+ state.chatBusy=true;$("sendChat").disabled=true;
+ $("chatInput").value="";addChat("me",message);
+ try{
+  const reply=await askAI(message);
+  addChat("assistant",reply);state.lastAnalystMessage=reply;
+  if(state.voice)speak(reply,true,true);
+ }catch(e){
+  const err="Не удалось получить ответ аналитика: "+e.message;
+  addChat("assistant",err);eventMessage(err);
+ }finally{state.chatBusy=false;$("sendChat").disabled=false;}
+}
 function saveSettings(){
  const capital=Number($("capitalInput").value);
- if(!Number.isFinite(capital)||capital<1000){
-  alert("Укажи виртуальный баланс не менее 1000 рублей.");return;
- }
+ if(!Number.isFinite(capital)||capital<1000){alert("Укажи баланс не менее 1000 рублей.");return;}
  CONFIG.intervals.forEach(tf=>{
   const a=state.accounts[tf.id];
   if(a.units===0&&a.trades.length===0)a.cash=capital;
  });
- saveState();renderResults();
- eventMessage("Настройки виртуального капитала сохранены.");
+ saveState();renderResults();eventMessage("Настройки виртуального баланса сохранены.");
 }
 function clearLog(){
- if(!confirm("Очистить историю сделок? Открытые позиции и баланс останутся без изменений."))return;
+ if(!confirm("Очистить историю сделок? Открытые позиции и балансы сохранятся."))return;
  CONFIG.intervals.forEach(tf=>{
-  state.accounts[tf.id].trades=[];
-  state.accounts[tf.id].markers=[];
+  state.accounts[tf.id].trades=[];state.accounts[tf.id].markers=[];
  });
- saveState();renderTradeLog();renderChart();renderResults();
+ saveState();renderTradeLog();renderChart("chart",state.selectedTf);
+ renderChart("analystChart",state.analystTf);renderResults();
  eventMessage("Журнал сделок очищен.");
 }
-
-/* Запуск приложения. */
 function init(){
- loadSaved();
- renderTimeframes();
- renderTradeLog();
- renderResults();
-
+ loadSaved();renderTimeframes();renderTradeLog();renderResults();
  $("refreshBtn").addEventListener("click",refreshData);
  $("saveSettings").addEventListener("click",saveSettings);
  $("clearLog").addEventListener("click",clearLog);
  $("repeatBtn").addEventListener("click",()=>{
-  if(state.lastSpeech)speak(state.lastSpeech,true);
+  if(state.lastSpeech)speak(state.lastSpeech,true,true);
  });
- $("voiceBtn").addEventListener("click",()=>{
-  state.voice=!state.voice;
-  $("voiceBtn").textContent="Голос: "+(state.voice?"ВКЛ":"ВЫКЛ");
-  if(state.voice){
-   speak("Голосовой аналитик SNIPER GOLD AI включён.",true);
-  }else if("speechSynthesis" in window){
-   speechSynthesis.cancel();
-  }
+ $("talkBtn").addEventListener("click",()=>setTalkMode(!state.voice));
+ $("analystBtn").addEventListener("click",()=>setAnalystMode(!state.analyst));
+ $("signalsBtn").textContent=state.signals?"ВКЛ":"ВЫКЛ";
+ $("signalsBtn").addEventListener("click",()=>{
+  state.signals=!state.signals;$("signalsBtn").textContent=state.signals?"ВКЛ":"ВЫКЛ";saveState();
+ });
+ $("sendChat").addEventListener("click",()=>sendUserMessage($("chatInput").value));
+ $("chatInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();sendUserMessage($("chatInput").value);}
  });
  $("capitalInput").addEventListener("change",saveState);
  $("riskInput").addEventListener("change",saveState);
-
  refreshData();
- setInterval(()=>{
-  checkPreCloseWarnings();
-  if(state.raw.length&&!getFreshness().ok){
-   setFresh("ДАННЫЕ УСТАРЕЛИ","bad");
-   setStatus("ТОРГОВЛЯ ЗАБЛОКИРОВАНА","bad");
-  }
- },1000);
+ setInterval(checkPreCloseWarnings,1000);
  setInterval(refreshData,CONFIG.refreshMs);
  setInterval(()=>{if(state.raw.length)runAnalysis()},15000);
- window.addEventListener("resize",renderChart);
+ window.addEventListener("resize",()=>{
+  renderChart("chart",state.selectedTf);
+  if(state.analyst)renderChart("analystChart",state.analystTf);
+ });
 }
 document.addEventListener("DOMContentLoaded",init);
 </script>
