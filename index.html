@@ -218,7 +218,7 @@ const tfName=t=>({1:"1 мин",5:"5 мин",15:"15 мин",30:"30 мин",60:"1 
 const bookKey=(a,t)=>a+"_"+t;
 function emptyBook(){return{cash:CAPITAL,realized:0,position:null,closed:[],events:[],marks:[],bricks:[],box:0,boxRaw:0,atrNow:0,initialized:false,cursor:0,lastReversal:"—",pending:null,pendingQueue:[],renkoState:null,peak:CAPITAL,maxDD:0,equity:CAPITAL,calibrationEnd:0,preWarn:{},renkoVersion:BOX_VERSION,lastSignalTime:0,lastSignalDir:0}}
 function emptyData(){return{bars:[],dailyBars:[],quote:null,price:null,board:"—",pages:0,error:"",updated:0,complete:false,dailyComplete:false,dailyError:"",dailyUpdated:0}}
-let S={asset:"OZON",tf:5,atrPeriod:5,boxMultiplier:.5,auto:{},enabled:{},loading:{},voice:true,volume:.8,data:{},books:{}};
+let S={asset:"OZON",tf:5,atrPeriod:5,boxMultiplier:.5,auto:{},enabled:{},intervals:{},loading:{},voice:true,volume:.8,data:{},books:{}};
 function registerAsset(a,auto=false){
 if(!CFG[a])return;if(!assets.includes(a))assets.push(a);
 if(S.auto[a]===undefined)S.auto[a]=!!auto;
@@ -242,7 +242,7 @@ Object.keys(S.books||{}).forEach(k=>{const b=S.books[k];if(!b||typeof b!=="objec
 books[k]={...b,bricks:(Array.isArray(b.bricks)?b.bricks:[]).slice(-maxBricks),closed:(Array.isArray(b.closed)?b.closed:[]).slice(0,maxClosed),events:(Array.isArray(b.events)?b.events:[]).slice(0,300),marks:(Array.isArray(b.marks)?b.marks:[]).slice(-400),pendingQueue:(Array.isArray(b.pendingQueue)?b.pendingQueue:[]).slice(-1000),preWarn:{}};
 });
 const custom={};Object.keys(CFG).forEach(a=>{if(!BUILTIN.includes(a)){const c=CFG[a];custom[a]={ticker:a,market:"shares",boards:c.boards,tv:c.tv,name:c.name}}});
-return{version:"2.7.6",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
+return{version:"2.7.6",asset:S.asset,tf:S.tf,atrPeriod:S.atrPeriod,boxMultiplier:S.boxMultiplier,auto:S.auto,enabled:S.enabled,intervals:S.intervals,voice:S.voice,volume:S.volume,books,assets:assets.slice(),custom};
 }
 let saveBusy=false,saveAgain=false,lastSaveError="";
 function save(){
@@ -270,7 +270,7 @@ if(x){
 S.asset=CFG[x.asset]?x.asset:"OZON";S.tf=TFS.includes(+x.tf)?+x.tf:5;
 S.atrPeriod=ATR_OPTIONS.includes(+x.atrPeriod)?+x.atrPeriod:5;
 const m=Number(x.boxMultiplier);S.boxMultiplier=BOX_MULTIPLIERS.includes(m)?m:.5;
-S.auto={...S.auto,...(x.auto||{})};S.enabled={...S.enabled,...(x.enabled||{})};
+S.auto={...S.auto,...(x.auto||{})};S.enabled={...S.enabled,...(x.enabled||{})};S.intervals={...S.intervals,...(x.intervals||{})};
 S.voice=x.voice!==false;S.volume=Number.isFinite(+x.volume)?Math.max(0,Math.min(1,+x.volume)):.8;
 S.books=x.books&&typeof x.books==="object"?x.books:{};
 (Array.isArray(x.assets)?x.assets:[]).forEach(a=>{if(CFG[a])registerAsset(a,!!(x.auto&&x.auto[a]))});
@@ -279,6 +279,8 @@ BUILTIN.forEach(a=>registerAsset(a,true));
 const isCurrent=source===STORE_KEY&&x&&String(x.version||"")==="2.7.6";
 if(!isCurrent){DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
 assets.forEach(a=>{registerAsset(a,!!S.auto[a]);TFS.forEach(t=>{if(typeof S.enabled[a][t]!=="boolean")S.enabled[a][t]=true})});
+const legacyIntervals=S.enabled[S.asset]||{};S.intervals=Object.fromEntries(TFS.map(t=>[t,typeof S.intervals[t]==="boolean"?S.intervals[t]:(typeof legacyIntervals[t]==="boolean"?legacyIntervals[t]:true)]));
+assets.forEach(a=>TFS.forEach(t=>{S.enabled[a][t]=S.intervals[t]}));
 if(!assets.includes(S.asset))S.asset="OZON";
 if(source!==STORE_KEY||!isCurrent)console.log("Выполнена миграция сохранённых данных в 2.7.6");
 }catch(e){console.warn("Восстановление",e);DEFAULT_ADDITIONAL.forEach(a=>{registerAsset(a,false);S.auto[a]=false})}
@@ -322,7 +324,7 @@ if(!tickerValid(ticker)){status.textContent="Укажи тикер латинс�
 if(CFG[ticker]&&assets.includes(ticker)){status.textContent="Инструмент "+ticker+" уже находится в списке.";return}
 btn.disabled=true;status.textContent="Проверяю "+ticker+" через MOEX ISS...";
 try{const found=await verifyTicker(ticker);if(!CFG[ticker])CFG[ticker]={ticker,market:"shares",boards:[found.board],tv:"MOEX:"+ticker,name:found.name||ticker};else{CFG[ticker].boards=[found.board];CFG[ticker].name=found.name||ticker}
-registerAsset(ticker,false);S.auto[ticker]=false;if(!S.enabled[ticker])S.enabled[ticker]=Object.fromEntries(TFS.map(t=>[t,true]));input.value="";renderAssetControls();save();status.textContent="Инструмент "+ticker+" проверен и добавлен. Автоматическая торговля выключена.";selectAsset(ticker);refreshAsset(ticker);
+registerAsset(ticker,false);S.auto[ticker]=false;if(!S.enabled[ticker])S.enabled[ticker]=Object.fromEntries(TFS.map(t=>[t,true]));TFS.forEach(t=>{S.enabled[ticker][t]=S.intervals[t]===true});input.value="";renderAssetControls();save();status.textContent="Инструмент "+ticker+" проверен и добавлен. Автоматическая торговля выключена.";selectAsset(ticker);refreshAsset(ticker);
 }catch(e){status.textContent="Не удалось добавить "+ticker+": "+e.message}finally{btn.disabled=false}
 }
 function removeAsset(a){
@@ -335,7 +337,7 @@ function parseDate(v){
 if(!v)return NaN;let s=String(v).trim();if(/^\d{4}-\d\d-\d\d$/.test(s))s+="T00:00:00+03:00";else{s=s.replace(" ","T");if(!/[zZ]|[+-]\d\d:\d\d$/.test(s))s+="+03:00"}const n=new Date(s).getTime();return Number.isFinite(n)?n:NaN;
 }
 function age(ms){if(!Number.isFinite(ms)||ms<0)return"—";const m=Math.floor(ms/60000);if(m<1)return"меньше минуты";if(m<60)return m+" мин.";const h=Math.floor(m/60);return h<48?h+" ч. "+m%60+" мин.":Math.floor(h/24)+" дн."}
-async function json(url){
+ async function json(url){
 const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
  try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(timer)}
 }
@@ -437,7 +439,7 @@ const method=source==="MANUAL"?"Ручная виртуальная":"Автом
 speak(type==="BUY"?`${CFG[asset].name}. ${tfName(tf)}. ${method} покупка. ${qty} штук. Цена ${fmt(price)} рублей.`:`${CFG[asset].name}. ${tfName(tf)}. ${method} продажа. Результат ${pnl>=0?"прибыль":"убыток"} ${money(Math.abs(pnl))}.`);
 }
 function openPosition(b,asset,tf,price,time,source="AUTO"){
-if(source==="AUTO"&&(!S.auto[asset]||!S.enabled[asset][tf]))return false;
+if(source==="AUTO"&&(!S.auto[asset]||S.intervals[tf]!==true||!S.enabled[asset][tf]))return false;
 if(b.position||!(price>0)||b.cash<=0)return false;
 const qty=Math.floor((b.cash*ALLOC)/(price*(1+BUY_COMMISSION)));
 if(qty<1)return false;
@@ -490,7 +492,7 @@ if(now()-(next.time+60000)>MAX_SIGNAL_AGE){b.pendingQueue.shift();changed=true;c
 if(!priceFresh)break;
 b.pendingQueue.shift();changed=true;
 if(p.type==="BUY"){
-if(S.auto[asset]&&S.enabled[asset][tf]&&!b.position)openPosition(b,asset,tf,next.open,next.time,"AUTO");
+if(S.auto[asset]&&S.intervals[tf]===true&&S.enabled[asset][tf]&&!b.position)openPosition(b,asset,tf,next.open,next.time,"AUTO");
 }else if(p.type==="SELL"&&b.position){
 closePosition(b,asset,tf,next.open,next.time,"AUTO");
 }
@@ -664,9 +666,9 @@ if(!CFG[a])return;S.auto[a]=$("auto-"+a).checked;
 if(!S.auto[a])clearQueuedBuys(a);save();render();renderMyAssets();
 }
 function toggleTF(tf){
-tf=+tf;if(!TFS.includes(tf))return;S.enabled[S.asset][tf]=$("tf-"+tf).checked;
-if(!S.enabled[S.asset][tf])clearQueuedBuys(S.asset,tf);
-save();render();$("intervalStatus").textContent="Автоторговля "+tfName(tf)+": "+(S.enabled[S.asset][tf]?"включена":"выключена")+". Открытые позиции продолжают сопровождаться.";
+tf=+tf;if(!TFS.includes(tf))return;const enabled=$("tf-"+tf).checked;S.intervals[tf]=enabled;
+assets.forEach(a=>{S.enabled[a][tf]=enabled;if(!enabled)clearQueuedBuys(a,tf)});
+save();render();$("intervalStatus").textContent="Глобальная автоторговля по интервалу "+tfName(tf)+": "+(enabled?"включена для всех инструментов":"выключена для всех инструментов")+". Открытые позиции продолжают сопровождаться.";
 }
 function changeATR(v){const n=Number(v);if(!ATR_OPTIONS.includes(n))return;S.atrPeriod=n;resetRenkoAll();save();refreshAll()}
 function changeBoxMultiplier(v){const n=Number(v);if(!BOX_MULTIPLIERS.includes(n))return;S.boxMultiplier=n;resetRenkoAll();save();refreshAll()}
@@ -726,8 +728,8 @@ const d=S.data[S.asset],b=book(),p=d.quote?.price;
 $("accountAsset").textContent=S.asset;$("journalAsset").textContent=S.asset;$("accountTF").textContent=tfName(S.tf).toUpperCase();$("signalTF").textContent=tfName(S.tf);
 $("atrSelect").value=String(S.atrPeriod);$("boxMultiplier").value=String(S.boxMultiplier);$("atrValue").textContent=S.atrPeriod;
 $("boxMultiplierValue").textContent=String(S.boxMultiplier).replace(".",",")+" × ATR";$("fixedBoxValue").textContent=b.box>0?fmt(b.box):"—";
-$("tf-"+S.tf).checked=!!S.enabled[S.asset][S.tf];
-$("intervalStatus").textContent="Автоторговля "+tfName(S.tf)+": "+(S.enabled[S.asset][S.tf]?"включена":"выключена")+".";
+TFS.forEach(t=>{$("tf-"+t).checked=S.intervals[t]===true});
+$("intervalStatus").textContent="Глобальные интервалы: "+TFS.filter(t=>S.intervals[t]===true).map(tfName).join(", ")+".";
 document.querySelectorAll("[data-tf]").forEach(x=>x.classList.toggle("active",Number(x.dataset.tf)===S.tf));
 if(Number.isFinite(p)){
 $("price").textContent=fmt(p)+" ₽";$("tradeTime").textContent=d.quote?new Date(d.quote.time).toLocaleString("ru-RU"):"—";
@@ -738,7 +740,7 @@ $("fresh").textContent=fresh?"ДАННЫЕ АКТУАЛЬНЫ":"НЕТ СВЕЖ�
 $("sourceBadge").textContent=d.error?"ОШИБКА":"MOEX ISS";$("sourceBadge").className="badge "+(d.error?"red":"green");
 $("board").textContent=d.board||"—";$("count").textContent=d.bars.length;$("pages").textContent=d.pages||0;
 $("lastBar").textContent=last(d.bars)?new Date(last(d.bars).time).toLocaleString("ru-RU"):"—";$("freshness").textContent=f.age===Infinity?"—":age(f.age);
-$("allowed").textContent=fresh&&S.auto[S.asset]&&S.enabled[S.asset][S.tf]?"ДА":"НЕТ";
+$("allowed").textContent=fresh&&S.auto[S.asset]&&S.intervals[S.tf]===true&&S.enabled[S.asset][S.tf]?"ДА":"НЕТ";
 $("diagnostic").textContent=(d.error||d.dailyError||"Минутная история: "+(d.complete?"загружена":"неполная")+". Дневная история: "+(d.dailyComplete?"загружена":"неполная")+".");
 const dir=renkoDirection(S.asset,S.tf);
 $("renkoState").textContent=dir==="up"?"ВОСХОДЯЩИЙ":dir==="down"?"НИСХОДЯЩИЙ":"ОЖИДАНИЕ";
