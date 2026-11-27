@@ -510,7 +510,7 @@ function selectAnalystTimeframe(id){
  [...$("analystTabs").children].forEach((b,i)=>b.classList.toggle("selected",CONFIG.intervals[i].id===id));
  renderChart("analystChart",id);renderAnalystDetails();
 }
- function renderFrameCards(){
+function renderFrameCards(){
  CONFIG.intervals.forEach(tf=>{
   const a=state.frames[tf.id]?.analysis;
   const signal=$("signal_"+tf.id),detail=$("detail_"+tf.id);
@@ -528,8 +528,7 @@ function selectAnalystTimeframe(id){
    " · "+(acc.units?"ПОЗИЦИЯ ОТКРЫТА":"БЕЗ ПОЗИЦИИ");
  });
 }
-
-function addTradeLog(tf,side,price,units,profit,time){
+ function addTradeLog(tf,side,price,units,profit,time){
  const a=state.accounts[tf];
  a.trades.unshift({time,tf,side,price,units,profit});
  a.trades=a.trades.slice(0,100);
