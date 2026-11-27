@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER GOLD AI 1.2</title>
+<title>SNIPER GOLD AI 1.3</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--text:#e8f0f8;--muted:#8da3b8;--green:#27d69a;--red:#ff6577;--gold:#e8bd55;--blue:#58aaff;--orange:#f2a64a}
 *{box-sizing:border-box}
@@ -50,13 +50,14 @@ input[type=number]{width:120px}
 .hidden{display:none!important}
 footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
 .diag{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px}
+.reportInfo{background:#14283a;border:1px solid #29435b;border-radius:8px;padding:9px;line-height:1.5}
 </style>
 </head>
 <body>
 <header>
  <div class="row">
   <div><h1>SNIPER GOLD AI</h1>
-   <div class="sub">VERSION 1.2 · TGLD · HEIKIN ASHI · VIRTUAL ONLY</div>
+   <div class="sub">VERSION 1.3 · TGLD · HEIKIN ASHI · CHATGPT HANDOFF · VIRTUAL ONLY</div>
   </div>
   <span class="status" id="systemStatus">ЗАПУСК...</span>
  </div>
@@ -131,7 +132,16 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
   <input id="chatInput" style="flex:1;min-width:160px" placeholder="Напиши вопрос аналитику...">
   <button class="primary" id="sendChat">Отправить</button>
  </div>
- <div class="muted">Для полноценного диалога с языковой моделью необходим защищённый AI_ENDPOINT.</div>
+ <div class="reportInfo" style="margin-top:10px">
+  <b>БЕСПЛАТНОЕ ОБСУЖДЕНИЕ С CHATGPT</b>
+  <div class="muted">Приложение подготовит снимок рынка TGLD и откроет ChatGPT с готовым текстом. Отправка сообщения выполняется тобой в ChatGPT. API-ключ и платный сервер не нужны.</div>
+  <div class="row" style="margin-top:9px">
+   <button class="primary" id="chatGptBtn">Обсудить с ChatGPT</button>
+   <button class="gold" id="freshReportBtn">Передать новый отчёт</button>
+  </div>
+  <button id="copyReportBtn" style="width:100%;margin-top:8px">Скопировать отчёт</button>
+  <div class="muted" id="reportStatus">Отчёт будет содержать цену, свежесть, восемь интервалов, виртуальные позиции и последние сделки.</div>
+ </div>
 </section>
 
 <section class="panel">
@@ -155,14 +165,14 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
  <div id="tradeLog" style="margin-top:8px"><div class="muted">Сделок пока нет.</div></div>
 </section>
 <section class="panel"><strong>СОБЫТИЯ И ПРЕДУПРЕЖДЕНИЯ</strong><div id="eventLog" style="margin-top:8px"></div></section>
-<footer>SNIPER GOLD AI 1.2 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
+<footer>SNIPER GOLD AI 1.3 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
 </main>
 
 <script>
 "use strict";
 
-/* AI_ENDPOINT должен указывать на собственный защищённый сервер.
-   API-ключи нельзя помещать в этот HTML-файл. */
+/* Внешний AI_ENDPOINT не используется. ChatGPT открывается отдельно
+   с подготовленным отчётом; ключи API в HTML не хранятся. */
 const AI_ENDPOINT="";
 
 const CONFIG={
@@ -320,8 +330,8 @@ function addChat(role,msg){
 function speak(msg,important=false,force=false){
  state.lastSpeech=msg;
  $("speechText").textContent=msg;
- if(!force&&!state.signals&&important)return;
- if(!state.voice&&!force)return;
+ if(important&&!state.signals)return;
+ if(!important&&!state.voice&&!force)return;
  if(!("speechSynthesis" in window))return;
  try{
   if(important)speechSynthesis.cancel();
@@ -387,8 +397,7 @@ async function fetchMoexCandles(){
  throw new Error("Не удалось загрузить TGLD. "+errors.join("; "));
 }
 
-/* Каждую минуту загружаются последние дни, затем история объединяется.
-   Это не перезаписывает исправные старые данные пустым ответом. */
+/* Последние дни объединяются с историей, исправные старые свечи не стираются. */
 async function refreshMoex(){
  const from=new Date(Date.now()-5*86400000).toISOString().slice(0,10);
  let errors=[];
@@ -497,10 +506,12 @@ function analyzeFrame(candles){
    '<div class="tf-data" id="detail_'+tf.id+'">История загружается</div>';
   card.addEventListener("click",()=>selectTimeframe(tf.id));
   box.appendChild(card);
+
   const b=document.createElement("button");
   b.textContent=tf.label;
   b.addEventListener("click",()=>selectTimeframe(tf.id));
   tabs.appendChild(b);
+
   const ab=document.createElement("button");
   ab.textContent=tf.label;
   ab.addEventListener("click",()=>selectAnalystTimeframe(tf.id));
@@ -573,7 +584,6 @@ function processVirtualTrade(tf,candle){
  const green=candle.haClose>candle.haOpen;
  const red=candle.haClose<candle.haOpen;
 
- /* Сигнал этой свечи больше никогда не обрабатывается повторно. */
  state.lastCandleKey[tf.id]=key;
  a.lastCandleKey=key;
 
@@ -916,8 +926,6 @@ async function refreshData(){
    "Ошибка получения данных: "+e.message+
    ". Последняя сохранённая история не удалена.";
 
-  /* Старые свечи не стираются: их возраст проверяется отдельно.
-     Торговля всё равно блокируется при превышении 20 минут. */
   runAnalysis();
 
  }finally{
@@ -946,7 +954,7 @@ function checkPreCloseWarnings(){
  });
 }
 
-/* Голосовой ввод не влияет на торговый движок. */
+/* Голосовой ввод не управляет торговлей. */
 function stopListening(){
  if(state.recognition){
   try{state.recognition.stop()}catch(e){}
@@ -1022,54 +1030,131 @@ function setAnalystMode(on){
  }
 }
 
-function getMarketContext(){
- const tf=CONFIG.intervals.find(x=>x.id===state.selectedTf);
- const a=state.frames[state.selectedTf]?.analysis;
- return {
-  ticker:"TGLD",
-  interval:tf?.label||state.selectedTf,
-  price:state.lastPrice,
-  fresh:getFreshness().ok,
-  analysis:a?.ready?{
-   trend:a.trend,momentum:a.momentum,
-   support:a.support,resistance:a.resistance,
-   upperWick:a.upperWick,lowerWick:a.lowerWick,
-   lastHaOpen:a.last.haOpen,lastHaClose:a.last.haClose
-  }:null,
-  allIntervals:CONFIG.intervals.map(x=>{
-   const z=state.frames[x.id]?.analysis;
-   return {
-    interval:x.id,
-    trend:z?.ready?z.trend:"недостаточно данных",
-    support:z?.ready?z.support:null,
-    resistance:z?.ready?z.resistance:null
-   };
-  })
- };
+/* Сбор отчёта для передачи в отдельный разговор ChatGPT. */
+function buildChatGPTReport(mode="discussion"){
+ const fresh=getFreshness();
+ const lines=[
+  "Ты — мой аналитик торгового терминала SNIPER GOLD AI. Помоги разобрать TGLD (Т-Капитал Золото).",
+  "Используй только приведённые данные. Не выдумывай котировки, свечи и события. Отделяй факты от предположений. Не обещай прибыль и не давай гарантий. Торговля в приложении исключительно виртуальная.",
+  mode==="update"
+   ?"Это новый снимок рынка. Сравни его с предыдущим отчётом в нашем разговоре и объясни, что изменилось."
+   :"Проанализируй текущую ситуацию и помоги мне разобраться в графике.",
+  "",
+  "ТЕКУЩИЕ ДАННЫЕ",
+  "Инструмент: TGLD · MOEX ISS · только виртуальная торговля.",
+  "Цена последней минутной свечи: "+(Number.isFinite(state.lastPrice)?fmt(state.lastPrice)+" ₽":"нет данных"),
+  "Время последней свечи: "+(fresh.last?clock(fresh.last.time):"нет данных"),
+  "Свежесть котировок: "+(fresh.ok?"допустимая, возраст около "+Math.max(0,Math.round(fresh.age/60000))+" мин":"не подтверждена; новые виртуальные сделки должны быть заблокированы"),
+  "Загружено минутных свечей: "+state.raw.length,
+  "",
+  "АНАЛИЗ ПО ВОСЬМИ ИНТЕРВАЛАМ"
+ ];
+
+ CONFIG.intervals.forEach(tf=>{
+  const a=state.frames[tf.id]?.analysis;
+  const acc=state.accounts[tf.id];
+  if(!a?.ready){
+   lines.push(tf.label+": недостаточно данных для анализа.");
+   return;
+  }
+  const floating=acc.units>0&&Number.isFinite(state.lastPrice)
+   ?(state.lastPrice-acc.entry)*acc.units:0;
+  lines.push(
+   tf.label+
+   ": тренд "+a.trend+
+   "; HA open "+fmt(a.last.haOpen)+
+   "; HA close "+fmt(a.last.haClose)+
+   "; импульс "+fmt(a.momentum,2)+
+   "; поддержка "+fmt(a.support)+" ₽"+
+   "; сопротивление "+fmt(a.resistance)+" ₽"+
+   "; виртуальная позиция "+(acc.units>0?acc.units+" шт., вход "+fmt(acc.entry)+" ₽":"нет")+
+   "; свободные средства "+fmt(acc.cash)+" ₽"+
+   "; реализованный результат "+fmt(acc.realized)+" ₽"+
+   "; плавающий результат "+fmt(floating)+" ₽"
+  );
+ });
+
+ const trades=[];
+ CONFIG.intervals.forEach(tf=>{
+  (state.accounts[tf.id]?.trades||[]).forEach(t=>trades.push(t));
+ });
+ trades.sort((a,b)=>b.time-a.time);
+
+ lines.push("","ПОСЛЕДНИЕ ВИРТУАЛЬНЫЕ СДЕЛКИ");
+ if(!trades.length)lines.push("Сделок в журнале нет.");
+
+ trades.slice(0,12).forEach(t=>{
+  lines.push(
+   clock(t.time)+" · "+t.tf+" · "+
+   (t.side==="BUY"?"ПОКУПКА":"ПРОДАЖА")+
+   " · "+t.units+" шт. · "+fmt(t.price)+" ₽"+
+   (t.side==="SELL"?
+    " · результат "+(t.profit>=0?"+":"")+fmt(t.profit)+" ₽":"")
+  );
+ });
+
+ lines.push(
+  "",
+  "Мой вопрос: оцени согласованность восьми интервалов, направление и силу движения, уровни поддержки и сопротивления, противоречия между таймфреймами и риски. Объясни простым русским языком. Не воспринимай локальные сигналы приложения как гарантированный прогноз. Укажи, каких данных не хватает для более надёжного вывода."
+ );
+
+ /* Ограничиваем длину ссылки, чтобы не создавать чрезмерно длинный URL. */
+ return lines.join("\n").slice(0,5200);
 }
 
-async function askAI(message){
- if(!AI_ENDPOINT){
-  const a=state.frames[state.selectedTf]?.analysis;
-  if(!a?.ready)
-   return "Пока недостаточно подтверждённых свечей для анализа TGLD.";
-  return "На интервале "+state.selectedTf+" наблюдается "+a.trend+
-   ". Импульс последней свечи: "+fmt(a.momentum,2)+
-   ". Поддержка около "+fmt(a.support)+" ₽, сопротивление около "+
-   fmt(a.resistance)+" ₽. Полноценный диалог с языковой моделью требует подключения защищённого AI-сервера.";
+async function copyText(text){
+ if(navigator.clipboard&&window.isSecureContext){
+  await navigator.clipboard.writeText(text);
+  return;
  }
- const response=await fetch(AI_ENDPOINT,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-   message,
-   history:state.conversation.slice(-12),
-   market:getMarketContext()
-  })
- });
- if(!response.ok)throw new Error("AI-сервер HTTP "+response.status);
- const data=await response.json();
- return data.reply||data.answer||"Сервер не вернул текстовый ответ.";
+ const area=document.createElement("textarea");
+ area.value=text;
+ area.style.position="fixed";
+ area.style.left="-9999px";
+ document.body.appendChild(area);
+ area.focus();
+ area.select();
+ const ok=document.execCommand("copy");
+ area.remove();
+ if(!ok)throw new Error("Браузер не разрешил копирование");
+}
+
+async function copyChatGPTReport(mode="update"){
+ try{
+  const report=buildChatGPTReport(mode);
+  await copyText(report);
+  $("reportStatus").textContent="Отчёт скопирован. Открой ChatGPT и вставь его в поле сообщения.";
+  eventMessage("Отчёт TGLD скопирован для ChatGPT.");
+  alert("Отчёт скопирован. Открой ChatGPT, вставь текст в поле сообщения и отправь.");
+ }catch(e){
+  $("reportStatus").textContent="Не удалось скопировать отчёт: "+e.message;
+  alert("Не удалось скопировать автоматически. Попробуй ещё раз или используй кнопку ChatGPT.");
+ }
+}
+
+function openChatGPTReport(mode="discussion"){
+ const report=buildChatGPTReport(mode);
+ const url="https://chatgpt.com/?q="+encodeURIComponent(report);
+ $("reportStatus").textContent="Открывается ChatGPT с подготовленным отчётом. Если текст не появился, нажми «Скопировать отчёт».";
+ eventMessage("Подготовлен отчёт TGLD для ChatGPT.");
+
+ /* Открытие выполняется непосредственно после нажатия пользователем кнопки. */
+ const opened=window.open(url,"_blank");
+ if(!opened){
+  copyChatGPTReport(mode);
+ }
+}
+
+/* Внутренний чат показывает локальную справку, а не выдаёт её за ChatGPT. */
+async function askAI(message){
+ const a=state.frames[state.selectedTf]?.analysis;
+ if(!a?.ready)
+  return "По выбранному интервалу пока недостаточно закрытых свечей. Для содержательного обсуждения передай отчёт в ChatGPT кнопкой ниже.";
+ return "Внутренний режим показывает локальные расчёты, а не отвечает языковой моделью. По выбранному интервалу "+state.selectedTf+
+  " локальный анализ определяет "+a.trend+
+  ", импульс "+fmt(a.momentum,2)+
+  ", поддержку около "+fmt(a.support)+" ₽ и сопротивление около "+fmt(a.resistance)+
+  " ₽. Чтобы обсудить график со мной, нажми «Обсудить с ChatGPT» — приложение подготовит отчёт с данными всех восьми интервалов. Твой вопрос: "+message;
 }
 
 async function sendUserMessage(text){
@@ -1086,7 +1171,7 @@ async function sendUserMessage(text){
   state.lastAnalystMessage=reply;
   if(state.voice)speak(reply,false,true);
  }catch(e){
-  const err="Не удалось получить ответ аналитика: "+e.message;
+  const err="Не удалось обработать сообщение: "+e.message;
   addChat("assistant",err);
   eventMessage(err);
  }finally{
@@ -1158,6 +1243,10 @@ function init(){
   }
  });
 
+ $("chatGptBtn").addEventListener("click",()=>openChatGPTReport("discussion"));
+ $("freshReportBtn").addEventListener("click",()=>openChatGPTReport("update"));
+ $("copyReportBtn").addEventListener("click",()=>copyChatGPTReport("update"));
+
  $("capitalInput").addEventListener("change",saveSettings);
  $("riskInput").addEventListener("change",saveState);
 
@@ -1179,7 +1268,7 @@ function init(){
   if(state.analyst)renderChart("analystChart",state.analystTf);
  });
 
- eventMessage("SNIPER GOLD AI 1.2 запущена. Только виртуальная торговля.");
+ eventMessage("SNIPER GOLD AI 1.3 запущена. Только виртуальная торговля.");
 }
 
 document.addEventListener("DOMContentLoaded",init);
