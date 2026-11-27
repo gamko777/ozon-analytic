@@ -112,6 +112,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
  <div class="row"><strong>ОСНОВНОЙ ГРАФИК HEIKIN ASHI</strong><span class="status" id="chartTf">1 минута</span></div>
  <div class="tabs" id="chartTabs"></div>
  <canvas id="chart" width="900" height="420"></canvas>
+ <div class="muted" id="chartPriceInfo">Линия реальной цены MOEX ISS появится после загрузки котировок.</div>
  <div class="muted">Маркеры показывают виртуальные сделки.</div>
 </section>
 
@@ -119,6 +120,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
  <div class="row"><strong>РАБОЧИЙ ЭКРАН AI-АНАЛИТИКА</strong><span class="status">ТЕ ЖЕ ДАННЫЕ TGLD</span></div>
  <div class="tabs" id="analystTabs"></div>
  <canvas id="analystChart" width="900" height="420"></canvas>
+ <div class="muted" id="analystPriceInfo">Линия реальной цены MOEX ISS появится после загрузки котировок.</div>
  <div id="analystText" style="margin-top:10px">Ожидание данных для анализа.</div>
  <div class="muted" id="analystLevels" style="margin-top:8px">Уровни не рассчитаны.</div>
 </section>
@@ -206,7 +208,9 @@ const state={
  lastAnalystMessage:"",lastAnalystSpeechKey:"",storageErrorNotified:false,
  board:null,lastSuccessAt:0,lastError:"",
  diagnostics:{},timer:null,sessionPrimed:false,
- speechQueue:[],speakingKind:null
+ speechQueue:[],speakingKind:null,
+ speechPlaybackActive:false,speechResumeTimer:null,recognitionRunning:false,
+ lastAssistantSpokenText:"",ignoreSpeechUntil:0
 };
 
 function defaultAccount(capital){
@@ -338,25 +342,10 @@ function addChat(role,msg){
  state.conversation=state.conversation.slice(-16);
 }
 
-/* Раздельная очередь речи: отключение собеседника не отменяет торговые сигналы. */
-function playSpeechQueue(){
- if(state.speakingKind||!state.speechQueue.length||!("speechSynthesis" in window))return;
- const item=state.speechQueue.shift();
- if(item.kind==="assistant"&&!state.voice)return playSpeechQueue();
- if(item.kind==="trade"&&!state.signals)return playSpeechQueue();
- const u=new SpeechSynthesisUtterance(item.text);
- u.lang="ru-RU";u.rate=1;u.pitch=1;
- state.speakingKind=item.kind;
- u.onend=u.onerror=()=>{
-  state.speakingKind=null;
-  playSpeechQueue();
- };
- try{speechSynthesis.speak(u)}catch(e){
-  state.speakingKind=null;
-  diagnostic("speech","Голосовое воспроизведение",false,e.message);
-  playSpeechQueue();
- }
-}
+/* Очередь речи приостанавливает микрофон, чтобы распознавание не ловило голос аналитика. */
+function pauseRecognitionForSpeech(){if(state.recognition&&state.listening&&state.recognitionRunning){state.recognitionRunning=false;try{state.recognition.stop()}catch(e){}}}
+function resumeRecognitionAfterSpeech(){if(!state.voice||!state.listening)return;clearTimeout(state.speechResumeTimer);state.speechResumeTimer=setTimeout(()=>{state.speechResumeTimer=null;if(!state.voice||!state.listening||state.speakingKind||state.speechQueue.length)return;if(state.recognition&&!state.recognitionRunning){try{state.recognition.start();state.recognitionRunning=true}catch(e){}}},1500)}
+function playSpeechQueue(){if(state.speakingKind||!("speechSynthesis" in window))return;while(state.speechQueue.length){const item=state.speechQueue.shift();if(item.kind==="assistant"&&!state.voice)continue;if(item.kind==="trade"&&!state.signals)continue;pauseRecognitionForSpeech();clearTimeout(state.speechResumeTimer);state.speechResumeTimer=null;const u=new SpeechSynthesisUtterance(item.text);u.lang="ru-RU";u.rate=1;u.pitch=1;state.speakingKind=item.kind;state.speechPlaybackActive=true;if(item.kind==="assistant")state.lastAssistantSpokenText=item.text;u.onend=u.onerror=()=>{state.speakingKind=null;state.speechPlaybackActive=false;state.ignoreSpeechUntil=Date.now()+1500;if(state.speechQueue.length)playSpeechQueue();else resumeRecognitionAfterSpeech()};try{speechSynthesis.speak(u)}catch(e){state.speakingKind=null;state.speechPlaybackActive=false;diagnostic("speech","Голосовое воспроизведение",false,e.message);if(state.speechQueue.length)playSpeechQueue();else resumeRecognitionAfterSpeech()}return}if(state.voice&&state.listening)resumeRecognitionAfterSpeech()}
 function queueSpeech(text,kind){
  if(!("speechSynthesis" in window))return;
  state.speechQueue.push({text,kind});
@@ -545,7 +534,7 @@ function toggleAutoTrade(id){
  updateAutoTradeButton(id);saveState();
 }
 function updateAutoTradeButton(id){
- const button=$("auto_"+id);if(!button)return;
+  const button=$("auto_"+id);if(!button)return;
  const enabled=state.autoTrade[id]!==false;
  button.textContent=enabled?"АВТО ВКЛ":"АВТО ВЫКЛ";
  button.className=enabled?"auto-on":"auto-off";
@@ -681,9 +670,11 @@ function renderChart(canvasId,tfId){
   ctx.fillText("Ожидание достаточной истории...",25,55);return;
  }
  const data=rows.slice(-90);
- const min=Math.min(...data.map(c=>c.haLow));
- const max=Math.max(...data.map(c=>c.haHigh));
- const range=max-min||1,pad={l:12,r:65,t:15,b:25};
+ const fresh=getFreshness();
+ const livePrice=Number.isFinite(state.lastPrice)&&state.lastPrice>0?state.lastPrice:null;
+ const values=data.flatMap(c=>[c.haLow,c.haHigh]);if(livePrice!==null)values.push(livePrice);
+ const min=Math.min(...values),max=Math.max(...values);
+ const range=max-min||1,pad={l:12,r:112,t:15,b:25};
  const w=canvas.width-pad.l-pad.r,h=canvas.height-pad.t-pad.b;
  const y=v=>pad.t+(max-v)/range*h;
  ctx.strokeStyle="#203448";ctx.lineWidth=1;
@@ -703,6 +694,9 @@ function renderChart(canvasId,tfId){
   const bottom=y(Math.min(c.haOpen,c.haClose));
   ctx.fillRect(x-cw/2,top,cw,Math.max(1,bottom-top));
  });
+ if(livePrice!==null){const py=y(livePrice),valid=fresh.ok;ctx.save();ctx.strokeStyle=valid?"#e8bd55":"#8da3b8";ctx.fillStyle=valid?"#e8bd55":"#8da3b8";ctx.lineWidth=2;ctx.setLineDash(valid?[]:[7,5]);ctx.beginPath();ctx.moveTo(pad.l,py);ctx.lineTo(canvas.width-pad.r+2,py);ctx.stroke();ctx.setLineDash([]);const label=fmt(livePrice)+" ₽";ctx.font="bold 12px Arial";ctx.fillStyle="#091521";ctx.fillRect(canvas.width-pad.r+5,py-10,103,20);ctx.fillStyle=valid?"#e8bd55":"#b8c4cf";ctx.fillText(label,canvas.width-pad.r+9,py+4);ctx.restore()}
+ const priceInfo=livePrice===null?"Реальная цена MOEX ISS: нет данных":"Цена MOEX ISS: "+fmt(livePrice)+" ₽ · "+(fresh.ok?"актуальность подтверждена":"КОТИРОВКА УСТАРЕЛА")+" · последняя свеча "+clock(fresh.last?.time);
+ const infoId=canvasId==="chart"?"chartPriceInfo":"analystPriceInfo";if($(infoId)){$(infoId).textContent=priceInfo;$(infoId).className="muted "+(fresh.ok?"good":"bad")}
  const account=state.accounts[tfId];
  (account?.markers||[]).forEach(m=>{
   const index=data.findIndex(c=>c.time===m.time);
@@ -774,7 +768,8 @@ function runAnalysis(){
  if(price!==null){
   state.lastPrice=price;
   $("currentPrice").textContent=fmt(price)+" ₽";
-  $("priceTime").textContent="Последняя минутная свеча MOEX ISS: "+clock(state.raw[state.raw.length-1].time);
+  const freshPrice=getFreshness();
+  $("priceTime").textContent="Последняя минутная свеча MOEX ISS: "+clock(state.raw[state.raw.length-1].time)+(freshPrice.ok?" · актуальность подтверждена":" · ДАННЫЕ УСТАРЕЛИ");
  }
  $("dataCount").textContent="Минутных свечей: "+state.raw.length;
 
@@ -789,6 +784,7 @@ function runAnalysis(){
   $("bestTf").textContent="Свежесть котировок не подтверждена.";
   diagnostic("fresh","Свежесть котировок",false,age===null?"нет свечей":"возраст "+age+" минут");
   $("speechText").textContent="Нет подтверждения свежести котировок. Новые виртуальные сделки заблокированы.";
+  renderChart("chart",state.selectedTf);if(state.analyst)renderChart("analystChart",state.analystTf);
   renderResults();return;
  }
 
@@ -885,46 +881,10 @@ async function refreshData(){
 }
 
 /* Голосовой ввод доступен только при включённом режиме собеседника. */
-function stopListening(){
- if(state.recognition){try{state.recognition.stop()}catch(e){}}
- state.listening=false;
- $("micStatus").textContent="МИКРОФОН ВЫКЛ";
-}
-function startListening(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){
-  addChat("assistant","В этом браузере нет поддержки распознавания речи. Можно писать вопросы.");
-  diagnostic("microphone","Распознавание речи",false,"браузер не поддерживает API");
-  return;
- }
- if(!state.recognition){
-  const rec=new SR();
-  rec.lang="ru-RU";rec.continuous=true;rec.interimResults=false;
-  rec.onresult=e=>{
-   const result=e.results[e.results.length-1];
-   if(result.isFinal&&result[0]?.transcript){
-    const words=result[0].transcript.trim();
-    if(words)sendUserMessage(words);
-   }
-  };
-  rec.onerror=e=>{
-   if(e.error!=="no-speech"&&e.error!=="aborted"){
-    eventMessage("Ошибка микрофона: "+e.error);
-    diagnostic("microphone","Микрофон",false,e.error);
-   }
-  };
-  rec.onend=()=>{
-   if(state.voice&&state.listening){
-    setTimeout(()=>{
-     if(state.voice&&state.listening){try{rec.start()}catch(e){}}
-    },700);
-   }
-  };
-  state.recognition=rec;
- }
- state.listening=true;$("micStatus").textContent="СЛУШАЮ";
- try{state.recognition.start()}catch(e){}
-}
+function stopListening(){clearTimeout(state.speechResumeTimer);state.speechResumeTimer=null;if(state.recognition){state.recognitionRunning=false;try{state.recognition.stop()}catch(e){}}state.listening=false;$("micStatus").textContent="МИКРОФОН ВЫКЛ"}
+function normalizeSpeechText(value){return String(value||"").toLowerCase().replace(/ё/g,"е").replace(/[^а-яa-z0-9]+/g,"")}
+function isSpeechEcho(words){const heard=normalizeSpeechText(words),spoken=normalizeSpeechText(state.lastAssistantSpokenText);if(!heard||heard.length<8||!spoken)return false;return spoken.includes(heard)||heard.includes(spoken.slice(0,Math.min(spoken.length,Math.max(12,heard.length))))}
+function startListening(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){addChat("assistant","В этом браузере нет поддержки распознавания речи. Можно писать вопросы.");diagnostic("microphone","Распознавание речи",false,"браузер не поддерживает API");return}if(!state.recognition){const rec=new SR();rec.lang="ru-RU";rec.continuous=true;rec.interimResults=false;rec.onresult=e=>{if(state.speechPlaybackActive||state.speakingKind||Date.now()<state.ignoreSpeechUntil)return;const result=e.results[e.results.length-1];if(result.isFinal&&result[0]?.transcript){const words=result[0].transcript.trim();if(words.length>=3&&!isSpeechEcho(words))sendUserMessage(words)}};rec.onerror=e=>{state.recognitionRunning=false;if(e.error!=="no-speech"&&e.error!=="aborted"){eventMessage("Ошибка микрофона: "+e.error);diagnostic("microphone","Микрофон",false,e.error)}};rec.onend=()=>{state.recognitionRunning=false;if(state.voice&&state.listening&&!state.speechPlaybackActive&&!state.speakingKind&&!state.speechResumeTimer){setTimeout(()=>{if(state.voice&&state.listening&&!state.speechPlaybackActive&&!state.speakingKind&&!state.recognitionRunning){try{rec.start();state.recognitionRunning=true}catch(e){}}},700)}};state.recognition=rec}state.listening=true;$("micStatus").textContent="СЛУШАЮ";if(!state.speechPlaybackActive&&!state.speakingKind&&!state.recognitionRunning){try{state.recognition.start();state.recognitionRunning=true}catch(e){}}}
 
 function setTalkMode(on){
  state.voice=on;
@@ -938,10 +898,10 @@ function setTalkMode(on){
   stopListening();
   /* Удаляем только речь собеседника, торговые сигналы оставляем в очереди. */
   state.speechQueue=state.speechQueue.filter(x=>x.kind!=="assistant");
+  clearTimeout(state.speechResumeTimer);state.speechResumeTimer=null;
   if(state.speakingKind==="assistant"){
    if("speechSynthesis" in window)speechSynthesis.cancel();
-   state.speakingKind=null;
-   playSpeechQueue();
+   state.speakingKind=null;state.speechPlaybackActive=false;playSpeechQueue();
   }
  }
 }
@@ -1031,8 +991,7 @@ async function askAI(message){
   ". Импульс: "+fmt(a.momentum,2)+
   ". Поддержка около "+fmt(a.support)+" ₽, сопротивление около "+
   fmt(a.resistance)+" ₽. Это расчёт по закрытым свечам, не прогноз. "+
-  "Твой вопрос: "+message+
-  ". Для полноценного диалога с языковой моделью можно отдельно открыть ChatGPT через кнопку отчёта.";
+  " Для полноценного диалога с языковой моделью можно отдельно открыть ChatGPT через кнопку отчёта."
 }
 async function sendUserMessage(text){
  const message=String(text||"").trim();
