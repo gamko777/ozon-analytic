@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07111d">
-<title>SNIPER GOLD AI 1.3 FIX</title>
+<title>SNIPER GOLD AI 1.4</title>
 <style>
 :root{--bg:#07111d;--p:#101e2d;--p2:#15283a;--line:#263b50;--text:#e8f0f8;--muted:#8da3b8;--green:#27d69a;--red:#ff6577;--gold:#e8bd55;--blue:#58aaff;--orange:#f2a64a}
 *{box-sizing:border-box}
@@ -61,7 +61,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
 <header>
  <div class="row">
   <div><h1>SNIPER GOLD AI</h1>
-   <div class="sub">VERSION 1.3 FIX · TGLD · HEIKIN ASHI · VIRTUAL ONLY</div>
+   <div class="sub">VERSION 1.4 · TGLD · RENKO / HEIKIN ASHI / CANDLES · VIRTUAL ONLY</div>
   </div>
   <span class="status" id="systemStatus">ЗАПУСК...</span>
  </div>
@@ -109,7 +109,16 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
 </section>
 
 <section class="panel">
- <div class="row"><strong>ОСНОВНОЙ ГРАФИК HEIKIN ASHI</strong><span class="status" id="chartTf">1 минута</span></div>
+ <div class="row"><strong id="mainChartTitle">ОСНОВНОЙ ГРАФИК RENKO</strong><span class="status" id="chartTf">1 минута</span></div>
+ <div class="row" style="margin:8px 0">
+  <label style="font-size:11px;color:var(--muted)">ТИП ГРАФИКА И ИСТОЧНИК ТОРГОВЫХ СИГНАЛОВ<br>
+   <select id="chartMode" style="margin-top:5px;width:100%">
+    <option value="renko">Renko · Wilder ATR(7) × 0,75</option>
+    <option value="heikin">Heikin Ashi</option>
+    <option value="candles">Японские свечи</option>
+   </select>
+  </label>
+ </div>
  <div class="tabs" id="chartTabs"></div>
  <canvas id="chart" width="900" height="420"></canvas>
  <div class="muted" id="chartPriceInfo">Линия реальной цены MOEX ISS появится после загрузки котировок.</div>
@@ -168,7 +177,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:15px}
  <div class="row"><strong>ЖУРНАЛ ВИРТУАЛЬНЫХ СДЕЛОК</strong><button class="smallbtn" id="clearLog">Очистить журнал</button></div>
  <div id="tradeLog" style="margin-top:8px"><div class="muted">Сделок пока нет.</div></div>
 </section>
-<footer>SNIPER GOLD AI 1.3 FIX · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
+<footer>SNIPER GOLD AI 1.4 · ТОЛЬКО ВИРТУАЛЬНАЯ ТОРГОВЛЯ · НЕ ИНВЕСТИЦИОННАЯ РЕКОМЕНДАЦИЯ</footer>
 </main>
 
 <script>
@@ -199,7 +208,7 @@ const CONFIG={
 const $=id=>document.getElementById(id);
 const state={
  raw:[],frames:{},accounts:{},
- selectedTf:"1m",analystTf:"1m",
+ selectedTf:"1m",analystTf:"1m",chartMode:"renko",
  autoTrade:Object.fromEntries(CONFIG.intervals.map(tf=>[tf.id,true])),
  voice:false,analyst:false,signals:true,listening:false,
  lastSpeech:"",lastTradeSpeech:"",lastCandleKey:{},warnedCandle:{},
@@ -278,6 +287,7 @@ function loadSaved(){
  if(saved.capital)$("capitalInput").value=saved.capital;
  if(saved.risk)$("riskInput").value=String(saved.risk);
  if(typeof saved.signals==="boolean")state.signals=saved.signals;
+ if(["renko","heikin","candles"].includes(saved.chartMode))state.chartMode=saved.chartMode;
  const capital=Number($("capitalInput").value)||100000;
  CONFIG.intervals.forEach(tf=>{
   const a=saved.accounts?.[tf.id];
@@ -301,6 +311,7 @@ function saveState(){
   capital:Number($("capitalInput").value)||100000,
   risk:Number($("riskInput").value)||.75,
   signals:state.signals,
+  chartMode:state.chartMode,
   autoTrade:Object.fromEntries(CONFIG.intervals.map(tf=>[tf.id,state.autoTrade[tf.id]!==false])),
   accounts:Object.fromEntries(CONFIG.intervals.map(tf=>{
    const a=state.accounts[tf.id]||defaultAccount(Number($("capitalInput").value)||100000);
@@ -477,6 +488,57 @@ function getFreshness(){
  const age=Date.now()-(last.time+60000);
  return {ok:age<=CONFIG.maxAgeMs&&age>=-60000,age,last};
 }
+function atrWilder(rows,period=7){
+ const tr=[];
+ for(let i=0;i<rows.length;i++){
+  const c=rows[i],prev=rows[i-1];
+  tr.push(prev?Math.max(c.high-c.low,Math.abs(c.high-prev.close),Math.abs(c.low-prev.close)):c.high-c.low);
+ }
+ const out=new Array(rows.length).fill(null);
+ if(rows.length<period)return out;
+ let value=tr.slice(0,period).reduce((a,b)=>a+b,0)/period;
+ out[period-1]=value;
+ for(let i=period;i<rows.length;i++){value=(value*(period-1)+tr[i])/period;out[i]=value;}
+ return out;
+}
+function buildRenko(rows){
+ if(rows.length<CONFIG.minCandles)return [];
+ const atr=atrWilder(rows,7),bricks=[];
+ let direction=0,lastClose=0;
+ rows.forEach((c,i)=>{
+  const values=atr.slice(Math.max(0,i-19),i+1).filter(Number.isFinite);
+  if(!values.length)return;
+  const box=values.reduce((a,b)=>a+b,0)/values.length*.75;
+  if(!Number.isFinite(box)||box<=0)return;
+  if(!lastClose){lastClose=c.close;return;}
+  let guard=0;
+  while(guard++<100){
+   let next=0,open=lastClose,close=lastClose;
+   if(direction===0){
+    if(c.close>=lastClose+box){next=1;close=lastClose+box;}
+    else if(c.close<=lastClose-box){next=-1;close=lastClose-box;}
+   }else if(direction===1){
+    if(c.close>=lastClose+box){next=1;close=lastClose+box;}
+    else if(c.close<=lastClose-2*box){next=-1;open=lastClose-box;close=lastClose-2*box;}
+   }else{
+    if(c.close<=lastClose-box){next=-1;close=lastClose-box;}
+    else if(c.close>=lastClose+2*box){next=1;open=lastClose+box;close=lastClose+2*box;}
+   }
+   if(!next)break;
+   const index=bricks.length;
+   bricks.push({time:c.time,sourceTime:c.time,marketClose:c.close,open,close,high:Math.max(open,close),low:Math.min(open,close),
+    haOpen:open,haClose:close,haHigh:Math.max(open,close),haLow:Math.min(open,close),
+    box,key:String(c.time)+"#"+index,brickIndex:index,direction:next});
+   lastClose=close;direction=next;
+  }
+ });
+ return bricks;
+}
+function buildSignalCandles(rows){
+ if(state.chartMode==="renko")return buildRenko(rows);
+ if(state.chartMode==="heikin")return toHeikinAshi(rows).map(c=>({...c,key:String(c.time)}));
+ return rows.map(c=>({...c,haOpen:c.open,haClose:c.close,haHigh:c.high,haLow:c.low,key:String(c.time)}));
+}
 function analyzeFrame(candles){
  if(candles.length<CONFIG.minCandles)
   return {ready:false,reason:"Недостаточно истории: "+candles.length+" из "+CONFIG.minCandles};
@@ -516,6 +578,21 @@ function renderTimeframes(){
   ab.addEventListener("click",()=>selectAnalystTimeframe(tf.id));atabs.appendChild(ab);
  });
  selectTimeframe(state.selectedTf);selectAnalystTimeframe(state.analystTf);
+}
+function setChartMode(mode){
+ if(!["renko","heikin","candles"].includes(mode)||state.chartMode===mode)return;
+ state.chartMode=mode;
+ const labels={renko:"RENKO · ATR(7) × 0,75",heikin:"HEIKIN ASHI",candles:"ЯПОНСКИЕ СВЕЧИ"};
+ $("mainChartTitle").textContent="ОСНОВНОЙ ГРАФИК "+labels[mode];
+ $("chartMode").
+  value=mode;
+ CONFIG.intervals.forEach(tf=>{
+  const closed=getClosedCandles(aggregateCandles(state.raw,tf.minutes),tf.minutes);
+  const bars=buildSignalCandles(closed),last=bars[bars.length-1];
+  if(last){const key=last.key||String(last.time);state.lastCandleKey[tf.id]=key;state.accounts[tf.id].lastCandleKey=key;}
+ });
+ saveState();runAnalysis();
+ eventMessage("Выбран режим "+labels[mode]+". Новые сигналы учитываются со следующего закрытого бара; задним числом сделки не создаются.");
 }
 function selectTimeframe(id){
  state.selectedTf=id;
@@ -572,7 +649,7 @@ function processVirtualTrade(tf,candle){
  if(!a||!Number.isFinite(candle.close)||candle.close<=0)return;
  if(!getFreshness().ok)return;
 
- const key=String(candle.time);
+ const key=candle.key||String(candle.time);
  if(state.lastCandleKey[tf.id]===key)return;
 
  const green=candle.haClose>candle.haOpen;
@@ -582,8 +659,8 @@ function processVirtualTrade(tf,candle){
 
  if(!green&&!red){saveState();return;}
 
- const price=candle.close;
- const tradeTime=candle.time+tf.minutes*60000;
+ const price=Number.isFinite(candle.marketClose)?candle.marketClose:candle.close;
+ const tradeTime=(candle.sourceTime||candle.time)+tf.minutes*60000;
 
  if(a.units===0&&green&&state.autoTrade[tf.id]!==false){
   const ratio=Number($("riskInput").value)||.75;
@@ -595,7 +672,7 @@ function processVirtualTrade(tf,candle){
   a.cash-=units*price;
   a.units=units;
   a.entry=price;
-  a.markers.push({time:candle.time,type:"BUY",price,units});
+  a.markers.push({time:candle.time,key,type:"BUY",price,units});
   addTradeLog(tf.id,"BUY",price,units,0,tradeTime);
 
   const msg="TGLD. "+tf.label+". BUY. Куплено "+units+
@@ -609,7 +686,7 @@ function processVirtualTrade(tf,candle){
   const profit=(price-a.entry)*units;
   a.cash+=units*price;
   a.realized+=profit;
-  a.markers.push({time:candle.time,type:"SELL",price,units});
+  a.markers.push({time:candle.time,key,type:"SELL",price,units});
   addTradeLog(tf.id,"SELL",price,units,profit,tradeTime);
   a.units=0;
   a.entry=0;
@@ -658,7 +735,7 @@ function renderResults(){
  });
 }
 
-/* Отрисовка графика Heikin Ashi. */
+/* Отрисовка выбранного графика. */
 function renderChart(canvasId,tfId){
  const canvas=$(canvasId);if(!canvas)return;
  const ctx=canvas.getContext("2d");
@@ -699,7 +776,7 @@ function renderChart(canvasId,tfId){
  const infoId=canvasId==="chart"?"chartPriceInfo":"analystPriceInfo";if($(infoId)){$(infoId).textContent=priceInfo;$(infoId).className="muted "+(fresh.ok?"good":"bad")}
  const account=state.accounts[tfId];
  (account?.markers||[]).forEach(m=>{
-  const index=data.findIndex(c=>c.time===m.time);
+  const index=data.findIndex(c=>(c.key||String(c.time))===(m.key||String(m.time)));
   if(index<0)return;
   const x=pad.l+index*step+step/2,yy=y(m.price);
   ctx.fillStyle=m.type==="BUY"?"#58aaff":"#ffbd55";
@@ -753,9 +830,9 @@ function primeTradingSession(){
  CONFIG.intervals.forEach(tf=>{
   const candles=state.frames[tf.id]?.candles||[];
   if(!candles.length)return;
-  const last=candles[candles.length-1];
-  state.lastCandleKey[tf.id]=String(last.time);
-  state.accounts[tf.id].lastCandleKey=String(last.time);
+  const last=candles[candles.length-1],key=last.key||String(last.time);
+  state.lastCandleKey[tf.id]=key;
+  state.accounts[tf.id].lastCandleKey=key;
  });
  state.sessionPrimed=true;
  saveState();
@@ -800,11 +877,11 @@ function runAnalysis(){
   try{
    const aggregated=aggregateCandles(state.raw,tf.minutes);
    const closed=getClosedCandles(aggregated,tf.minutes);
-   const ha=toHeikinAshi(closed);
-   const analysis=analyzeFrame(ha);
-   state.frames[tf.id]={candles:ha,analysis};
+   const signalBars=buildSignalCandles(closed);
+   const analysis=analyzeFrame(signalBars);
+   state.frames[tf.id]={candles:signalBars,analysis};
    diagnostic("tf_"+tf.id,"Интервал "+tf.label,analysis.ready,
-    analysis.ready?"история "+ha.length:analysis.reason);
+    analysis.ready?"история "+signalBars.length:analysis.reason);
    if(analysis.ready)reports.push({tf,analysis});
   }catch(e){
    state.frames[tf.id]={candles:[],analysis:{ready:false,reason:e.message}};
@@ -815,12 +892,22 @@ function runAnalysis(){
 
  /* На первой загрузке после каждого открытия приложения — только синхронизация. */
  if(!state.sessionPrimed)primeTradingSession();
- else reports.forEach(x=>processVirtualTrade(x.tf,x.analysis.last));
+ else reports.forEach(x=>{
+  const bars=state.frames[x.tf.id]?.candles||[],lastKey=state.lastCandleKey[x.tf.id];
+  const index=bars.findIndex(c=>(c.key||String(c.time))===lastKey);
+  if(index>=0)bars.slice(index+1).forEach(c=>processVirtualTrade(x.tf,c));
+  else if(bars.length){
+   const last=bars[bars.length-1],key=last.key||String(last.time);
+   state.lastCandleKey[x.tf.id]=key;state.accounts[x.tf.id].lastCandleKey=key;
+  }
+ });
 
  diagnostic("error_005","Ошибки расчёта интервалов",
   !CONFIG.intervals.some(tf=>state.frames[tf.id]?.analysis?.reason?.includes("ошибка")),
   "проверка выполнена");
- diagnostic("ha","Расчёт Heikin Ashi",reports.length>0,"закрытые свечи проверены");
+ diagnostic("signalChart","Источник торговых сигналов",reports.length>0,
+  state.chartMode==="renko"?"Renko · Wilder ATR(7) × 0,75":
+  state.chartMode==="heikin"?"Heikin Ashi":"Японские свечи");
 
  renderFrameCards();renderResults();
  renderChart("chart",state.selectedTf);
@@ -925,6 +1012,7 @@ function buildChatGPTReport(mode="discussion"){
   mode==="update"?"Это новый снимок рынка. Сравни его с предыдущим отчётом в нашем разговоре и объясни изменения.":"Проанализируй текущую ситуацию и помоги разобраться в графике.",
   "","ТЕКУЩИЕ ДАННЫЕ",
   "Инструмент: TGLD · MOEX ISS · только виртуальная торговля.",
+  "Источник сигналов: "+({renko:"Renko Wilder ATR(7) × 0,75",heikin:"Heikin Ashi",candles:"Японские свечи"}[state.chartMode]),
   "Цена последней минутной свечи: "+(Number.isFinite(state.lastPrice)?fmt(state.lastPrice)+" ₽":"нет данных"),
   "Время последней свечи: "+(fresh.last?clock(fresh.last.time):"нет данных"),
   "Свежесть: "+(fresh.ok?"подтверждена, возраст около "+Math.max(0,Math.round(fresh.age/60000))+" мин":"не подтверждена; новые сделки заблокированы"),
@@ -1037,6 +1125,8 @@ function clearLog(){
 function init(){
  loadSaved();renderTimeframes();renderTradeLog();renderResults();
  $("refreshBtn").addEventListener("click",refreshData);
+ $("chartMode").value=state.chartMode;
+ $("chartMode").addEventListener("change",()=>setChartMode($("chartMode").value));
  $("saveSettings").addEventListener("click",saveSettings);
  $("clearLog").addEventListener("click",clearLog);
  $("repeatBtn").addEventListener("click",()=>{
@@ -1076,7 +1166,8 @@ function init(){
   renderChart("chart",state.selectedTf);
   if(state.analyst)renderChart("analystChart",state.analystTf);
  });
- eventMessage("SNIPER GOLD AI 1.3 FIX запущена. Только виртуальная торговля.");
+ $("mainChartTitle").textContent="ОСНОВНОЙ ГРАФИК "+({renko:"RENKO · ATR(7) × 0,75",heikin:"HEIKIN ASHI",candles:"ЯПОНСКИЕ СВЕЧИ"}[state.chartMode]);
+ eventMessage("SNIPER GOLD AI 1.4 · переключаемые графики · только виртуальная торговля.");
 }
 
 document.addEventListener("DOMContentLoaded",init);
